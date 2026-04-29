@@ -97,10 +97,10 @@ export default async function FeaturesPage({
           {features.map((f, i) => {
             const Icon = iconMap[f.icon] || Users
             return (
-              <ScrollReveal key={f.slug} delay={i * 50}>
+              <ScrollReveal key={f.slug} delay={i * 50} className="flex">
                 <Link
                   href={`/${locale}/features/${f.slug}`}
-                  className="group flex flex-col rounded-2xl border border-white/[0.06] bg-bg-card/60 p-5 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
+                  className="group flex flex-1 flex-col rounded-2xl border border-white/[0.06] bg-bg-card/60 p-5 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
                 >
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
                     <Icon size={20} />
