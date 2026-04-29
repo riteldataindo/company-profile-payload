@@ -3,91 +3,21 @@
 import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
-import { notFound } from 'next/navigation'
+import { notFound, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Calendar, User, ArrowRight } from 'lucide-react'
+import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { blogPosts, getCategories } from '@/lib/blog-data'
 
-const blogPosts = [
-  {
-    id: 1,
-    slug: 'people-counting-retail-sales',
-    title: 'How People Counting Drives Retail Sales by 25%+',
-    excerpt:
-      'Real-time visitor analytics help retailers optimize layout, staffing, and marketing ROI. See the data-driven results.',
-    category: 'Analytics',
-    author: 'Sarah Chen',
-    date: '2026-04-15',
-    featured: true,
-    readTime: 8,
-  },
-  {
-    id: 2,
-    slug: 'mall-tenant-benchmarking',
-    title: 'Mall Tenant Benchmarking: Using CCTV AI for Fair Traffic Allocation',
-    excerpt:
-      'How shopping malls use SmartCounter to objectively measure tenant traffic and settle occupancy disputes.',
-    category: 'Use Cases',
-    author: 'Marcus Lee',
-    date: '2026-04-10',
-    featured: false,
-    readTime: 6,
-  },
-  {
-    id: 3,
-    slug: 'fashion-fitting-room-conversion',
-    title: 'Fashion Retail: Fitting Room Conversion Tracking with AI',
-    excerpt:
-      'Measure which collections drive fitting room visits and understand the path from browsing to trial to purchase.',
-    category: 'Analytics',
-    author: 'Elena Rodriguez',
-    date: '2026-04-05',
-    featured: false,
-    readTime: 7,
-  },
-  {
-    id: 4,
-    slug: 'privacy-compliant-demographics',
-    title: 'Privacy-First Demographic Insights: What CCTV AI Can Tell About Customers',
-    excerpt:
-      'Understand your customer base without collecting personal data. How SmartCounter estimates demographics responsibly.',
-    category: 'Technical',
-    author: 'Rahul Patel',
-    date: '2026-03-30',
-    featured: false,
-    readTime: 9,
-  },
-  {
-    id: 5,
-    slug: 'queue-management-checkout',
-    title: 'Reduce Checkout Wait Times: Real-Time Queue Management',
-    excerpt:
-      'AI-powered queue detection helps retailers prevent abandonments and improve customer satisfaction in real-time.',
-    category: 'Features',
-    author: 'Jennifer Park',
-    date: '2026-03-25',
-    featured: false,
-    readTime: 5,
-  },
-  {
-    id: 6,
-    slug: 'occupancy-safety-compliance',
-    title: 'Occupancy Monitoring for Safety & Compliance: Beyond Manual Counts',
-    excerpt:
-      'CCTV-based real-time occupancy tracking for COVID safety, fire code compliance, and event capacity management.',
-    category: 'Compliance',
-    author: 'Dr. Ahmad Hassan',
-    date: '2026-03-20',
-    featured: false,
-    readTime: 6,
-  },
-]
+const POSTS_PER_PAGE = 6
 
 function BlogClient({ locale }: { locale: string }) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1'))
+  const selectedCategory = searchParams.get('category') || null
 
-  const categories = ['All', ...new Set(blogPosts.map((p) => p.category))]
+  const categories = ['All', ...getCategories()]
 
   const filteredPosts =
     selectedCategory === 'All' || selectedCategory === null
@@ -96,6 +26,27 @@ function BlogClient({ locale }: { locale: string }) {
 
   const featuredPost = blogPosts.find((p) => p.featured)
   const regularPosts = filteredPosts.filter((p) => !p.featured || selectedCategory)
+
+  // Calculate pagination
+  const totalPages = Math.ceil(regularPosts.length / POSTS_PER_PAGE)
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE
+  const endIndex = startIndex + POSTS_PER_PAGE
+  const paginatedPosts = regularPosts.slice(startIndex, endIndex)
+
+  const getCategoryUrl = (category: string | null) => {
+    const params = new URLSearchParams()
+    if (category && category !== 'All') params.set('category', category)
+    params.set('page', '1')
+    const queryString = params.toString()
+    return queryString ? `?${queryString}` : '?page=1'
+  }
+
+  const getPageUrl = (page: number) => {
+    const params = new URLSearchParams()
+    if (selectedCategory) params.set('category', selectedCategory)
+    params.set('page', page.toString())
+    return `?${params.toString()}`
+  }
 
   return (
     <>
@@ -152,9 +103,9 @@ function BlogClient({ locale }: { locale: string }) {
       {/* Category Filter */}
       <div className="mb-12 flex flex-wrap gap-2 px-4">
         {categories.map((cat) => (
-          <button
+          <Link
             key={cat}
-            onClick={() => setSelectedCategory(cat === 'All' ? null : cat)}
+            href={`/${locale}/blog${getCategoryUrl(cat === 'All' ? null : cat)}`}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-250 ${
               (selectedCategory === null && cat === 'All') || selectedCategory === cat
                 ? 'bg-primary-600 text-white'
@@ -162,13 +113,13 @@ function BlogClient({ locale }: { locale: string }) {
             }`}
           >
             {cat}
-          </button>
+          </Link>
         ))}
       </div>
 
       {/* Blog Grid */}
       <div className="px-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
-        {regularPosts.map((post, i) => (
+        {paginatedPosts.map((post, i) => (
           <ScrollReveal key={post.id} delay={i * 50}>
             <Link
               href={`/${locale}/blog/${post.slug}`}
@@ -201,6 +152,36 @@ function BlogClient({ locale }: { locale: string }) {
           </ScrollReveal>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="px-4 flex items-center justify-between">
+          <div className="text-sm text-text-secondary">
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex gap-2">
+            {currentPage > 1 && (
+              <Link
+                href={`/${locale}/blog${getPageUrl(currentPage - 1)}`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20 transition-all"
+              >
+                <ChevronLeft size={16} />
+                <span className="text-sm font-medium">Previous</span>
+              </Link>
+            )}
+
+            {currentPage < totalPages && (
+              <Link
+                href={`/${locale}/blog${getPageUrl(currentPage + 1)}`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20 transition-all"
+              >
+                <span className="text-sm font-medium">Next</span>
+                <ChevronRight size={16} />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }
