@@ -75,7 +75,6 @@ export interface Config {
     'pricing-tiers': PricingTier;
     'faq-items': FaqItem;
     'client-logos': ClientLogo;
-    testimonials: Testimonial;
     'form-submissions': FormSubmission;
     'deployment-locations': DeploymentLocation;
     media: Media;
@@ -95,7 +94,6 @@ export interface Config {
     'pricing-tiers': PricingTiersSelect<false> | PricingTiersSelect<true>;
     'faq-items': FaqItemsSelect<false> | FaqItemsSelect<true>;
     'client-logos': ClientLogosSelect<false> | ClientLogosSelect<true>;
-    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'deployment-locations': DeploymentLocationsSelect<false> | DeploymentLocationsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -481,22 +479,6 @@ export interface ClientLogo {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "testimonials".
- */
-export interface Testimonial {
-  id: number;
-  name: string;
-  role?: string | null;
-  company?: string | null;
-  quote: string;
-  avatar?: (number | null) | Media;
-  sortOrder?: number | null;
-  isVisible?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Form submissions from contact and demo request pages. Export via /api/export-submissions.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -612,10 +594,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'client-logos';
         value: number | ClientLogo;
-      } | null)
-    | ({
-        relationTo: 'testimonials';
-        value: number | Testimonial;
       } | null)
     | ({
         relationTo: 'form-submissions';
@@ -826,21 +804,6 @@ export interface ClientLogosSelect<T extends boolean = true> {
   companyName?: T;
   logo?: T;
   websiteUrl?: T;
-  sortOrder?: T;
-  isVisible?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "testimonials_select".
- */
-export interface TestimonialsSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  company?: T;
-  quote?: T;
-  avatar?: T;
   sortOrder?: T;
   isVisible?: T;
   updatedAt?: T;

@@ -14,7 +14,6 @@ import { UseCases } from '@/collections/UseCases'
 import { PricingTiers } from '@/collections/PricingTiers'
 import { FaqItems } from '@/collections/FaqItems'
 import { ClientLogos } from '@/collections/ClientLogos'
-import { Testimonials } from '@/collections/Testimonials'
 import { FormSubmissions } from '@/collections/FormSubmissions'
 import { DeploymentLocations } from '@/collections/DeploymentLocations'
 import { Media } from '@/collections/Media'
@@ -51,7 +50,6 @@ export default buildConfig({
     PricingTiers,
     FaqItems,
     ClientLogos,
-    Testimonials,
     FormSubmissions,
     DeploymentLocations,
     Media,
