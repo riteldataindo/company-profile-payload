@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ChevronDown, Mail, MessageCircle, Search } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { faqPageSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
 
 const faqData = [
   {
@@ -151,8 +153,15 @@ function AccordionItem({ question, answer, isOpen, onChange }: { question: strin
 async function FaqPageContent({ locale }: { locale: string }) {
   const dict = await getDictionary(locale as Locale)
 
+  const allFaqItems = faqData.flatMap(cat => cat.items.map(item => ({ question: item.q, answer: item.a })))
+
   return (
     <section className="px-4 py-20 md:py-32">
+      <JsonLd data={faqPageSchema(allFaqItems)} />
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'FAQ', url: `/${locale}/faq` },
+      ])} />
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-12 text-center">

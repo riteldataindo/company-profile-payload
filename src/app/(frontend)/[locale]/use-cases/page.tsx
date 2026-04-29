@@ -3,6 +3,9 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { ShoppingBag, Building2, Shirt, Pill, ShoppingCart, Crown, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
@@ -56,10 +59,14 @@ const useCases = [
   },
 ]
 
-export const metadata: Metadata = {
-  title: 'Use Cases — SmartCounter CCTV Analytics for Retail Indonesia',
-  description:
-    'See how SmartCounter people counting works for retail stores, malls, fashion, pharmacies, supermarkets, and luxury retail.',
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  return buildMetadata({
+    title: 'Use Cases — SmartCounter CCTV Analytics for Retail Indonesia',
+    description: 'See how SmartCounter people counting works for retail stores, malls, fashion, pharmacies, supermarkets, and luxury retail.',
+    locale,
+    path: '/use-cases',
+  })
 }
 
 export default async function UseCasesPage({
@@ -74,6 +81,10 @@ export default async function UseCasesPage({
 
   return (
     <section className="px-4 py-20 md:py-32">
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'Use Cases', url: `/${locale}/use-cases` },
+      ])} />
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-16 text-center">

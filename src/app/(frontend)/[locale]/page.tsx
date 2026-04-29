@@ -3,6 +3,9 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 import { Hero } from '@/components/sections/Hero'
 import { PainPoints } from '@/components/sections/PainPoints'
@@ -15,10 +18,18 @@ import { PackagesTeaser } from '@/components/sections/PackagesTeaser'
 import { FaqAccordion } from '@/components/sections/FaqAccordion'
 import { CtaBanner } from '@/components/sections/CtaBanner'
 
-export const metadata: Metadata = {
-  title: 'People Counting & Visitor Analytics Indonesia | SmartCounter',
-  description:
-    "Indonesia's #1 people counting and visitor analytics platform. Turn CCTV cameras into AI-powered analytics — 99.9% accuracy, real-time heatmaps, demographics, and traffic insights for retail stores, malls, and shopping centers. Increase sales up to 40%.",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  return buildMetadata({
+    title: 'People Counting & Visitor Analytics Indonesia | SmartCounter',
+    description: "Indonesia's #1 people counting and visitor analytics platform. Turn CCTV cameras into AI-powered analytics — 99.9% accuracy, real-time heatmaps, demographics, and traffic insights for retail stores, malls, and shopping centers.",
+    locale,
+    path: '',
+  })
 }
 
 export default async function HomePage({
@@ -33,6 +44,9 @@ export default async function HomePage({
 
   return (
     <>
+      <JsonLd data={organizationSchema()} />
+      <JsonLd data={websiteSchema()} />
+      <JsonLd data={softwareApplicationSchema()} />
       <Hero locale={locale} dict={dict} />
       <PainPoints dict={dict} />
       <section className="px-4 py-20 md:py-32">

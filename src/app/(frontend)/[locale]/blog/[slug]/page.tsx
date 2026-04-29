@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { blogPostingSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 const posts: Record<string, { title: string; category: string; date: string; readTime: string; author: string; excerpt: string; content: string[] }> = {
   '5-metrics-every-retail-manager-should-track': {
@@ -34,10 +37,18 @@ export async function generateStaticParams() {
   return Object.keys(posts).map((slug) => ({ slug }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; locale: string }> }): Promise<Metadata> {
+  const { slug, locale } = await params
   const post = posts[slug]
-  return { title: post?.title || 'Blog Post', description: post?.excerpt }
+  return buildMetadata({
+    title: post?.title || 'Blog Post',
+    description: post?.excerpt || 'SmartCounter Blog',
+    locale,
+    path: `/blog/${slug}`,
+    ogType: 'article',
+    publishedTime: post?.date,
+    authors: post ? [post.author] : undefined,
+  })
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
@@ -50,6 +61,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
+      <JsonLd data={blogPostingSchema({
+        title: post.title,
+        excerpt: post.excerpt,
+        slug,
+        locale,
+        author: post.author,
+        datePublished: post.date,
+      })} />
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'Blog', url: `/${locale}/blog` },
+        { name: post.title, url: `/${locale}/blog/${slug}` },
+      ])} />
       <article className="mx-auto max-w-3xl">
         <div className="mb-8">
           <span className="inline-block bg-primary-500/10 text-primary-400 text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-4">{post.category}</span>

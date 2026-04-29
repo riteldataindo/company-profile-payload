@@ -3,6 +3,9 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import {
   ShoppingBag,
@@ -256,15 +259,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
-  _parent: any,
 ): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const useCase = useCasesData[slug]
-
-  return {
+  return buildMetadata({
     title: `${useCase?.name || 'Use Case'} — SmartCounter CCTV Analytics`,
     description: useCase?.subtitle || 'Learn how SmartCounter helps retailers',
-  }
+    locale,
+    path: `/use-cases/${slug}`,
+  })
 }
 
 export default async function UseCaseDetailPage({
@@ -289,6 +292,11 @@ export default async function UseCaseDetailPage({
 
   return (
     <>
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'Use Cases', url: `/${locale}/use-cases` },
+        { name: useCase.name, url: `/${locale}/use-cases/${slug}` },
+      ])} />
       {/* Hero Section */}
       <section className="relative flex min-h-[60vh] items-center overflow-hidden px-4 pt-24 pb-12">
         <div

@@ -3,6 +3,9 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { serviceSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import {
   Users, Flame, ScanFace, Timer, LayoutGrid, ArrowRightLeft,
@@ -303,12 +306,14 @@ export async function generateStaticParams() {
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
 ): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const feature = featuresData[slug]
-  return {
+  return buildMetadata({
     title: `${feature?.name || 'Feature'} — People Counting & CCTV AI`,
     description: feature?.subtitle || 'SmartCounter AI-powered visitor analytics feature',
-  }
+    locale,
+    path: `/features/${slug}`,
+  })
 }
 
 export default async function FeatureDetailPage({
@@ -327,6 +332,12 @@ export default async function FeatureDetailPage({
 
   return (
     <>
+      <JsonLd data={serviceSchema({ name: feature.name, description: feature.subtitle, slug, locale })} />
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'Features', url: `/${locale}/features` },
+        { name: feature.name, url: `/${locale}/features/${slug}` },
+      ])} />
       <section className="relative flex min-h-[60vh] items-center overflow-hidden px-4 pt-24 pb-12">
         <div
           className="pointer-events-none absolute top-[20%] left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full"

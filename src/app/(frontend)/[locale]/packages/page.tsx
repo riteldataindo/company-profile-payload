@@ -3,14 +3,21 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { Check, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 
-export const metadata: Metadata = {
-  title: 'Packages — SmartCounter CCTV Analytics Pricing',
-  description:
-    'Choose the right SmartCounter package for your retail business. Basic, Add-On, or Premium people counting plans.',
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  return buildMetadata({
+    title: 'Packages — SmartCounter CCTV Analytics Pricing',
+    description: 'Choose the right SmartCounter package for your retail business. Basic, Add-On, or Premium people counting plans.',
+    locale,
+    path: '/packages',
+  })
 }
 
 export default async function PackagesPage({

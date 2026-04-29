@@ -3,6 +3,9 @@ import { isValidLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { buildMetadata } from '@/lib/seo/metadata'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
+import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { Sparkles, Users, Flame, ScanFace, Timer, LayoutGrid, ArrowRightLeft, Percent, Gauge, UserCog, ListOrdered, Route, Download, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
@@ -38,10 +41,18 @@ const features = [
   { icon: 'download', name: 'In-Store Routes', desc: 'Map visitor journey paths inside your store. Understand entry-to-exit movement, identify high-traffic corridors, and optimize product placement.', slug: 'in-store-routes' },
 ]
 
-export const metadata: Metadata = {
-  title: 'People Counting & CCTV AI Features',
-  description:
-    'Explore 12+ AI-powered visitor analytics features: visitor traffic, heatmaps, demographics, dwell time, occupancy, queuing, in-store routes, and more for retail stores and malls.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  return buildMetadata({
+    title: 'People Counting & CCTV AI Features',
+    description: 'Explore 12+ AI-powered visitor analytics features: visitor traffic, heatmaps, demographics, dwell time, occupancy, queuing, in-store routes, and more for retail stores and malls.',
+    locale,
+    path: '/features',
+  })
 }
 
 export default async function FeaturesPage({
@@ -56,6 +67,10 @@ export default async function FeaturesPage({
 
   return (
     <section className="px-4 py-20 md:py-32">
+      <JsonLd data={breadcrumbSchema([
+        { name: 'Home', url: `/${locale}` },
+        { name: 'Features', url: `/${locale}/features` },
+      ])} />
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-16 text-center">
