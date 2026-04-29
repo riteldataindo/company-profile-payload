@@ -34,14 +34,21 @@ export async function generateMetadata({
     })
   }
 
+  const meta = (post as any).meta || {}
+  const seoTitle = meta.title || post.title
+  const seoDesc = meta.description || (post as any).excerpt || ''
+  const seoImage = meta.image?.url || undefined
+  const authorName = (post as any).author?.name || (post as any).author || ''
+
   return buildMetadata({
-    title: post.title,
-    description: (post as any).excerpt || (post as any).shortDescription || '',
+    title: seoTitle,
+    description: seoDesc,
     locale,
     path: `/blog/${slug}`,
     ogType: 'article',
+    ogImage: seoImage,
     publishedTime: (post as any).publishedAt || (post as any).date || '',
-    authors: (post as any).author?.name ? [(post as any).author.name] : [(post as any).author || ''],
+    authors: authorName ? [authorName] : [],
   })
 }
 

@@ -6,7 +6,6 @@ import sharp from 'sharp'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { Pages } from '@/collections/Pages'
 import { BlogPosts } from '@/collections/BlogPosts'
 import { BlogCategories } from '@/collections/BlogCategories'
 import { Features } from '@/collections/Features'
@@ -42,7 +41,6 @@ export default buildConfig({
     style: path.resolve(dirname, 'admin/custom.css'),
   },
   collections: [
-    Pages,
     BlogPosts,
     BlogCategories,
     Features,
@@ -69,7 +67,7 @@ export default buildConfig({
   sharp,
   plugins: [
     seoPlugin({
-      collections: ['pages', 'blog-posts', 'features', 'use-cases'],
+      collections: ['blog-posts', 'features', 'use-cases'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) => `${doc?.title || 'SmartCounter'} — AI People Counting`,
       generateDescription: ({ doc }) => doc?.excerpt || doc?.shortDescription || '',

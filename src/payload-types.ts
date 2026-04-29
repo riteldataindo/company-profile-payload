@@ -67,7 +67,6 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    pages: Page;
     'blog-posts': BlogPost;
     'blog-categories': BlogCategory;
     features: Feature;
@@ -86,7 +85,6 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    pages: PagesSelect<false> | PagesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     features: FeaturesSelect<false> | FeaturesSelect<true>;
@@ -152,13 +150,13 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "blog-posts".
  */
-export interface Page {
+export interface BlogPost {
   id: number;
   title: string;
   slug: string;
-  content?: {
+  content: {
     root: {
       type: string;
       children: {
@@ -172,7 +170,19 @@ export interface Page {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
+  excerpt?: string | null;
+  featuredImage?: (number | null) | Media;
+  category?: (number | null) | BlogCategory;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  author?: (number | null) | User;
+  publishedAt?: string | null;
+  readingTime?: number | null;
   status?: ('draft' | 'published') | null;
   meta?: {
     title?: string | null;
@@ -238,53 +248,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
- */
-export interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  excerpt?: string | null;
-  featuredImage?: (number | null) | Media;
-  category?: (number | null) | BlogCategory;
-  tags?:
-    | {
-        tag?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  author?: (number | null) | User;
-  publishedAt?: string | null;
-  readingTime?: number | null;
-  status?: ('draft' | 'published') | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -564,10 +527,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'pages';
-        value: number | Page;
-      } | null)
-    | ({
         relationTo: 'blog-posts';
         value: number | BlogPost;
       } | null)
@@ -652,25 +611,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  content?: T;
-  status?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

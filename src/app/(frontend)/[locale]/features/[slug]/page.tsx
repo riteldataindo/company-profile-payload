@@ -317,11 +317,13 @@ export async function generateMetadata(
   const { slug, locale } = await params
   const payloadFeature = await getFeature(slug, locale)
   const feature = (payloadFeature || fallbackFeaturesData[slug]) as any
+  const meta = feature?.meta || {}
   return buildMetadata({
-    title: `${feature?.name || 'Feature'} — People Counting & CCTV AI`,
-    description: feature?.subtitle || feature?.shortDescription || 'SmartCounter AI-powered visitor analytics feature',
+    title: meta.title || `${feature?.name || 'Feature'} — People Counting & CCTV AI`,
+    description: meta.description || feature?.subtitle || feature?.shortDescription || 'SmartCounter AI-powered visitor analytics feature',
     locale,
     path: `/features/${slug}`,
+    ogImage: meta.image?.url || undefined,
   })
 }
 
