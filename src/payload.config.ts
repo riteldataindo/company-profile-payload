@@ -12,15 +12,12 @@ import { Features } from '@/collections/Features'
 import { UseCases } from '@/collections/UseCases'
 import { PricingTiers } from '@/collections/PricingTiers'
 import { FaqItems } from '@/collections/FaqItems'
-import { ClientLogos } from '@/collections/ClientLogos'
 import { FormSubmissions } from '@/collections/FormSubmissions'
 import { DeploymentLocations } from '@/collections/DeploymentLocations'
 import { Media } from '@/collections/Media'
 import { Users } from '@/collections/Users'
 
 import { SiteSettings } from '@/globals/SiteSettings'
-import { Navigation } from '@/globals/Navigation'
-import { Homepage } from '@/globals/Homepage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -47,13 +44,12 @@ export default buildConfig({
     UseCases,
     PricingTiers,
     FaqItems,
-    ClientLogos,
     FormSubmissions,
     DeploymentLocations,
     Media,
     Users,
   ],
-  globals: [SiteSettings, Navigation, Homepage],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'default-secret',
   typescript: {

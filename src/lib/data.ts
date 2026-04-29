@@ -232,32 +232,3 @@ export async function getSiteSettings(locale = DEFAULT_LOCALE) {
   }
 }
 
-// Homepage Global
-export async function getHomepage(locale = DEFAULT_LOCALE) {
-  try {
-    const payload = await getPayload()
-    const result = await payload.findGlobal({
-      slug: 'homepage',
-      locale,
-    })
-    return result || null
-  } catch (error) {
-    console.error('Error fetching homepage:', error)
-    return null
-  }
-}
-
-// Navigation Global
-export async function getNavigation(locale = DEFAULT_LOCALE) {
-  try {
-    const payload = await getPayload()
-    const result = await payload.findGlobal({
-      slug: 'navigation',
-      locale,
-    })
-    return result || null
-  } catch (error) {
-    console.error('Error fetching navigation:', error)
-    return null
-  }
-}

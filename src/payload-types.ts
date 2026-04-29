@@ -73,7 +73,6 @@ export interface Config {
     'use-cases': UseCase;
     'pricing-tiers': PricingTier;
     'faq-items': FaqItem;
-    'client-logos': ClientLogo;
     'form-submissions': FormSubmission;
     'deployment-locations': DeploymentLocation;
     media: Media;
@@ -91,7 +90,6 @@ export interface Config {
     'use-cases': UseCasesSelect<false> | UseCasesSelect<true>;
     'pricing-tiers': PricingTiersSelect<false> | PricingTiersSelect<true>;
     'faq-items': FaqItemsSelect<false> | FaqItemsSelect<true>;
-    'client-logos': ClientLogosSelect<false> | ClientLogosSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'deployment-locations': DeploymentLocationsSelect<false> | DeploymentLocationsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -112,13 +110,9 @@ export interface Config {
     | ('en' | 'id' | 'ko' | 'ja' | 'zh')[];
   globals: {
     'site-settings': SiteSetting;
-    navigation: Navigation;
-    homepage: Homepage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-    navigation: NavigationSelect<false> | NavigationSelect<true>;
-    homepage: HomepageSelect<false> | HomepageSelect<true>;
   };
   locale: 'en' | 'id' | 'ko' | 'ja' | 'zh';
   widgets: {
@@ -428,20 +422,6 @@ export interface FaqItem {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "client-logos".
- */
-export interface ClientLogo {
-  id: number;
-  companyName: string;
-  logo: number | Media;
-  websiteUrl?: string | null;
-  sortOrder?: number | null;
-  isVisible?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Form submissions from contact and demo request pages. Export via /api/export-submissions.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -549,10 +529,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'faq-items';
         value: number | FaqItem;
-      } | null)
-    | ({
-        relationTo: 'client-logos';
-        value: number | ClientLogo;
       } | null)
     | ({
         relationTo: 'form-submissions';
@@ -738,19 +714,6 @@ export interface FaqItemsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "client-logos_select".
- */
-export interface ClientLogosSelect<T extends boolean = true> {
-  companyName?: T;
-  logo?: T;
-  websiteUrl?: T;
-  sortOrder?: T;
-  isVisible?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions_select".
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
@@ -929,66 +892,6 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigation".
- */
-export interface Navigation {
-  id: number;
-  mainMenu?:
-    | {
-        label: string;
-        link: string;
-        id?: string | null;
-      }[]
-    | null;
-  footerMenu?: {
-    product?:
-      | {
-          label: string;
-          link: string;
-          id?: string | null;
-        }[]
-      | null;
-    resources?:
-      | {
-          label: string;
-          link: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homepage".
- */
-export interface Homepage {
-  id: number;
-  hero?: {
-    title?: string | null;
-    subtitle?: string | null;
-    ctaPrimary?: {
-      text?: string | null;
-      link?: string | null;
-    };
-    ctaSecondary?: {
-      text?: string | null;
-      link?: string | null;
-    };
-  };
-  statsBar?:
-    | {
-        value: string;
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -1010,74 +913,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
       };
   googleAnalyticsId?: T;
   defaultOgImage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "navigation_select".
- */
-export interface NavigationSelect<T extends boolean = true> {
-  mainMenu?:
-    | T
-    | {
-        label?: T;
-        link?: T;
-        id?: T;
-      };
-  footerMenu?:
-    | T
-    | {
-        product?:
-          | T
-          | {
-              label?: T;
-              link?: T;
-              id?: T;
-            };
-        resources?:
-          | T
-          | {
-              label?: T;
-              link?: T;
-              id?: T;
-            };
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homepage_select".
- */
-export interface HomepageSelect<T extends boolean = true> {
-  hero?:
-    | T
-    | {
-        title?: T;
-        subtitle?: T;
-        ctaPrimary?:
-          | T
-          | {
-              text?: T;
-              link?: T;
-            };
-        ctaSecondary?:
-          | T
-          | {
-              text?: T;
-              link?: T;
-            };
-      };
-  statsBar?:
-    | T
-    | {
-        value?: T;
-        label?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

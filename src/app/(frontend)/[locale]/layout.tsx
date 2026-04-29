@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
-import { getSiteSettings, getNavigation } from '@/lib/data'
+import { getSiteSettings } from '@/lib/data'
 
 export default async function FrontendLayout({
   children,
@@ -19,17 +19,16 @@ export default async function FrontendLayout({
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [dict, siteSettings, navigation] = await Promise.all([
+  const [dict, siteSettings] = await Promise.all([
     getDictionary(locale as Locale),
     getSiteSettings(locale),
-    getNavigation(locale),
   ])
 
   return (
     <ThemeProvider>
-      <Navbar locale={locale} dict={dict} navigation={navigation} />
+      <Navbar locale={locale} dict={dict} />
       <main>{children}</main>
-      <Footer locale={locale} dict={dict} siteSettings={siteSettings} navigation={navigation} />
+      <Footer locale={locale} dict={dict} siteSettings={siteSettings} />
       <WhatsAppFloat dict={dict} siteSettings={siteSettings} />
     </ThemeProvider>
   )

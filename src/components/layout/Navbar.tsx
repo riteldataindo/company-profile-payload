@@ -9,10 +9,9 @@ import { LocaleSwitcher } from './LocaleSwitcher'
 interface NavbarProps {
   locale: string
   dict: Record<string, any>
-  navigation?: any
 }
 
-const fallbackNavItems = [
+const navItems = [
   { key: 'features', href: '/features' },
   { key: 'useCases', href: '/use-cases' },
   { key: 'packages', href: '/packages' },
@@ -21,7 +20,7 @@ const fallbackNavItems = [
   { key: 'contact', href: '/contact' },
 ]
 
-export function Navbar({ locale, dict, navigation }: NavbarProps) {
+export function Navbar({ locale, dict }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -30,10 +29,6 @@ export function Navbar({ locale, dict, navigation }: NavbarProps) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  const navItems = navigation?.mainMenu?.length > 0
-    ? navigation.mainMenu.map((item: any) => ({ label: item.label, href: item.link }))
-    : fallbackNavItems.map((item) => ({ label: dict.nav[item.key], href: item.href }))
 
   return (
     <nav
@@ -54,13 +49,13 @@ export function Navbar({ locale, dict, navigation }: NavbarProps) {
         </Link>
 
         <ul className="hidden gap-7 md:flex">
-          {navItems.map((item: any, i: number) => (
-            <li key={i}>
+          {navItems.map((item) => (
+            <li key={item.key}>
               <Link
                 href={`/${locale}${item.href}`}
                 className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
               >
-                {item.label}
+                {dict.nav[item.key]}
               </Link>
             </li>
           ))}
@@ -87,14 +82,14 @@ export function Navbar({ locale, dict, navigation }: NavbarProps) {
 
       {menuOpen && (
         <div className="mt-4 flex flex-col gap-2 rounded-xl border border-border-subtle bg-bg-surface p-4 md:hidden">
-          {navItems.map((item: any, i: number) => (
+          {navItems.map((item) => (
             <Link
-              key={i}
+              key={item.key}
               href={`/${locale}${item.href}`}
               className="rounded-lg px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-card hover:text-text-primary"
               onClick={() => setMenuOpen(false)}
             >
-              {item.label}
+              {dict.nav[item.key]}
             </Link>
           ))}
         </div>
