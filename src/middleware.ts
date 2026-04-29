@@ -24,10 +24,7 @@ export function middleware(request: NextRequest) {
   if (pathnameHasLocale) return NextResponse.next()
 
   const cookieLocale = request.cookies.get('preferred-locale')?.value
-  const acceptLang = request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
-  const detected = locales.find((l) => l === cookieLocale) ||
-    locales.find((l) => l === acceptLang) ||
-    defaultLocale
+  const detected = locales.find((l) => l === cookieLocale) || defaultLocale
 
   request.nextUrl.pathname = `/${detected}${pathname}`
   return NextResponse.redirect(request.nextUrl)
