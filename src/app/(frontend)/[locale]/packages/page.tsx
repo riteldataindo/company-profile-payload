@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { Check, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { getPricingTiers } from '@/lib/data'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -29,8 +30,17 @@ export default async function PackagesPage({
   if (!isValidLocale(locale)) notFound()
 
   const dict = await getDictionary(locale as Locale)
+  const payloadPricingTiers = await getPricingTiers(locale)
 
-  const packages = [
+  // Use Payload pricing tiers if available, fall back to hardcoded
+  const packages = payloadPricingTiers.length > 0
+    ? payloadPricingTiers.map((tier: any) => ({
+        name: tier.name,
+        description: tier.description,
+        badge: tier.isFeatured ? 'Featured' : null,
+        features: tier.features?.map((f: any) => f.featureText) || [],
+      }))
+    : [
     {
       name: 'Basic',
       description: 'Essential people counting for single locations',
@@ -152,7 +162,7 @@ export default async function PackagesPage({
                   <div className="mb-6 flex-1">
                     <p className="text-xs uppercase tracking-wider text-text-muted mb-4">Features Included:</p>
                     <ul className="space-y-3">
-                      {pkg.features.map((feature, j) => (
+                      {pkg.features.map((feature: string, j: number) => (
                         <li key={j} className={`flex items-start gap-2 text-sm ${feature.startsWith('Everything') ? 'font-semibold text-primary-400' : ''}`}>
                           {!feature.startsWith('Everything') && <Check size={16} className="mt-0.5 flex-shrink-0 text-primary-500" />}
                           <span>{feature}</span>

@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { ShoppingBag, Building2, Shirt, Pill, ShoppingCart, Crown, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { getUseCases } from '@/lib/data'
 import type { ComponentType } from 'react'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
@@ -20,7 +21,7 @@ const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   crown: Crown,
 }
 
-const useCases = [
+const fallbackUseCases = [
   {
     icon: 'shopping-bag',
     name: 'Retail Store',
@@ -78,6 +79,17 @@ export default async function UseCasesPage({
   if (!isValidLocale(locale)) notFound()
 
   const dict = await getDictionary(locale as Locale)
+  const payloadUseCases = await getUseCases(locale)
+
+  // Use Payload use cases if available, fall back to hardcoded
+  const useCases = payloadUseCases.length > 0
+    ? payloadUseCases.map((uc: any) => ({
+        icon: uc.icon || 'shopping-bag',
+        name: uc.industryName,
+        desc: uc.shortDescription,
+        slug: uc.slug,
+      }))
+    : fallbackUseCases
 
   return (
     <section className="px-4 py-20 md:py-32">
@@ -100,7 +112,7 @@ export default async function UseCasesPage({
 
         {/* Use Cases Grid */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {useCases.map((uc, i) => {
+          {useCases.map((uc: any, i: number) => {
             const Icon = iconMap[uc.icon] || ShoppingBag
             return (
               <ScrollReveal key={uc.slug} delay={i * 80}>

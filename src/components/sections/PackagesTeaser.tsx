@@ -13,9 +13,21 @@ const packageMeta = [
 interface PackagesTeaserProps {
   locale: string
   dict: Record<string, any>
+  pricingTiers?: any[]
 }
 
-export function PackagesTeaser({ locale, dict }: PackagesTeaserProps) {
+export function PackagesTeaser({ locale, dict, pricingTiers: payloadPricingTiers }: PackagesTeaserProps) {
+  // Use Payload pricing tiers if provided, otherwise use dict items
+  const packages = payloadPricingTiers && payloadPricingTiers.length > 0
+    ? payloadPricingTiers.map((tier: any) => ({
+        name: tier.name,
+        desc: tier.description,
+        badge: tier.isFeatured ? 'Featured' : null,
+        features: tier.features?.map((f: any) => f.featureText) || [],
+        featured: tier.isFeatured,
+      }))
+    : (dict.packages?.items || [])
+
   return (
     <section className="px-4 py-20 md:py-32" id="packages">
       <div className="mx-auto max-w-7xl">
@@ -28,13 +40,13 @@ export function PackagesTeaser({ locale, dict }: PackagesTeaserProps) {
           </ScrollReveal>
         </div>
         <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-5 md:grid-cols-3">
-          {(dict.packages.items || []).map((pkg: any, i: number) => {
-            const meta = packageMeta[i] || { featured: false }
+          {packages.map((pkg: any, i: number) => {
+            const isFeatured = pkg.featured || packageMeta[i]?.featured || false
             return (
             <ScrollReveal key={i} delay={i * 100}>
               <div
                 className={`relative flex h-full flex-col rounded-2xl border p-8 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 ${
-                  meta.featured
+                  isFeatured
                     ? 'border-primary-600 bg-primary-600/5 shadow-[0_0_40px_rgba(239,68,68,0.25)]'
                     : 'border-white/[0.06] bg-bg-card/60 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                 }`}
@@ -47,8 +59,8 @@ export function PackagesTeaser({ locale, dict }: PackagesTeaserProps) {
                 <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-text-muted">{pkg.name}</div>
                 <p className="mb-6 border-b border-border-subtle pb-4 text-sm text-text-secondary">{pkg.desc}</p>
                 <ul className="mb-8 flex flex-1 flex-col gap-3">
-                  {(pkg.features || []).map((f: string) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm">
+                  {(pkg.features || []).map((f: string, idx: number) => (
+                    <li key={idx} className="flex items-center gap-2.5 text-sm">
                       <Check size={16} className="shrink-0 text-primary-500" />
                       {f}
                     </li>
@@ -57,7 +69,7 @@ export function PackagesTeaser({ locale, dict }: PackagesTeaserProps) {
                 <Link
                   href={`/${locale}/contact`}
                   className={`mt-auto w-full rounded-lg py-3 text-center text-sm font-semibold transition-all ${
-                    pkg.featured
+                    isFeatured
                       ? 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                       : 'border border-primary-600 text-primary-500 hover:bg-primary-600/10'
                   }`}

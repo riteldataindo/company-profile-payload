@@ -6,6 +6,7 @@ import { buildMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { BlogClient } from '@/components/blog/BlogClient'
+import { getBlogPosts, getBlogCategories } from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -35,14 +36,34 @@ export default async function BlogPage({
   const page = parseInt(sp.page || '1')
   const category = sp.category || null
 
+  // Fetch posts and categories from Payload
+  const postsResult = await getBlogPosts({
+    page,
+    limit: 6,
+    locale,
+    category: category || undefined,
+  })
+
+  const categories = await getBlogCategories(locale)
+
   return (
     <section className="px-0 py-20 md:py-32">
-      <JsonLd data={breadcrumbSchema([
-        { name: 'Home', url: `/${locale}` },
-        { name: 'Blog', url: `/${locale}/blog` },
-      ])} />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: 'Home', url: `/${locale}` },
+          { name: 'Blog', url: `/${locale}/blog` },
+        ])}
+      />
       <div className="mx-auto max-w-7xl">
-        <BlogClient locale={locale} page={page} category={category} />
+        <BlogClient
+          locale={locale}
+          page={page}
+          category={category}
+          posts={postsResult.docs}
+          categories={categories}
+          totalPages={postsResult.totalPages}
+          totalDocs={postsResult.totalDocs}
+        />
       </div>
     </section>
   )

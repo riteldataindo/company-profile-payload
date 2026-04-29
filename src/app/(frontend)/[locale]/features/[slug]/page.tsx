@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { serviceSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { extractText } from '@/lib/richtext'
 import Link from 'next/link'
 import {
   Users, Flame, ScanFace, Timer, LayoutGrid, ArrowRightLeft,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import { FeatureMockup } from '@/components/sections/FeatureMockup'
+import { getFeature, getFeatures } from '@/lib/data'
 import type { ComponentType } from 'react'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
@@ -23,7 +25,7 @@ const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   'list-ordered': ListOrdered, route: Route, download: Download,
 }
 
-const featuresData: Record<string, {
+const fallbackFeaturesData: Record<string, {
   icon: string
   name: string
   title: string
@@ -300,17 +302,24 @@ const featuresData: Record<string, {
 }
 
 export async function generateStaticParams() {
-  return Object.keys(featuresData).map((slug) => ({ slug }))
+  try {
+    const features = await getFeatures('en')
+    return features.map((f: any) => ({ slug: f.slug }))
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return Object.keys(fallbackFeaturesData).map((slug) => ({ slug }))
+  }
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
 ): Promise<Metadata> {
   const { slug, locale } = await params
-  const feature = featuresData[slug]
+  const payloadFeature = await getFeature(slug, locale)
+  const feature = (payloadFeature || fallbackFeaturesData[slug]) as any
   return buildMetadata({
     title: `${feature?.name || 'Feature'} — People Counting & CCTV AI`,
-    description: feature?.subtitle || 'SmartCounter AI-powered visitor analytics feature',
+    description: feature?.subtitle || feature?.shortDescription || 'SmartCounter AI-powered visitor analytics feature',
     locale,
     path: `/features/${slug}`,
   })
@@ -324,11 +333,29 @@ export default async function FeatureDetailPage({
   const { slug, locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const feature = featuresData[slug]
-  if (!feature) notFound()
+  const payloadFeature = await getFeature(slug, locale)
+  const fallbackFeature = fallbackFeaturesData[slug]
+
+  // Merge Payload data with fallback data for missing fields
+  const feature = {
+    ...fallbackFeature,
+    ...payloadFeature,
+    icon: payloadFeature?.icon || fallbackFeature?.icon || 'users',
+    name: payloadFeature?.name || fallbackFeature?.name,
+    title: payloadFeature?.name || fallbackFeature?.title,
+    subtitle: (payloadFeature as any)?.shortDescription || fallbackFeature?.subtitle,
+    description: extractText((payloadFeature as any)?.longDescription) || fallbackFeature?.description,
+  } as any
+
+  if (!feature || !feature.name) notFound()
 
   const dict = await getDictionary(locale as Locale)
   const Icon = iconMap[feature.icon] || Users
+
+  // Get benefits and useCases from fallback (these aren't in Payload schema yet)
+  const benefits = fallbackFeature?.benefits || []
+  const useCases = fallbackFeature?.useCases || []
+  const relatedFeatures = fallbackFeature?.relatedFeatures || []
 
   return (
     <>
@@ -370,66 +397,72 @@ export default async function FeatureDetailPage({
             </ScrollReveal>
           </div>
 
-          <div className="mb-16">
-            <ScrollReveal>
-              <h2 className="mb-8 text-2xl font-bold">Key Benefits</h2>
-            </ScrollReveal>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {feature.benefits.map((benefit, i) => (
-                <ScrollReveal key={i} delay={i * 50}>
-                  <div className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl">
-                    <CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-primary-500" />
-                    <span className="text-sm leading-relaxed">{benefit}</span>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-16">
-            <ScrollReveal>
-              <h2 className="mb-8 text-2xl font-bold">Use Cases</h2>
-            </ScrollReveal>
-            <div className="space-y-3">
-              {feature.useCases.map((useCase, i) => (
-                <ScrollReveal key={i} delay={i * 50}>
-                  <div className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl">
-                    <div className="h-2 w-2 rounded-full bg-primary-500" />
-                    <span className="text-sm">{useCase}</span>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-16">
-            <ScrollReveal>
-              <h2 className="mb-8 text-2xl font-bold">Works Great With</h2>
-            </ScrollReveal>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {feature.relatedFeatures.map((relatedSlug) => {
-                const related = featuresData[relatedSlug]
-                if (!related) return null
-                const RelatedIcon = iconMap[related.icon] || Users
-                return (
-                  <ScrollReveal key={relatedSlug}>
-                    <Link
-                      href={`/${locale}/features/${relatedSlug}`}
-                      className="group flex flex-col rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
-                    >
-                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
-                        <RelatedIcon size={20} />
-                      </div>
-                      <h4 className="text-sm font-semibold">{related.name}</h4>
-                      <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100">
-                        Learn more <ArrowRight size={12} />
-                      </span>
-                    </Link>
+          {benefits.length > 0 && (
+            <div className="mb-16">
+              <ScrollReveal>
+                <h2 className="mb-8 text-2xl font-bold">Key Benefits</h2>
+              </ScrollReveal>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {benefits.map((benefit: string, i: number) => (
+                  <ScrollReveal key={i} delay={i * 50}>
+                    <div className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl">
+                      <CheckCircle2 size={20} className="mt-0.5 flex-shrink-0 text-primary-500" />
+                      <span className="text-sm leading-relaxed">{benefit}</span>
+                    </div>
                   </ScrollReveal>
-                )
-              })}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {useCases.length > 0 && (
+            <div className="mb-16">
+              <ScrollReveal>
+                <h2 className="mb-8 text-2xl font-bold">Use Cases</h2>
+              </ScrollReveal>
+              <div className="space-y-3">
+                {useCases.map((useCase: string, i: number) => (
+                  <ScrollReveal key={i} delay={i * 50}>
+                    <div className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl">
+                      <div className="h-2 w-2 rounded-full bg-primary-500" />
+                      <span className="text-sm">{useCase}</span>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {relatedFeatures.length > 0 && (
+            <div className="mb-16">
+              <ScrollReveal>
+                <h2 className="mb-8 text-2xl font-bold">Works Great With</h2>
+              </ScrollReveal>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {relatedFeatures.map((relatedSlug: string) => {
+                  const related = fallbackFeaturesData[relatedSlug]
+                  if (!related) return null
+                  const RelatedIcon = iconMap[related.icon] || Users
+                  return (
+                    <ScrollReveal key={relatedSlug}>
+                      <Link
+                        href={`/${locale}/features/${relatedSlug}`}
+                        className="group flex flex-col rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
+                      >
+                        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
+                          <RelatedIcon size={20} />
+                        </div>
+                        <h4 className="text-sm font-semibold">{related.name}</h4>
+                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100">
+                          Learn more <ArrowRight size={12} />
+                        </span>
+                      </Link>
+                    </ScrollReveal>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           <ScrollReveal delay={100}>
             <div className="rounded-2xl border border-white/[0.06] bg-primary-500/10 p-8 text-center backdrop-blur-xl sm:p-12">

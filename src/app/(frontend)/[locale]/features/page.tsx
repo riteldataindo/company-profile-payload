@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import Link from 'next/link'
 import { Sparkles, Users, Flame, ScanFace, Timer, LayoutGrid, ArrowRightLeft, Percent, Gauge, UserCog, ListOrdered, Route, Download, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { getFeatures } from '@/lib/data'
 import type { ComponentType } from 'react'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
@@ -26,7 +27,8 @@ const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   download: Download,
 }
 
-const features = [
+// Fallback features for graceful degradation
+const fallbackFeatures = [
   { icon: 'users', name: 'Visitor Traffic', desc: 'Monitor visitor count in real-time with 99.9% accuracy. Track entries, exits, and net foot traffic across all entrances — powered by AI computer vision.', slug: 'visitor-traffic' },
   { icon: 'arrow-right-left', name: 'In-Out Traffic', desc: 'Analyze visitor entry-exit patterns at any time. Understand peak hours, compare day-over-day trends, and measure the impact of promotions on foot traffic.', slug: 'in-out-traffic' },
   { icon: 'timer', name: 'Dwell Time', desc: 'Measure how long visitors spend in your store or specific zones. Longer dwell time correlates with higher conversion and engagement.', slug: 'dwell-time' },
@@ -64,6 +66,17 @@ export default async function FeaturesPage({
   if (!isValidLocale(locale)) notFound()
 
   const dict = await getDictionary(locale as Locale)
+  const payloadFeatures = await getFeatures(locale)
+
+  // Use Payload features if available, fall back to hardcoded
+  const features = payloadFeatures.length > 0
+    ? payloadFeatures.map((f: any) => ({
+        icon: f.icon || 'users',
+        name: f.name,
+        desc: f.shortDescription,
+        slug: f.slug,
+      }))
+    : fallbackFeatures
 
   return (
     <section className="px-4 py-20 md:py-32">
@@ -94,7 +107,7 @@ export default async function FeaturesPage({
 
         {/* Feature Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {features.map((f, i) => {
+          {features.map((f: any, i: number) => {
             const Icon = iconMap[f.icon] || Users
             return (
               <ScrollReveal key={f.slug} delay={i * 50} className="flex">

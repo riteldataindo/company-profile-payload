@@ -3,13 +3,21 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { ScrollReveal } from './ScrollReveal'
+import { extractText } from '@/lib/richtext'
 
 interface FaqAccordionProps {
   dict: Record<string, any>
+  faqItems?: any[]
 }
 
-export function FaqAccordion({ dict }: FaqAccordionProps) {
-  const faqItems = dict.faqItems || []
+export function FaqAccordion({ dict, faqItems: payloadFaqItems }: FaqAccordionProps) {
+  const faqItems = payloadFaqItems && payloadFaqItems.length > 0
+    ? payloadFaqItems.map((item: any) => ({
+        q: typeof item.question === 'string' ? item.question : extractText(item.question),
+        a: typeof item.answer === 'string' ? item.answer : extractText(item.answer),
+      }))
+    : (dict.faqItems || [])
+
   const [openItems, setOpenItems] = useState<Set<number>>(new Set())
 
   const toggle = (i: number) => {
@@ -29,7 +37,7 @@ export function FaqAccordion({ dict }: FaqAccordionProps) {
           </ScrollReveal>
         </div>
         <div className="mx-auto flex max-w-3xl flex-col gap-2">
-          {faqItems.map((item, i) => {
+          {faqItems.map((item: any, i: number) => {
             const isOpen = openItems.has(i)
             return (
               <ScrollReveal key={i} delay={i * 50}>

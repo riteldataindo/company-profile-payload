@@ -10,7 +10,9 @@ import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
-import { getBlogPost, blogPosts } from '@/lib/blog-data'
+import { getBlogPost as getPayloadBlogPost, getBlogPosts as getPayloadBlogPosts } from '@/lib/data'
+import { getBlogPost as getLocalBlogPost, blogPosts } from '@/lib/blog-data'
+import { extractParagraphs } from '@/lib/richtext'
 
 export async function generateMetadata({
   params,
@@ -18,7 +20,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>
 }): Promise<Metadata> {
   const { slug, locale } = await params
-  const post = getBlogPost(slug)
+  const payloadPost = await getPayloadBlogPost(slug, locale)
+  const localPost = getLocalBlogPost(slug)
+  const post = payloadPost || localPost
 
   if (!post) {
     return buildMetadata({
@@ -32,20 +36,29 @@ export async function generateMetadata({
 
   return buildMetadata({
     title: post.title,
-    description: post.excerpt,
+    description: (post as any).excerpt || (post as any).shortDescription || '',
     locale,
     path: `/blog/${slug}`,
     ogType: 'article',
-    publishedTime: post.date,
-    authors: [post.author],
+    publishedTime: (post as any).publishedAt || (post as any).date || '',
+    authors: (post as any).author?.name ? [(post as any).author.name] : [(post as any).author || ''],
   })
 }
 
 export async function generateStaticParams() {
-  return blogPosts.flatMap((post) => [
-    { locale: 'en', slug: post.slug },
-    { locale: 'id', slug: post.slug },
-  ])
+  try {
+    const payloadPosts = await getPayloadBlogPosts({ limit: 100, locale: 'en' })
+    return payloadPosts.docs.flatMap((post: any) => [
+      { locale: 'en', slug: post.slug },
+      { locale: 'id', slug: post.slug },
+    ])
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return blogPosts.flatMap((post) => [
+      { locale: 'en', slug: post.slug },
+      { locale: 'id', slug: post.slug },
+    ])
+  }
 }
 
 export default async function BlogPostPage({
@@ -57,11 +70,20 @@ export default async function BlogPostPage({
 
   if (!isValidLocale(locale)) notFound()
 
-  const post = getBlogPost(slug)
+  const payloadPost = await getPayloadBlogPost(slug, locale)
+  const localPost = getLocalBlogPost(slug)
+  const post = (payloadPost || localPost) as any
 
   if (!post) {
     notFound()
   }
+
+  const postDate = post.date || post.publishedAt || new Date().toISOString()
+  const postAuthor = typeof post.author === 'object' ? post.author?.name : post.author
+  const postCategory = typeof post.category === 'string' ? post.category : post.category?.name
+  const contentParagraphs = Array.isArray(post.content)
+    ? post.content
+    : extractParagraphs(post.content)
 
   return (
     <>
@@ -70,11 +92,11 @@ export default async function BlogPostPage({
         <JsonLd
           data={blogPostingSchema({
             title: post.title,
-            excerpt: post.excerpt,
+            excerpt: post.excerpt || '',
             slug,
             locale,
-            author: post.author,
-            datePublished: post.date,
+            author: postAuthor || '',
+            datePublished: postDate,
           })}
         />
         <JsonLd
@@ -90,10 +112,10 @@ export default async function BlogPostPage({
           <article className="max-w-3xl">
             <div className="mb-8">
               <span className="inline-block bg-primary-500/10 text-primary-400 text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-4">
-                {post.category}
+                {postCategory}
               </span>
               <div className="flex items-center gap-2 text-sm text-text-muted mb-3">
-                {new Date(post.date).toLocaleDateString()} · {post.readTime} min read
+                {new Date(postDate).toLocaleDateString()} · {post.readTime || post.readingTime || 5} min read
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-4">
                 {post.title}
@@ -101,14 +123,14 @@ export default async function BlogPostPage({
               <p className="text-text-secondary text-lg">{post.excerpt}</p>
               <div className="flex items-center gap-3 mt-6">
                 <div className="w-10 h-10 rounded-full bg-bg-elevated flex items-center justify-center text-xs font-semibold text-text-muted">
-                  {post.author
-                    .split(' ')
-                    .map((w) => w[0])
+                  {postAuthor
+                    ?.split(' ')
+                    .map((w: string) => w[0])
                     .join('')}
                 </div>
                 <div>
-                  <div className="text-sm font-semibold">{post.author}</div>
-                  <div className="text-xs text-text-muted">{new Date(post.date).toLocaleDateString()}</div>
+                  <div className="text-sm font-semibold">{postAuthor}</div>
+                  <div className="text-xs text-text-muted">{new Date(postDate).toLocaleDateString()}</div>
                 </div>
               </div>
             </div>
@@ -119,10 +141,9 @@ export default async function BlogPostPage({
 
             {/* Article Content with Section IDs */}
             <div className="space-y-5">
-              {post.content.map((paragraph, i) => {
-                // Find matching section for this paragraph
-                const matchingSection = post.sections?.find((s) =>
-                  paragraph.includes(s.title)
+              {contentParagraphs.map((paragraph: string, i: number) => {
+                const matchingSection = (post.sections || [])?.find((s: any) =>
+                  paragraph?.includes(s.title)
                 )
 
                 if (matchingSection) {
@@ -152,13 +173,13 @@ export default async function BlogPostPage({
             {/* Author Bio */}
             <div className="mt-8 rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-6 flex gap-4">
               <div className="w-16 h-16 rounded-full bg-bg-elevated flex items-center justify-center text-sm font-bold text-text-muted shrink-0">
-                {post.author
-                  .split(' ')
-                  .map((w) => w[0])
+                {postAuthor
+                  ?.split(' ')
+                  .map((w: string) => w[0])
                   .join('')}
               </div>
               <div>
-                <h4 className="font-semibold mb-1">{post.author}</h4>
+                <h4 className="font-semibold mb-1">{postAuthor}</h4>
                 <p className="text-sm text-text-secondary">
                   The product and analytics team at PT Ritel Data Indonesia.
                 </p>

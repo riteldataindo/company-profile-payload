@@ -11,24 +11,18 @@ const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   gauge: Gauge, 'user-cog': UserCog, 'list-ordered': ListOrdered, route: Route, footprints: Footprints,
 }
 
-const featureSlugs = [
-  'visitor-traffic', 'in-out-traffic', 'dwell-time', 'passers-by',
-  'entering-rate', 'group-rate', 'demographic', 'occupancy',
-  'service-efficiency', 'heatmap', 'queuing', 'in-store-routes',
-]
-
-const featureIcons = [
-  'users', 'arrow-right-left', 'timer', 'route',
-  'percent', 'layout-grid', 'scan-face', 'gauge',
-  'user-cog', 'flame', 'list-ordered', 'footprints',
-]
-
 interface FeaturesGridProps {
   locale: string
   dict: Record<string, any>
+  features?: any[]
 }
 
-export function FeaturesGrid({ locale, dict }: FeaturesGridProps) {
+export function FeaturesGrid({ locale, dict, features: payloadFeatures }: FeaturesGridProps) {
+  // Use Payload features if provided, otherwise use dict items
+  const features = payloadFeatures && payloadFeatures.length > 0
+    ? payloadFeatures
+    : (dict.features?.items || [])
+
   return (
     <section className="bg-bg-surface px-4 py-20 md:py-32" id="features">
       <div className="mx-auto max-w-7xl">
@@ -47,9 +41,11 @@ export function FeaturesGrid({ locale, dict }: FeaturesGridProps) {
           </ScrollReveal>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(dict.features.items || []).map((f: any, i: number) => {
-            const Icon = iconMap[featureIcons[i]] || Users
-            const slug = featureSlugs[i]
+          {features.map((f: any, i: number) => {
+            const icon = f.icon || 'users'
+            const Icon = iconMap[icon] || Users
+            const slug = f.slug
+            const desc = f.shortDescription || f.desc
             return (
               <ScrollReveal key={slug} delay={i * 50} className="flex">
                 <Link
@@ -60,7 +56,7 @@ export function FeaturesGrid({ locale, dict }: FeaturesGridProps) {
                     <Icon size={20} />
                   </div>
                   <h3 className="mb-1 text-base font-semibold">{f.name}</h3>
-                  <p className="flex-1 text-sm leading-relaxed text-text-secondary">{f.desc}</p>
+                  <p className="flex-1 text-sm leading-relaxed text-text-secondary">{desc}</p>
                   <span className="mt-3 inline-flex translate-y-1 items-center gap-1 text-xs font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
                     {dict.common.learnMore} <ArrowRight size={14} />
                   </span>

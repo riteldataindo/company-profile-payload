@@ -5,34 +5,49 @@ import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-re
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import { blogPosts, getCategories } from '@/lib/blog-data'
 
-const POSTS_PER_PAGE = 6
-
 export function BlogClient({
   locale,
   page,
   category,
+  posts = [],
+  categories: payloadCategories = [],
+  totalPages: payloadTotalPages = 0,
+  totalDocs = 0,
 }: {
   locale: string
   page: number
   category: string | null
+  posts?: any[]
+  categories?: any[]
+  totalPages?: number
+  totalDocs?: number
 }) {
   const currentPage = Math.max(1, page)
   const selectedCategory = category
 
-  const categories = ['All', ...getCategories()]
+  // Use Payload data if available, fall back to hardcoded data
+  const usesPayload = posts.length > 0
+  const displayPosts = usesPayload ? posts : blogPosts
+  const displayCategories = usesPayload
+    ? ['All', ...payloadCategories.map((c: any) => c.name)]
+    : ['All', ...getCategories()]
+  const displayTotalPages = usesPayload ? payloadTotalPages : Math.ceil(displayPosts.length / 6)
 
   const filteredPosts =
     selectedCategory === 'All' || selectedCategory === null
-      ? blogPosts
-      : blogPosts.filter((p) => p.category === selectedCategory)
+      ? displayPosts
+      : displayPosts.filter((p: any) => {
+          const postCategory = p.category?.name || p.category
+          return postCategory === selectedCategory
+        })
 
-  const featuredPost = blogPosts.find((p) => p.featured)
-  const regularPosts = filteredPosts.filter((p) => !p.featured || selectedCategory)
+  const featuredPost = displayPosts.find((p: any) => p.featured || p.isFeatured)
+  const regularPosts = usesPayload
+    ? filteredPosts
+    : filteredPosts.filter((p: any) => !p.featured || selectedCategory)
 
-  const totalPages = Math.ceil(regularPosts.length / POSTS_PER_PAGE)
-  const startIndex = (currentPage - 1) * POSTS_PER_PAGE
-  const endIndex = startIndex + POSTS_PER_PAGE
-  const paginatedPosts = regularPosts.slice(startIndex, endIndex)
+  const totalPages = usesPayload ? displayTotalPages : Math.ceil(regularPosts.length / 6)
+  const paginatedPosts = usesPayload ? regularPosts : regularPosts.slice(0, 6)
 
   const getCategoryUrl = (cat: string | null) => {
     const params = new URLSearchParams()
@@ -100,7 +115,7 @@ export function BlogClient({
       )}
 
       <div className="mb-12 flex flex-wrap gap-2 px-4">
-        {categories.map((cat) => (
+        {displayCategories.map((cat: string) => (
           <Link
             key={cat}
             href={`/${locale}/blog${getCategoryUrl(cat === 'All' ? null : cat)}`}
@@ -116,38 +131,47 @@ export function BlogClient({
       </div>
 
       <div className="px-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
-        {paginatedPosts.map((post, i) => (
-          <ScrollReveal key={post.id} delay={i * 50}>
-            <Link
-              href={`/${locale}/blog/${post.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
-            >
-              <div className="flex aspect-video items-center justify-center bg-bg-elevated transition-colors group-hover:bg-bg-card">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/15 text-primary-400 text-lg">
-                  B
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col border border-t-0 border-white/[0.06] bg-bg-card/60 p-5 backdrop-blur-xl">
-                <span className="mb-2 inline-block rounded-full bg-primary-500/10 px-2.5 py-1 text-xs font-semibold text-primary-400 w-fit">
-                  {post.category}
-                </span>
-                <h3 className="mb-2 line-clamp-2 text-base font-semibold">{post.title}</h3>
-                <p className="mb-3 flex-1 line-clamp-2 text-sm leading-relaxed text-text-secondary">{post.excerpt}</p>
-                <div className="mb-3 text-xs text-text-muted">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Calendar size={12} /> {new Date(post.date).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span>{post.readTime} min read</span>
+        {paginatedPosts.map((post: any, i: number) => {
+          const postCategory = post.category?.name || post.category
+          const postDate = post.publishedAt || post.date
+          const postAuthor = typeof post.author === 'object' ? post.author?.name : post.author
+          return (
+            <ScrollReveal key={post.id || post.slug} delay={i * 50}>
+              <Link
+                href={`/${locale}/blog/${post.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
+              >
+                <div className="flex aspect-video items-center justify-center bg-bg-elevated transition-colors group-hover:bg-bg-card">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/15 text-primary-400 text-lg">
+                    B
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100">
-                  Read <ArrowRight size={12} />
-                </span>
-              </div>
-            </Link>
-          </ScrollReveal>
-        ))}
+                <div className="flex flex-1 flex-col border border-t-0 border-white/[0.06] bg-bg-card/60 p-5 backdrop-blur-xl">
+                  <span className="mb-2 inline-block rounded-full bg-primary-500/10 px-2.5 py-1 text-xs font-semibold text-primary-400 w-fit">
+                    {postCategory}
+                  </span>
+                  <h3 className="mb-2 line-clamp-2 text-base font-semibold">{post.title}</h3>
+                  <p className="mb-3 flex-1 line-clamp-2 text-sm leading-relaxed text-text-secondary">
+                    {post.excerpt || post.excerpt}
+                  </p>
+                  <div className="mb-3 text-xs text-text-muted">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Calendar size={12} /> {postDate ? new Date(postDate).toLocaleDateString() : 'N/A'}
+                    </div>
+                    {post.readingTime && (
+                      <div className="flex items-center gap-1">
+                        <span>{post.readingTime} min read</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100">
+                    Read <ArrowRight size={12} />
+                  </span>
+                </div>
+              </Link>
+            </ScrollReveal>
+          )
+        })}
       </div>
 
       {totalPages > 1 && (
