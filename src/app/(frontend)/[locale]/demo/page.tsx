@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Zap, Monitor, Settings, MessageCircle, Tag, Check, Send, ExternalLink, Play } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { submitForm } from '@/app/actions/submitForm'
 
 const benefits = [
   { icon: Monitor, title: 'Live product walkthrough', desc: 'See every feature in action with your store type.' },
@@ -15,18 +16,51 @@ const benefits = [
 export default function DemoPage() {
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
+    const name = form.get('name') as string
+    const email = form.get('email') as string
+    const phone = form.get('phone') as string
+    const company = form.get('company') as string
+    const storeCount = form.get('storeCount') as string
+    const message = form.get('message') as string
+
+    // Client-side validation
     const errs: Record<string, string> = {}
-    if (!form.get('name') || (form.get('name') as string).length < 2) errs.name = 'Required'
-    if (!form.get('email') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.get('email') as string)) errs.email = 'Valid email required'
-    if (!form.get('phone') || (form.get('phone') as string).replace(/\D/g, '').length < 8) errs.phone = 'Valid WhatsApp number required'
-    if (!form.get('company') || (form.get('company') as string).length < 2) errs.company = 'Required'
+    if (!name || name.length < 2) errs.name = 'Required'
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Valid email required'
+    if (!phone || phone.replace(/\D/g, '').length < 8) errs.phone = 'Valid WhatsApp number required'
+    if (!company || company.length < 2) errs.company = 'Required'
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setErrors({})
-    setSubmitted(true)
+
+    // Submit to server
+    setIsLoading(true)
+    try {
+      const result = await submitForm({
+        formType: 'demo',
+        name,
+        email,
+        phone,
+        company,
+        storeCount: storeCount || undefined,
+        message: message || undefined,
+      })
+
+      if (result.success) {
+        setSubmitted(true)
+      } else {
+        setErrors({ form: result.error || 'Failed to submit form' })
+      }
+    } catch (error) {
+      setErrors({ form: 'Failed to submit form. Please try again.' })
+      console.error('Form submission error:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -79,6 +113,7 @@ export default function DemoPage() {
                 <>
                   <h2 className="text-xl font-bold mb-6">Request Your Free Demo</h2>
                   <form onSubmit={handleSubmit} noValidate>
+                    {errors.form && <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500 text-sm text-primary-500">{errors.form}</div>}
                     {[
                       { name: 'name', label: 'Full Name', placeholder: 'Your full name', required: true },
                       { name: 'email', label: 'Business Email', placeholder: 'you@company.com', type: 'email', required: true },
@@ -87,13 +122,13 @@ export default function DemoPage() {
                     ].map(f => (
                       <div key={f.name} className="mb-4">
                         <label className="block text-xs font-semibold text-text-secondary mb-1.5">{f.label} {f.required && <span className="text-primary-500">*</span>}</label>
-                        <input name={f.name} type={f.type || 'text'} placeholder={f.placeholder} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 ${errors[f.name] ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, [f.name]: ''}))} />
+                        <input name={f.name} type={f.type || 'text'} placeholder={f.placeholder} disabled={isLoading} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50 ${errors[f.name] ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, [f.name]: ''}))} />
                         {errors[f.name] && <p className="text-xs text-primary-500 mt-1">{errors[f.name]}</p>}
                       </div>
                     ))}
                     <div className="mb-4">
                       <label className="block text-xs font-semibold text-text-secondary mb-1.5">Number of Stores</label>
-                      <select name="storeCount" className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none appearance-none">
+                      <select name="storeCount" disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none appearance-none disabled:opacity-50">
                         <option value="">Select range</option>
                         <option value="1-5">1 – 5 stores</option>
                         <option value="6-20">6 – 20 stores</option>
@@ -103,10 +138,10 @@ export default function DemoPage() {
                     </div>
                     <div className="mb-6">
                       <label className="block text-xs font-semibold text-text-secondary mb-1.5">Any specific questions?</label>
-                      <textarea name="message" rows={3} placeholder="Tell us about your goals..." className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none resize-y transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15" />
+                      <textarea name="message" rows={3} placeholder="Tell us about your goals..." disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none resize-y transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50" />
                     </div>
-                    <button type="submit" className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]">
-                      <Send size={18} /> Request Free Demo
+                    <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Send size={18} /> {isLoading ? 'Sending...' : 'Request Free Demo'}
                     </button>
                     <div className="flex items-center gap-4 my-5 text-xs text-text-muted"><div className="flex-1 h-px bg-border-subtle" /><span>or try it yourself</span><div className="flex-1 h-px bg-border-subtle" /></div>
                     <a href="https://demo.smartcounter.id" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 rounded-lg border border-primary-600 px-5 py-3.5 text-sm font-semibold text-primary-500 transition-all hover:bg-primary-600/10">

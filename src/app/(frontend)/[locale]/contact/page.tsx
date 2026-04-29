@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Mail, Phone, MapPin, Clock, MessageCircle, Globe, Send, Check } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { submitForm } from '@/app/actions/submitForm'
 
 const contactInfo = [
   { icon: Mail, label: 'Email', value: 'info@riteldata.id', href: 'mailto:info@riteldata.id' },
@@ -15,20 +16,48 @@ const contactInfo = [
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
     const name = form.get('name') as string
     const email = form.get('email') as string
     const message = form.get('message') as string
+    const phone = form.get('phone') as string
+    const company = form.get('company') as string
+
+    // Client-side validation
     const errs: Record<string, string> = {}
     if (!name || name.length < 2) errs.name = 'Name is required (min 2 characters)'
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Valid email required'
     if (!message || message.length < 10) errs.message = 'Message is required (min 10 characters)'
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setErrors({})
-    setSubmitted(true)
+
+    // Submit to server
+    setIsLoading(true)
+    try {
+      const result = await submitForm({
+        formType: 'contact',
+        name,
+        email,
+        message,
+        phone: phone || undefined,
+        company: company || undefined,
+      })
+
+      if (result.success) {
+        setSubmitted(true)
+      } else {
+        setErrors({ form: result.error || 'Failed to submit form' })
+      }
+    } catch (error) {
+      setErrors({ form: 'Failed to submit form. Please try again.' })
+      console.error('Form submission error:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -82,35 +111,36 @@ export default function ContactPage() {
                 <>
                   <h2 className="text-xl font-bold mb-6">Send Us a Message</h2>
                   <form onSubmit={handleSubmit} noValidate>
+                    {errors.form && <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500 text-sm text-primary-500">{errors.form}</div>}
                     <div className="grid sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-xs font-semibold text-text-secondary mb-1.5">Full Name <span className="text-primary-500">*</span></label>
-                        <input name="name" placeholder="Your name" className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 ${errors.name ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, name: ''}))} />
+                        <input name="name" placeholder="Your name" disabled={isLoading} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50 ${errors.name ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, name: ''}))} />
                         {errors.name && <p className="text-xs text-primary-500 mt-1">{errors.name}</p>}
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-text-secondary mb-1.5">Email <span className="text-primary-500">*</span></label>
-                        <input name="email" type="email" placeholder="you@company.com" className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 ${errors.email ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, email: ''}))} />
+                        <input name="email" type="email" placeholder="you@company.com" disabled={isLoading} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50 ${errors.email ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, email: ''}))} />
                         {errors.email && <p className="text-xs text-primary-500 mt-1">{errors.email}</p>}
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-xs font-semibold text-text-secondary mb-1.5">Phone</label>
-                        <input name="phone" placeholder="+62 ..." className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15" />
+                        <input name="phone" placeholder="+62 ..." disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-text-secondary mb-1.5">Company</label>
-                        <input name="company" placeholder="PT Example Indonesia" className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15" />
+                        <input name="company" placeholder="PT Example Indonesia" disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50" />
                       </div>
                     </div>
                     <div className="mb-6">
                       <label className="block text-xs font-semibold text-text-secondary mb-1.5">Message <span className="text-primary-500">*</span></label>
-                      <textarea name="message" rows={5} placeholder="Tell us how we can help..." className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all resize-y focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 ${errors.message ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, message: ''}))} />
+                      <textarea name="message" rows={5} placeholder="Tell us how we can help..." disabled={isLoading} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all resize-y focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50 ${errors.message ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, message: ''}))} />
                       {errors.message && <p className="text-xs text-primary-500 mt-1">{errors.message}</p>}
                     </div>
-                    <button type="submit" className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]">
-                      <Send size={16} /> Send Message
+                    <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Send size={16} /> {isLoading ? 'Sending...' : 'Send Message'}
                     </button>
                   </form>
                 </>
