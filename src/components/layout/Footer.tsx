@@ -4,9 +4,34 @@ import { Globe, Mail, ExternalLink } from 'lucide-react'
 interface FooterProps {
   locale: string
   dict: Record<string, any>
+  siteSettings?: any
+  navigation?: any
 }
 
-export function Footer({ locale, dict }: FooterProps) {
+export function Footer({ locale, dict, siteSettings, navigation }: FooterProps) {
+  const email = siteSettings?.contactEmail || 'info@riteldata.id'
+  const phone = siteSettings?.contactPhone || '+62 882-1001-9165'
+  const whatsapp = siteSettings?.whatsappNumber || '6288210019165'
+  const address = siteSettings?.contactAddress || 'Komplek Griya Inti Sentosa, Sunter Agung, Jakarta Utara 14350'
+  const social = siteSettings?.socialLinks || {}
+
+  const productLinks = navigation?.footerMenu?.product?.length > 0
+    ? navigation.footerMenu.product
+    : [
+        { label: dict.nav.features, link: '/features' },
+        { label: dict.nav.packages, link: '/packages' },
+        { label: dict.nav.useCases, link: '/use-cases' },
+        { label: 'Demo', link: '/demo' },
+      ]
+
+  const resourceLinks = navigation?.footerMenu?.resources?.length > 0
+    ? navigation.footerMenu.resources
+    : [
+        { label: dict.nav.blog, link: '/blog' },
+        { label: dict.nav.faq, link: '/faq' },
+        { label: dict.nav.contact, link: '/contact' },
+      ]
+
   return (
     <footer className="border-t border-border-subtle bg-bg-base px-4 pt-16 pb-8">
       <div className="mx-auto max-w-7xl">
@@ -26,10 +51,13 @@ export function Footer({ locale, dict }: FooterProps) {
               {dict.footer.product}
             </h4>
             <ul className="flex flex-col gap-2">
-              <li><Link href={`/${locale}/features`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.features}</Link></li>
-              <li><Link href={`/${locale}/packages`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.packages}</Link></li>
-              <li><Link href={`/${locale}/use-cases`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.useCases}</Link></li>
-              <li><Link href={`/${locale}/demo`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">Demo</Link></li>
+              {productLinks.map((item: any, i: number) => (
+                <li key={i}>
+                  <Link href={`/${locale}${item.link}`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -38,9 +66,13 @@ export function Footer({ locale, dict }: FooterProps) {
               {dict.footer.resources}
             </h4>
             <ul className="flex flex-col gap-2">
-              <li><Link href={`/${locale}/blog`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.blog}</Link></li>
-              <li><Link href={`/${locale}/faq`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.faq}</Link></li>
-              <li><Link href={`/${locale}/contact`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{dict.nav.contact}</Link></li>
+              {resourceLinks.map((item: any, i: number) => (
+                <li key={i}>
+                  <Link href={`/${locale}${item.link}`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -49,9 +81,9 @@ export function Footer({ locale, dict }: FooterProps) {
               {dict.footer.contactInfo}
             </h4>
             <ul className="flex flex-col gap-2">
-              <li><a href="mailto:info@riteldata.id" className="text-sm text-text-secondary transition-colors hover:text-text-primary">info@riteldata.id</a></li>
-              <li><a href="https://wa.me/6288210019165" className="text-sm text-text-secondary transition-colors hover:text-text-primary">+62 882-1001-9165</a></li>
-              <li><span className="text-sm text-text-secondary">Komplek Griya Inti Sentosa, Sunter Agung, Jakarta Utara 14350</span></li>
+              <li><a href={`mailto:${email}`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{email}</a></li>
+              <li><a href={`https://wa.me/${whatsapp}`} className="text-sm text-text-secondary transition-colors hover:text-text-primary">{phone}</a></li>
+              <li><span className="text-sm text-text-secondary">{address}</span></li>
             </ul>
           </div>
         </div>
@@ -59,9 +91,16 @@ export function Footer({ locale, dict }: FooterProps) {
         <div className="flex items-center justify-between border-t border-border-subtle pt-8 text-xs text-text-muted">
           <span>{dict.common.copyright}</span>
           <div className="flex gap-4">
-            <a href="#" aria-label="LinkedIn" className="text-text-muted transition-colors hover:text-text-primary"><Globe size={18} /></a>
-            <a href="#" aria-label="Instagram" className="text-text-muted transition-colors hover:text-text-primary"><Mail size={18} /></a>
-            <a href="#" aria-label="YouTube" className="text-text-muted transition-colors hover:text-text-primary"><ExternalLink size={18} /></a>
+            {social.linkedin && <a href={social.linkedin} aria-label="LinkedIn" className="text-text-muted transition-colors hover:text-text-primary"><Globe size={18} /></a>}
+            {social.instagram && <a href={social.instagram} aria-label="Instagram" className="text-text-muted transition-colors hover:text-text-primary"><Mail size={18} /></a>}
+            {social.youtube && <a href={social.youtube} aria-label="YouTube" className="text-text-muted transition-colors hover:text-text-primary"><ExternalLink size={18} /></a>}
+            {!social.linkedin && !social.instagram && !social.youtube && (
+              <>
+                <a href="#" aria-label="LinkedIn" className="text-text-muted transition-colors hover:text-text-primary"><Globe size={18} /></a>
+                <a href="#" aria-label="Instagram" className="text-text-muted transition-colors hover:text-text-primary"><Mail size={18} /></a>
+                <a href="#" aria-label="YouTube" className="text-text-muted transition-colors hover:text-text-primary"><ExternalLink size={18} /></a>
+              </>
+            )}
           </div>
         </div>
       </div>

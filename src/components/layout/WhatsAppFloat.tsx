@@ -8,18 +8,20 @@ const suggestionIcons: ComponentType<{ size?: number }>[] = [
   HelpCircle, CreditCard, Wrench, CalendarCheck, Sparkles,
 ]
 
-const WA_NUMBER = '6288210019165'
+const DEFAULT_WA_NUMBER = '6288210019165'
 
 interface WhatsAppFloatProps {
   dict: Record<string, any>
+  siteSettings?: any
 }
 
-export function WhatsAppFloat({ dict }: WhatsAppFloatProps) {
+export function WhatsAppFloat({ dict, siteSettings }: WhatsAppFloatProps) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const ref = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const waNumber = siteSettings?.whatsappNumber || DEFAULT_WA_NUMBER
   const wa = dict.waFloat || {}
   const suggestions: string[] = wa.suggestions || []
 
@@ -37,7 +39,7 @@ export function WhatsAppFloat({ dict }: WhatsAppFloatProps) {
 
   function sendMessage(text: string) {
     if (!text.trim()) return
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text.trim())}`, '_blank')
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text.trim())}`, '_blank')
     setMessage('')
     setOpen(false)
   }

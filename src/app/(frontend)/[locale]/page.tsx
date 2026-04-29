@@ -17,7 +17,7 @@ import { ClientLogos } from '@/components/sections/ClientLogos'
 import { PackagesTeaser } from '@/components/sections/PackagesTeaser'
 import { FaqAccordion } from '@/components/sections/FaqAccordion'
 import { CtaBanner } from '@/components/sections/CtaBanner'
-import { getFeatures, getUseCases, getFaqItems, getPricingTiers, getDeploymentLocations } from '@/lib/data'
+import { getFeatures, getUseCases, getFaqItems, getPricingTiers, getDeploymentLocations, getHomepage } from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -43,13 +43,13 @@ export default async function HomePage({
 
   const dict = await getDictionary(locale as Locale)
 
-  // Fetch data from Payload CMS
-  const [features, useCases, faqItems, pricingTiers, deploymentLocations] = await Promise.all([
+  const [features, useCases, faqItems, pricingTiers, deploymentLocations, homepage] = await Promise.all([
     getFeatures(locale),
     getUseCases(locale),
     getFaqItems(locale),
     getPricingTiers(locale),
     getDeploymentLocations(),
+    getHomepage(locale),
   ])
 
   return (
@@ -57,7 +57,7 @@ export default async function HomePage({
       <JsonLd data={organizationSchema()} />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={softwareApplicationSchema()} />
-      <Hero locale={locale} dict={dict} />
+      <Hero locale={locale} dict={dict} homepage={homepage} />
       <PainPoints dict={dict} />
       <section className="px-4 py-20 md:py-32">
         <div className="mx-auto max-w-7xl">
