@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCounter — AI People Counting & CCTV Analytics for Retail Indonesia</title>
+<meta name="description" content="SmartCounter is an AI-powered people counting system using CCTV cameras. 99.9% accurate visitor analytics, heatmaps, demographics, and real-time dashboards for retail stores, malls, and shopping centers across Indonesia.">
+<meta name="keywords" content="people counting, CCTV AI, visitor analytics, foot traffic counter, SmartCounter, AI camera analytics, retail analytics, penghitung pengunjung, kamera AI, smart CCTV, people counter Indonesia">
+<meta property="og:title" content="SmartCounter — AI People Counting & CCTV Analytics for Retail">
+<meta property="og:description" content="99.9% accurate AI-powered people counting and visitor analytics. Heatmaps, demographics, and real-time dashboards for retail Indonesia.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://smartcounter.id">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://smartcounter.id">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "SmartCounter",
+  "legalName": "PT Ritel Data Indonesia",
+  "url": "https://smartcounter.id",
+  "logo": "https://smartcounter.id/logo.png",
+  "description": "AI-powered people counting and CCTV analytics platform for retail stores, malls, and shopping centers in Indonesia.",
+  "foundingDate": "2020",
+  "address": { "@type": "PostalAddress", "addressLocality": "Tangerang Selatan", "addressCountry": "ID" },
+  "contactPoint": { "@type": "ContactPoint", "telephone": "+6281234567890", "contactType": "sales", "availableLanguage": ["en", "id"] },
+  "sameAs": ["https://linkedin.com/company/smartcounter", "https://instagram.com/smartcounter.id"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "SmartCounter",
+  "url": "https://smartcounter.id",
+  "potentialAction": { "@type": "SearchAction", "target": "https://smartcounter.id/search?q={search_term_string}", "query-input": "required name=search_term_string" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "SmartCounter",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "AI people counting system with CCTV camera analytics — visitor counting, heatmaps, demographics, and retail traffic intelligence."
+}
+</script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --red-50: #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-400: #F87171;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  --red-700: #B91C1C;
+  --red-900: #7F1D1D;
+  --bg-base: #09090B;
+  --bg-surface: #18181B;
+  --bg-card: #27272A;
+  --bg-elevated: #3F3F46;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --border-subtle: #27272A;
+  --border-default: #3F3F46;
+  --logo-red: #FF0000;
+  --glass-bg: rgba(39,39,42,0.60);
+  --glass-border: rgba(255,255,255,0.06);
+  --glow-sm: 0 0 20px rgba(239,68,68,0.15);
+  --glow-md: 0 0 40px rgba(239,68,68,0.25);
+  --glow-lg: 0 0 80px rgba(239,68,68,0.40);
+  --glow-xl: 0 0 120px rgba(239,68,68,0.50);
+  --font-sans: 'Fira Sans', system-ui, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --section-py: clamp(5rem, 8vw, 8rem);
+  --container: min(80rem, 100% - 2rem);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+.container { width: var(--container); margin-inline: auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* ── Navbar ── */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 0;
+  background: transparent;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+}
+.navbar.scrolled {
+  background: rgba(9,9,11,0.85);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--border-subtle);
+}
+.navbar-inner {
+  width: var(--container); margin-inline: auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+}
+.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+.logo-text { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
+.logo-smart { color: var(--logo-red); font-variant: small-caps; }
+.logo-counter { color: var(--text-primary); }
+.nav-links { display: flex; gap: 1.75rem; list-style: none; }
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text-primary); }
+.nav-actions { display: flex; align-items: center; gap: 1rem; }
+.lang-select {
+  background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary);
+  padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.8125rem; font-family: var(--font-sans);
+  cursor: pointer;
+}
+.lang-select option { background: var(--bg-card); }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-size: 0.875rem;
+  font-weight: 600; font-family: var(--font-sans); cursor: pointer;
+  text-decoration: none; transition: all 0.2s; border: none; white-space: nowrap;
+}
+.btn-primary {
+  background: var(--red-600); color: #fff;
+}
+.btn-primary:hover { background: var(--red-700); box-shadow: var(--glow-sm); }
+.btn-outline {
+  background: transparent; color: var(--red-500); border: 1px solid var(--red-600);
+}
+.btn-outline:hover { background: rgba(220,38,38,0.1); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-default); }
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text-primary); }
+.menu-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 0.25rem; }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .menu-toggle { display: block; }
+  .nav-actions .lang-select { display: none; }
+}
+
+/* ── Shared Section ── */
+.section { padding: var(--section-py) 0; }
+.section-surface { background: var(--bg-surface); }
+.section-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 700;
+  letter-spacing: -0.025em; margin-bottom: 0.75rem;
+}
+.section-subtitle { color: var(--text-secondary); font-size: 1.0625rem; max-width: 36rem; }
+.section-header { text-align: center; margin-bottom: 3rem; }
+.section-header .section-subtitle { margin-inline: auto; }
+.badge {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  background: rgba(239,68,68,0.1); color: var(--red-400);
+  padding: 0.25rem 0.75rem; border-radius: 9999px;
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+/* ── Glass Card ── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glow-sm);
+  border-color: rgba(239,68,68,0.2);
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ══════════════════════════════════════
+   01. HERO
+   ══════════════════════════════════════ */
+.hero {
+  position: relative; overflow: hidden;
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: 6rem;
+}
+.hero-glow {
+  position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+  width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-content {
+  position: relative; z-index: 1; text-align: center;
+  width: var(--container); margin-inline: auto;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 700;
+  letter-spacing: -0.035em; line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+.hero h1 span { color: var(--red-500); }
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.25rem); color: var(--text-secondary);
+  max-width: 38rem; margin: 0 auto 2.5rem;
+}
+.hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
+.hero-actions .btn { padding: 0.75rem 1.75rem; font-size: 1rem; }
+
+/* Stats Bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+  max-width: 40rem; margin: 0 auto;
+  padding: 2rem; border-radius: 1rem;
+  background: var(--glass-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+.stat-item { text-align: center; }
+.stat-value {
+  font-family: var(--font-mono); font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700; color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* ══════════════════════════════════════
+   02. PAIN POINTS
+   ══════════════════════════════════════ */
+.pain-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;
+}
+.pain-card .icon-wrap {
+  width: 3rem; height: 3rem; border-radius: 0.75rem;
+  background: rgba(239,68,68,0.1); display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem; color: var(--red-500);
+}
+.pain-card h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; }
+.pain-card p { color: var(--text-secondary); font-size: 0.9375rem; }
+
+/* ══════════════════════════════════════
+   03. FEATURES GRID
+   ══════════════════════════════════════ */
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.25rem;
+}
+.feature-card .icon-wrap {
+  width: 2.5rem; height: 2.5rem; border-radius: 0.625rem;
+  background: rgba(239,68,68,0.1); display: flex; align-items: center; justify-content: center;
+  margin-bottom: 0.875rem; color: var(--red-500);
+}
+.feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.375rem; }
+.feature-card p { color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; }
+.feature-card .learn-more {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  margin-top: 0.75rem; font-size: 0.8125rem; font-weight: 600;
+  color: var(--red-500); opacity: 0; transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.feature-card:hover .learn-more { opacity: 1; transform: translateY(0); }
+
+/* ══════════════════════════════════════
+   04. HEATMAP BENEFIT
+   ══════════════════════════════════════ */
+.split-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+@media (max-width: 768px) { .split-layout { grid-template-columns: 1fr; gap: 2rem; } }
+.split-text h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.02em; }
+.split-text p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; }
+.check-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.check-list li {
+  display: flex; align-items: flex-start; gap: 0.625rem;
+  color: var(--text-secondary); font-size: 0.9375rem;
+}
+.check-list li i { color: var(--red-500); flex-shrink: 0; margin-top: 2px; }
+.image-placeholder {
+  aspect-ratio: 16/10; border-radius: 1rem; overflow: hidden;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 0.875rem;
+  box-shadow: var(--glow-md);
+  position: relative;
+}
+.image-placeholder::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 60px rgba(239,68,68,0.08);
+}
+
+/* ══════════════════════════════════════
+   05. USE CASES
+   ══════════════════════════════════════ */
+.use-cases-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+}
+@media (max-width: 900px) { .use-cases-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .use-cases-grid { grid-template-columns: 1fr; } }
+.use-case-card {
+  display: flex; flex-direction: column;
+}
+.use-case-card .card-image {
+  aspect-ratio: 16/9; background: var(--bg-elevated); border-radius: 1rem 1rem 0 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 0.8125rem;
+  overflow: hidden; position: relative;
+}
+.use-case-card .card-image .overlay-icon {
+  width: 3rem; height: 3rem; border-radius: 0.75rem;
+  background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center;
+  color: var(--red-400);
+}
+.use-case-card .card-body {
+  background: var(--glass-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border); border-top: none;
+  border-radius: 0 0 1rem 1rem; padding: 1.25rem;
+  flex: 1;
+}
+.use-case-card h3 { font-size: 1.0625rem; font-weight: 600; margin-bottom: 0.375rem; }
+.use-case-card p { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; }
+.use-case-card .card-link {
+  font-size: 0.8125rem; font-weight: 600; color: var(--red-500);
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;
+  transition: gap 0.2s;
+}
+.use-case-card:hover .card-link { gap: 0.5rem; }
+
+/* ══════════════════════════════════════
+   06. CLIENT LOGOS
+   ══════════════════════════════════════ */
+.logos-track {
+  display: flex; gap: 3rem; overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.logos-slide {
+  display: flex; gap: 3rem; flex-shrink: 0;
+  animation: scroll-logos 30s linear infinite;
+}
+@keyframes scroll-logos { to { transform: translateX(-50%); } }
+.logo-item {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  width: 120px; height: 48px;
+  background: var(--bg-card); border-radius: 0.5rem;
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  opacity: 0.5; transition: opacity 0.3s;
+}
+.logo-item:hover { opacity: 1; }
+
+/* ══════════════════════════════════════
+   06. INDONESIA MAP
+   ══════════════════════════════════════ */
+.indonesia-map { text-align: center; }
+.map-container {
+  max-width: 60rem; margin: 0 auto;
+  border-radius: 1rem; padding: 1rem;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+}
+.map-deploy-dots circle {
+  fill: var(--red-500);
+  filter: drop-shadow(0 0 6px rgba(239,68,68,0.7)) drop-shadow(0 0 14px rgba(239,68,68,0.35));
+  animation: svg-dot-pulse 3s ease-in-out infinite;
+}
+.map-deploy-dots circle:nth-child(2n) { animation-delay: 0.6s; }
+.map-deploy-dots circle:nth-child(3n) { animation-delay: 1.2s; }
+.map-deploy-dots circle:nth-child(5n) { animation-delay: 1.8s; }
+@keyframes svg-dot-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(239,68,68,0.9)) drop-shadow(0 0 22px rgba(239,68,68,0.5)); }
+}
+.map-legend {
+  display: flex; justify-content: center; align-items: center; gap: 2rem;
+  margin-top: 1.5rem; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red-500); box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+.legend-stat { font-size: 0.875rem; color: var(--text-secondary); }
+.legend-number { font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); font-size: 1.125rem; margin-right: 0.25rem; }
+
+/* ══════════════════════════════════════
+   07. PRICING TEASER
+   ══════════════════════════════════════ */
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  align-items: stretch;
+}
+@media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; max-width: 24rem; margin-inline: auto; } }
+.pricing-card { padding: 2rem; position: relative; display: flex; flex-direction: column; }
+.pricing-card .pricing-features { flex: 1; }
+.pricing-card .btn { margin-top: auto; }
+.pricing-card.featured {
+  border-color: var(--red-600);
+  box-shadow: var(--glow-md);
+  background: rgba(220,38,38,0.05);
+}
+.pricing-card .popular-badge {
+  position: absolute; top: -0.75rem; left: 50%; transform: translateX(-50%);
+  background: var(--red-600); color: #fff; font-size: 0.6875rem; font-weight: 700;
+  padding: 0.25rem 0.875rem; border-radius: 9999px; text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pricing-card .tier-name {
+  font-size: 0.8125rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.pricing-card .tier-desc { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.625rem; margin-bottom: 1.75rem; }
+.pricing-features li {
+  display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;
+}
+.pricing-features li i { flex-shrink: 0; }
+.pricing-features li.included i { color: var(--red-500); }
+.pricing-features li.excluded { color: var(--text-muted); }
+.pricing-features li.excluded i { color: var(--bg-elevated); }
+.pricing-card .btn { width: 100%; justify-content: center; }
+
+/* ══════════════════════════════════════
+   08. FAQ
+   ══════════════════════════════════════ */
+.faq-list { max-width: 48rem; margin-inline: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+.faq-item {
+  background: var(--glass-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border); border-radius: 0.75rem; overflow: hidden;
+}
+.faq-trigger {
+  width: 100%; padding: 1.125rem 1.25rem; background: none; border: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  color: var(--text-primary); font-family: var(--font-sans);
+  font-size: 0.9375rem; font-weight: 600; text-align: left; cursor: pointer;
+}
+.faq-trigger i { color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0; }
+.faq-item.open .faq-trigger i { transform: rotate(180deg); }
+.faq-body {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+}
+.faq-body-inner {
+  padding: 0 1.25rem 1.125rem;
+  color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.65;
+}
+
+/* ══════════════════════════════════════
+   09. FINAL CTA
+   ══════════════════════════════════════ */
+.final-cta {
+  position: relative; text-align: center; overflow: hidden;
+  padding: var(--section-py) 0;
+}
+.final-cta-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 600px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(239,68,68,0.18) 0%, transparent 70%);
+  animation: pulse-glow 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+}
+.final-cta .container { position: relative; z-index: 1; }
+.final-cta h2 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700;
+  letter-spacing: -0.03em; margin-bottom: 1rem;
+}
+.final-cta p { color: var(--text-secondary); font-size: 1.0625rem; margin-bottom: 2rem; }
+.final-cta .hero-actions { margin-bottom: 0; }
+
+/* ══════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════ */
+.footer {
+  background: var(--bg-base); border-top: 1px solid var(--border-subtle);
+  padding: 4rem 0 2rem;
+}
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem;
+  margin-bottom: 3rem;
+}
+@media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+.footer-brand p { color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.75rem; max-width: 20rem; line-height: 1.6; }
+.footer-col h4 {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.footer-col a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+.footer-col a:hover { color: var(--text-primary); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 2rem; border-top: 1px solid var(--border-subtle);
+  font-size: 0.8125rem; color: var(--text-muted);
+}
+.footer-social { display: flex; gap: 1rem; }
+.footer-social a { color: var(--text-muted); transition: color 0.2s; }
+.footer-social a:hover { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- ═══════ NAVBAR ═══════ -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+    <a href="/" class="logo" aria-label="SmartCounter Home">
+      <span class="logo-text"><span class="logo-smart">SMART</span><span class="logo-counter">Counter</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/features">Features</a></li>
+      <li><a href="/use-cases">Use Cases</a></li>
+      <li><a href="/packages">Packages</a></li>
+      <li><a href="/faq">FAQ</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <select class="lang-select" aria-label="Language">
+        <option>EN</option>
+        <option>ID</option>
+        <option>KO</option>
+        <option>JA</option>
+        <option>ZH</option>
+      </select>
+      <a href="/demo" class="btn btn-primary">Get Demo</a>
+      <button class="menu-toggle" aria-label="Toggle menu"><i data-lucide="menu" style="width:24px;height:24px;"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero" id="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="badge reveal"><i data-lucide="sparkles" style="width:14px;height:14px;"></i> AI-Powered People Counting</div>
+    <h1 class="reveal">AI People Counting<br><span>& CCTV Analytics</span></h1>
+    <p class="hero-sub reveal">SmartCounter turns your CCTV cameras into an AI-powered people counting system. Get real-time visitor analytics, heatmaps, and demographic insights for every retail location — with 99.9% counting accuracy.</p>
+    <div class="hero-actions reveal">
+      <a href="/demo" class="btn btn-primary"><i data-lucide="play" style="width:16px;height:16px;"></i> Get Free Demo</a>
+      <a href="#features" class="btn btn-outline">See How It Works</a>
+    </div>
+    <div class="stats-bar reveal">
+      <div class="stat-item">
+        <div class="stat-value" data-count="99.9" data-suffix="%">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" data-count="12" data-suffix="+">0</div>
+        <div class="stat-label">Analytics Features</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" data-count="300" data-suffix="+">0</div>
+        <div class="stat-label">Stores Served</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PAIN POINTS ═══════ -->
+<section class="section section-surface" id="pain-points">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title reveal">Still Counting Visitors Manually?</h2>
+      <p class="section-subtitle reveal">Without an automated people counting system, most retailers lose revenue because they can't measure foot traffic accurately.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="glass-card pain-card reveal reveal-delay-1">
+        <div class="icon-wrap"><i data-lucide="alert-circle" style="width:24px;height:24px;"></i></div>
+        <h3>Inaccurate Manual Counts</h3>
+        <p>Staff-based counting misses up to 40% of visitors. Without AI people counting technology, you're making decisions on bad data every single day.</p>
+      </div>
+      <div class="glass-card pain-card reveal reveal-delay-2">
+        <div class="icon-wrap"><i data-lucide="clock" style="width:24px;height:24px;"></i></div>
+        <h3>No Real-Time Visibility</h3>
+        <p>By the time you get yesterday's report, the opportunity is already gone. Staffing, promos, layout changes — all reactive.</p>
+      </div>
+      <div class="glass-card pain-card reveal reveal-delay-3">
+        <div class="icon-wrap"><i data-lucide="trending-down" style="width:24px;height:24px;"></i></div>
+        <h3>Missed Revenue Patterns</h3>
+        <p>Without traffic-to-sales conversion data, you can't tell if low sales mean low traffic or poor conversion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FEATURES GRID ═══════ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="badge reveal"><i data-lucide="sparkles" style="width:14px;height:14px;"></i> Smart CCTV Analytics</div>
+      <h2 class="section-title reveal">12+ AI-Powered Analytics Features</h2>
+      <p class="section-subtitle reveal">From people counting to heatmap analytics — everything a CCTV AI system needs to transform your retail intelligence.</p>
+    </div>
+    <div class="features-grid">
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="users" style="width:20px;height:20px;"></i></div><h3>People Counting</h3><p>99.9% accurate AI people counter using CCTV cameras. Track visitor entries, exits, and net foot traffic across all entrances in real time.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="flame" style="width:20px;height:20px;"></i></div><h3>Heatmap Analytics</h3><p>AI-powered CCTV heatmaps that visualize customer movement patterns. See hot zones, dead zones, and optimize store layout with real spatial data.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="scan-face" style="width:20px;height:20px;"></i></div><h3>Demographics</h3><p>CCTV AI demographic analysis — age groups and gender distribution — without collecting personal data. Privacy-compliant computer vision.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="timer" style="width:20px;height:20px;"></i></div><h3>Dwelling Time</h3><p>Measure how long customers spend in specific zones. Longer dwell time correlates with higher conversion.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="layout-grid" style="width:20px;height:20px;"></i></div><h3>Zone Analytics</h3><p>Define custom zones and track occupancy, served count, and sessions per zone across all your locations.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="arrow-right-left" style="width:20px;height:20px;"></i></div><h3>Traffic Flow</h3><p>Map directional movement through your space. Understand entry-to-exit paths and optimize product placement.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="percent" style="width:20px;height:20px;"></i></div><h3>Conversion Rate</h3><p>Compare visitor traffic against POS transactions. Pinpoint which locations and times convert best.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="gauge" style="width:20px;height:20px;"></i></div><h3>Occupancy Monitoring</h3><p>Real-time capacity tracking for safety compliance and crowd management. Configurable thresholds and alerts.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="user-cog" style="width:20px;height:20px;"></i></div><h3>Staff Optimization</h3><p>Align staffing levels with traffic patterns. Reduce labor costs during slow hours, boost coverage during peaks.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="list-ordered" style="width:20px;height:20px;"></i></div><h3>Queue Management</h3><p>Detect queue lengths and wait times. Trigger alerts when lines exceed thresholds to improve service speed.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="route" style="width:20px;height:20px;"></i></div><h3>Customer Journey</h3><p>Track multi-zone movement sequences. See which paths lead to purchase and which cause drop-off.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="glass-card feature-card reveal"><div class="icon-wrap"><i data-lucide="download" style="width:20px;height:20px;"></i></div><h3>Export &amp; Reports</h3><p>Export any view to PDF, CSV, or PNG. Scheduled reports delivered to your inbox every morning.</p><span class="learn-more">Learn more <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ HEATMAP BENEFIT ═══════ -->
+<section class="section section-surface" id="heatmap">
+  <div class="container">
+    <div class="split-layout">
+      <div class="split-text reveal">
+        <div class="badge"><i data-lucide="flame" style="width:14px;height:14px;"></i> CCTV AI Heatmaps</div>
+        <h2>See Where Your Customers Go</h2>
+        <p>SmartCounter's AI camera analytics turn raw CCTV footage into actionable heatmap intelligence. Our computer vision processes millions of data points into clear overlays on your actual store floor plan.</p>
+        <ul class="check-list">
+          <li><i data-lucide="check" style="width:18px;height:18px;"></i> Real-time overlay on your actual store floor plan</li>
+          <li><i data-lucide="check" style="width:18px;height:18px;"></i> Compare peak vs off-peak patterns side by side</li>
+          <li><i data-lucide="check" style="width:18px;height:18px;"></i> Identify dead zones and optimize product placement</li>
+        </ul>
+      </div>
+      <div class="reveal" style="transition-delay:0.2s;">
+        <div class="image-placeholder">[Heatmap Dashboard Screenshot]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ USE CASES ═══════ -->
+<section class="section" id="use-cases">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title reveal">People Counting for Every Retail Format</h2>
+      <p class="section-subtitle reveal">From boutique fashion to large shopping malls, SmartCounter's CCTV AI adapts to your space and counting requirements.</p>
+    </div>
+    <div class="use-cases-grid">
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="shopping-bag" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Retail Store</h3><p>Optimize foot traffic, measure conversion rates, and align staffing with peak hours across every outlet.</p><a href="/use-cases/retail" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="building-2" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Shopping Mall</h3><p>Floor-level occupancy, tenant benchmarking, and zone analytics for multi-level retail environments.</p><a href="/use-cases/mall" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="shirt" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Fashion Store</h3><p>Track fitting room conversion, dwell time by collection zone, and campaign impact on foot traffic.</p><a href="/use-cases/fashion" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="pill" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Pharmacy</h3><p>Monitor prescription counter queues, track consultation area usage, and optimize pharmacist scheduling.</p><a href="/use-cases/pharmacy" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="shopping-cart" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Supermarket</h3><p>Aisle-level traffic flow, checkout queue management, and peak-hour staffing optimization at scale.</p><a href="/use-cases/supermarket" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+      <div class="use-case-card reveal">
+        <div class="card-image"><div class="overlay-icon"><i data-lucide="crown" style="width:24px;height:24px;"></i></div></div>
+        <div class="card-body"><h3>Luxury Retail</h3><p>High-touch clienteling insights, VIP traffic patterns, and privacy-compliant demographic analytics.</p><a href="/use-cases/luxury" class="card-link">Explore <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ DEPLOYMENT MAP + LOGOS ═══════ -->
+<section class="section section-surface" id="coverage">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title reveal">Trusted by Modern Retail Industries</h2>
+      <p class="section-subtitle reveal">for Intelligent Visitor Analytics — deployed across Indonesia</p>
+    </div>
+
+    <!-- Indonesia Map (inline SVG with proper shape) -->
+    <div class="indonesia-map reveal" aria-label="SmartCounter deployment locations across Indonesia">
+      <div class="map-container">
+        <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+          <!-- Indonesia landmass (traced for recognizable shape) -->
+          <g fill="#3F3F46" stroke="#52525B" stroke-width="0.8" stroke-linejoin="round">
+            <!-- Sumatra -->
+            <path d="M145,55 C155,48 168,50 175,58 L185,72 192,90 198,115 205,145 212,180 215,210 212,240 207,268 200,290 190,308 178,315 165,310 155,295 148,272 140,245 132,215 125,180 120,150 118,120 122,90 130,70Z"/>
+            <!-- Java -->
+            <path d="M235,310 C245,305 260,302 280,304 L310,306 340,304 365,305 390,308 415,314 435,322 445,330 440,338 425,342 400,342 370,340 340,338 310,336 280,334 255,330 242,325 238,318Z"/>
+            <!-- Kalimantan -->
+            <path d="M350,65 C370,55 395,52 420,58 L445,70 460,90 468,115 470,145 465,175 455,205 440,228 420,242 395,248 372,242 355,228 342,208 335,182 330,155 328,125 332,98 340,78Z"/>
+            <!-- Sulawesi -->
+            <path d="M520,72 C528,62 540,58 548,65 L555,78 552,95 548,115 555,128 568,122 578,135 575,155 568,175 558,195 548,218 538,240 528,255 518,248 522,225 515,205 508,182 505,158 508,135 512,110 516,90Z"/>
+            <!-- Bali -->
+            <ellipse cx="462" cy="338" rx="10" ry="7"/>
+            <!-- Lombok -->
+            <ellipse cx="482" cy="340" rx="8" ry="6"/>
+            <!-- Sumbawa -->
+            <ellipse cx="508" cy="342" rx="14" ry="5"/>
+            <!-- Flores -->
+            <path d="M535,345 C545,340 560,340 575,342 L585,345 580,352 565,352 545,350Z"/>
+            <!-- Timor -->
+            <ellipse cx="608" cy="350" rx="15" ry="6"/>
+            <!-- Maluku Utara -->
+            <ellipse cx="635" cy="115" rx="12" ry="18"/>
+            <!-- Halmahera -->
+            <path d="M650,80 C658,72 668,75 672,85 L670,105 675,118 682,112 688,125 685,142 675,155 665,148 658,135 652,118 648,100Z"/>
+            <!-- Seram -->
+            <ellipse cx="660" cy="185" rx="22" ry="8"/>
+            <!-- Papua -->
+            <path d="M735,78 C755,65 785,60 815,65 L845,78 865,98 875,125 878,155 870,185 855,210 835,228 810,238 785,242 762,235 745,220 735,198 728,172 725,145 728,118 732,95Z"/>
+            <!-- Kepulauan Riau -->
+            <circle cx="195" cy="75" r="5"/>
+            <circle cx="208" cy="68" r="4"/>
+            <!-- Bangka -->
+            <ellipse cx="228" cy="248" rx="8" ry="14"/>
+          </g>
+
+          <!-- Deployment dots with glow -->
+          <g class="map-deploy-dots">
+            <!-- Sumatra -->
+            <circle cx="165" cy="82" r="7"><title>Medan</title></circle>
+            <circle cx="178" cy="135" r="6"><title>Pekanbaru</title></circle>
+            <circle cx="195" cy="200" r="6"><title>Palembang</title></circle>
+            <circle cx="185" cy="275" r="6"><title>Lampung</title></circle>
+            <!-- Java (biggest cluster) -->
+            <circle cx="258" cy="315" r="9"><title>Jakarta</title></circle>
+            <circle cx="295" cy="312" r="6"><title>Bandung</title></circle>
+            <circle cx="345" cy="310" r="6"><title>Semarang</title></circle>
+            <circle cx="375" cy="312" r="6"><title>Yogyakarta</title></circle>
+            <circle cx="415" cy="318" r="7"><title>Surabaya</title></circle>
+            <circle cx="438" cy="328" r="6"><title>Malang</title></circle>
+            <!-- Bali + NTT -->
+            <circle cx="462" cy="338" r="6"><title>Bali</title></circle>
+            <circle cx="540" cy="345" r="5"><title>Flores</title></circle>
+            <circle cx="605" cy="350" r="5"><title>Kupang</title></circle>
+            <!-- Kalimantan -->
+            <circle cx="365" cy="135" r="6"><title>Pontianak</title></circle>
+            <circle cx="440" cy="120" r="6"><title>Samarinda</title></circle>
+            <circle cx="448" cy="160" r="6"><title>Balikpapan</title></circle>
+            <!-- Sulawesi -->
+            <circle cx="542" cy="82" r="6"><title>Manado</title></circle>
+            <circle cx="530" cy="210" r="6"><title>Makassar</title></circle>
+            <circle cx="555" cy="168" r="5"><title>Kendari</title></circle>
+            <!-- Maluku -->
+            <circle cx="660" cy="150" r="5"><title>Ambon</title></circle>
+            <!-- Papua -->
+            <circle cx="800" cy="110" r="6"><title>Jayapura</title></circle>
+            <circle cx="755" cy="180" r="5"><title>Sorong</title></circle>
+          </g>
+
+          <!-- City labels for major hubs -->
+          <g fill="#A1A1AA" font-family="Fira Sans, sans-serif" font-size="10" font-weight="500">
+            <text x="258" y="302" text-anchor="middle">Jakarta</text>
+            <text x="415" y="306" text-anchor="middle">Surabaya</text>
+            <text x="165" y="70" text-anchor="middle">Medan</text>
+            <text x="462" y="326" text-anchor="middle">Bali</text>
+            <text x="530" y="225" text-anchor="middle">Makassar</text>
+            <text x="812" y="100" text-anchor="middle">Jayapura</text>
+          </g>
+        </svg>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot"></span> Active deployment</div>
+        <div class="legend-stat"><span class="legend-number">22</span> cities</div>
+        <div class="legend-stat"><span class="legend-number">300+</span> stores</div>
+      </div>
+    </div>
+
+    <!-- Client Logos (below map) -->
+    <div style="margin-top:3rem;">
+      <div class="logos-track" aria-label="Client logos">
+        <div class="logos-slide">
+          <div class="logo-item">Client 1</div>
+          <div class="logo-item">Client 2</div>
+          <div class="logo-item">Client 3</div>
+          <div class="logo-item">Client 4</div>
+          <div class="logo-item">Client 5</div>
+          <div class="logo-item">Client 6</div>
+          <div class="logo-item">Client 7</div>
+          <div class="logo-item">Client 8</div>
+          <div class="logo-item">Client 9</div>
+          <div class="logo-item">Client 10</div>
+          <div class="logo-item">Client 11</div>
+          <div class="logo-item">Client 12</div>
+        </div>
+        <div class="logos-slide" aria-hidden="true">
+          <div class="logo-item">Client 1</div>
+          <div class="logo-item">Client 2</div>
+          <div class="logo-item">Client 3</div>
+          <div class="logo-item">Client 4</div>
+          <div class="logo-item">Client 5</div>
+          <div class="logo-item">Client 6</div>
+          <div class="logo-item">Client 7</div>
+          <div class="logo-item">Client 8</div>
+          <div class="logo-item">Client 9</div>
+          <div class="logo-item">Client 10</div>
+          <div class="logo-item">Client 11</div>
+          <div class="logo-item">Client 12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PACKAGES TEASER ═══════ -->
+<section class="section" id="packages">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title reveal">Choose Your Package</h2>
+      <p class="section-subtitle reveal">Three tiers designed for every retail scale. All include hardware and installation.</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Basic -->
+      <div class="glass-card pricing-card reveal">
+        <div class="tier-name">Basic</div>
+        <div class="tier-desc">Core people counting and traffic analytics.</div>
+        <ul class="pricing-features">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Events Analytics</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Conversion Rate</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> In-Out Traffic Analytics</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> 24/7 Dedicated Local Support</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> SLA 99.9% Uptime Guarantee</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Customizable Reporting</li>
+        </ul>
+        <a href="/contact" class="btn btn-outline">Contact Us</a>
+      </div>
+      <!-- Add-On (Featured) -->
+      <div class="glass-card pricing-card featured reveal reveal-delay-1">
+        <div class="popular-badge">Best Offer</div>
+        <div class="tier-name">Add-On</div>
+        <div class="tier-desc">Advanced CCTV AI analytics for deeper insights.</div>
+        <ul class="pricing-features">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Dwelling Time</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Shopper Journey</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Passers-By Detection</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Store Heatmap Analysis</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Gender Analysis (M/F ratio)</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Age Profiling &amp; Segmentation</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Visitor Traffic (Staff Elimination)</li>
+        </ul>
+        <a href="/contact" class="btn btn-primary">Contact Us</a>
+      </div>
+      <!-- Premium -->
+      <div class="glass-card pricing-card reveal reveal-delay-2">
+        <div class="tier-name">Premium</div>
+        <div class="tier-desc">Complete suite — everything in one package.</div>
+        <ul class="pricing-features">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> All Basic Features</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> All Add-On Features</li>
+        </ul>
+        <a href="/contact" class="btn btn-outline">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FAQ ═══════ -->
+<section class="section section-surface" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title reveal">Frequently Asked Questions</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">How accurate is SmartCounter?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Our AI-powered system achieves 99.9% counting accuracy under normal operating conditions. We use multi-sensor fusion and advanced computer vision algorithms that work reliably across different lighting conditions, store layouts, and crowd densities.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">What hardware do I need?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">SmartCounter uses compact overhead sensors that are installed above your entrance points. We provide the hardware as part of the subscription — no upfront equipment purchase needed. Installation typically takes 2-3 hours per location.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">How long does setup take?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">From signing to live dashboard, most single-location setups complete within one week. Multi-location rollouts are typically 2-4 weeks depending on the number of sites. Our team handles everything — site survey, installation, calibration, and training.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Can I export my data?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Yes. Every view in the dashboard can be exported to PDF, CSV, or PNG. Premium plan users also get API access for integrating traffic data directly into your existing BI tools, ERP, or custom dashboards.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Do you offer a free trial?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">We offer a free personalized demo where you can see SmartCounter working with your actual store layout. We also have a self-service live demo at demo.smartcounter.id where you can explore the full dashboard with sample data — no registration required.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">What support is available?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Basic plan includes email support with 24-hour response. Add-On includes priority support via WhatsApp and email. Premium includes a dedicated account manager, quarterly business reviews, and phone support during business hours (WIB).</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FINAL CTA ═══════ -->
+<section class="final-cta">
+  <div class="final-cta-glow" aria-hidden="true"></div>
+  <div class="container">
+    <h2 class="reveal">Ready to Transform Your Retail Insights?</h2>
+    <p class="reveal">Join 300+ stores across Indonesia already using SmartCounter.</p>
+    <div class="hero-actions reveal">
+      <a href="/demo" class="btn btn-primary"><i data-lucide="play" style="width:16px;height:16px;"></i> Get Free Demo</a>
+      <a href="/contact" class="btn btn-outline">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo-text" style="font-size:1.125rem;"><span class="logo-smart">SMART</span><span class="logo-counter">Counter</span></span>
+        <p>AI-powered people counting and CCTV analytics for retail Indonesia. Visitor counting, heatmaps, demographics, foot traffic analysis, and real-time dashboards from smart camera systems.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/features">Features</a></li>
+          <li><a href="/packages">Packages</a></li>
+          <li><a href="/use-cases">Use Cases</a></li>
+          <li><a href="/demo">Live Demo</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/contact">Contact Us</a></li>
+          <li><a href="/blog">Blog</a></li>
+          <li><a href="/contact">Contact</a></li>
+          <li><a href="/faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:info@smartcounter.id">info@smartcounter.id</a></li>
+          <li><a href="tel:+6281234567890">+62 812-3456-7890</a></li>
+          <li>Jakarta, Indonesia</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 PT Ritel Data Indonesia. All rights reserved.</span>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" style="width:18px;height:18px;"></i></a>
+        <a href="#" aria-label="Instagram"><i data-lucide="instagram" style="width:18px;height:18px;"></i></a>
+        <a href="#" aria-label="YouTube"><i data-lucide="youtube" style="width:18px;height:18px;"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+
+  // Navbar scroll
+  const navbar = document.querySelector('.navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => revealObserver.observe(el));
+
+  // Count-up
+  const countEls = document.querySelectorAll('[data-count]');
+  const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const isDecimal = String(target).includes('.');
+      const duration = 1600;
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const val = ease * target;
+        el.textContent = (isDecimal ? val.toFixed(1) : Math.round(val)) + suffix;
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      countObserver.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  countEls.forEach(el => countObserver.observe(el));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const body = item.querySelector('.faq-body');
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        body.style.maxHeight = '0';
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

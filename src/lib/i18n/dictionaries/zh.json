@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "features": "功能",
+    "useCases": "应用案例",
+    "packages": "套餐",
+    "faq": "常见问题",
+    "blog": "博客",
+    "contact": "联系我们",
+    "getDemo": "申请演示"
+  },
+  "hero": {
+    "badge": "#1 印度尼西亚访客分析平台",
+    "title": "People Counting",
+    "titleHighlight": "& 访客分析",
+    "subtitle": "停止猜测，开始使用数据。SmartCounter将您的CCTV摄像头转化为AI驱动的客流计数系统 — 99.9%准确率的实时访客分析、热力图和人口统计洞察。通过数据驱动决策，销售额最高可提升40%。",
+    "ctaPrimary": "免费申请演示",
+    "ctaSecondary": "查看所有功能"
+  },
+  "common": {
+    "contactUs": "联系我们",
+    "learnMore": "了解更多",
+    "explore": "探索",
+    "readArticle": "阅读文章",
+    "viewAll": "查看全部",
+    "copyright": "© 2026 PT Ritel Data Indonesia. 版权所有。",
+    "storesServed": "已服务门店",
+    "accuracy": "准确率",
+    "analyticsFeatures": "分析功能"
+  },
+  "painPoints": {
+    "title": "还在手动统计访客吗？",
+    "subtitle": "了解没有准确访客数据时会发生什么。"
+  },
+  "features": {
+    "badge": "智能CCTV分析",
+    "title": "12+ 项AI驱动分析功能",
+    "subtitle": "从客流计数到热力图分析 — CCTV AI系统变革零售智能的一切所需。"
+  },
+  "useCases": {
+    "title": "适用于各种零售业态的People Counting",
+    "subtitle": "从精品时装店到大型购物中心，SmartCounter的CCTV AI适应您的空间和需求。"
+  },
+  "coverage": {
+    "title": "深受现代零售行业信赖",
+    "subtitle": "智能访客分析 — 部署覆盖印度尼西亚全境"
+  },
+  "packages": {
+    "title": "选择您的套餐",
+    "subtitle": "三种适用于各种零售规模的套餐。均包含硬件和安装服务。"
+  },
+  "faq": {
+    "title": "常见问题"
+  },
+  "cta": {
+    "title": "准备好变革您的零售洞察了吗？",
+    "subtitle": "印度尼西亚全境300多家门店已在使用SmartCounter进行数据驱动决策。"
+  },
+  "footer": {
+    "product": "产品",
+    "resources": "资源",
+    "contactInfo": "联系方式",
+    "description": "印度尼西亚#1访客分析平台。通过准确的实时数据帮助实体店销售额最高提升40%。"
+  }
+}

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5 Metrics Every Retail Manager Should Track Daily — SmartCounter Blog</title>
+<meta name="description" content="Visitor traffic, conversion rate, peak hours, dwell time, and staff ratio — the 5 people counting metrics that separate data-driven stores from gut-driven ones.">
+<link rel="canonical" href="https://smartcounter.id/blog/5-metrics-every-retail-manager-should-track">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"5 Metrics Every Retail Manager Should Track Daily","datePublished":"2026-04-20","author":{"@type":"Organization","name":"Ritel Data Team"},"publisher":{"@type":"Organization","name":"SmartCounter","logo":{"@type":"ImageObject","url":"https://smartcounter.id/logo.png"}},"description":"The five people counting and foot traffic metrics that every retail manager should check daily."}</script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--red-400:#F87171;--red-500:#EF4444;--red-600:#DC2626;--red-700:#B91C1C;--bg-base:#09090B;--bg-surface:#18181B;--bg-card:#27272A;--bg-elevated:#3F3F46;--text-primary:#FAFAFA;--text-secondary:#A1A1AA;--text-muted:#71717A;--border-subtle:#27272A;--border-default:#3F3F46;--logo-red:#FF0000;--glass-bg:rgba(39,39,42,0.60);--glass-border:rgba(255,255,255,0.06);--glow-sm:0 0 20px rgba(239,68,68,0.15);--font-sans:'Fira Sans',system-ui,sans-serif;--font-mono:'Fira Code',monospace;--container:min(80rem,100% - 2rem)}
+html{scroll-behavior:smooth}body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.container{width:var(--container);margin-inline:auto}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0;background:rgba(9,9,11,0.85);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--border-subtle)}
+.navbar-inner{width:var(--container);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}.logo-text{font-weight:700;font-size:1.25rem;letter-spacing:-0.02em}.logo-smart{color:var(--logo-red);font-variant:small-caps}.logo-counter{color:var(--text-primary)}
+.nav-links{display:flex;gap:1.75rem;list-style:none}.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}.nav-links a:hover,.nav-links a[aria-current]{color:var(--text-primary)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.625rem 1.25rem;border-radius:.5rem;font-size:.875rem;font-weight:600;font-family:var(--font-sans);cursor:pointer;text-decoration:none;transition:all .2s;border:none;white-space:nowrap}
+.btn-primary{background:var(--red-600);color:#fff}.btn-primary:hover{background:var(--red-700);box-shadow:var(--glow-sm)}
+@media(max-width:768px){.nav-links{display:none}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Reading progress */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--red-600);z-index:200;width:0;transition:width .1s linear}
+
+/* Article header */
+.article-header{padding:8rem 0 2rem;max-width:48rem;margin-inline:auto}
+.cat-badge{display:inline-block;background:rgba(239,68,68,0.1);color:var(--red-400);padding:.125rem .625rem;border-radius:9999px;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem}
+.meta-row{display:flex;align-items:center;gap:.5rem;font-size:.8125rem;color:var(--text-muted);margin-bottom:.75rem;flex-wrap:wrap}
+.meta-row .dot::before{content:'\00B7';margin:0 .125rem}
+.article-header h1{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:700;letter-spacing:-0.03em;line-height:1.2;margin-bottom:1rem}
+.article-header .excerpt{color:var(--text-secondary);font-size:1.0625rem;margin-bottom:1.5rem}
+.author-row{display:flex;align-items:center;gap:.75rem}
+.author-row .avatar{width:2.5rem;height:2.5rem;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;flex-shrink:0}
+.author-row .author-name{font-weight:600;font-size:.9375rem}.author-row .author-date{color:var(--text-muted);font-size:.8125rem}
+.featured-image{aspect-ratio:16/8;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:1rem;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.875rem;margin:2rem auto 0;max-width:56rem}
+
+/* Article layout */
+.article-layout{display:grid;grid-template-columns:1fr 16rem;gap:3rem;max-width:64rem;margin-inline:auto;padding:3rem 0 clamp(4rem,6vw,6rem);align-items:start}
+@media(max-width:900px){.article-layout{grid-template-columns:1fr;gap:2rem}}
+
+/* TOC */
+.toc{position:sticky;top:5rem}
+@media(max-width:900px){.toc{position:static;order:-1;border:1px solid var(--border-subtle);border-radius:.75rem;padding:1rem 1.25rem}}
+.toc-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.75rem}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:.25rem}
+.toc-list a{display:block;padding:.375rem .75rem;font-size:.8125rem;color:var(--text-muted);text-decoration:none;border-radius:.375rem;transition:all .2s}
+.toc-list a:hover{color:var(--text-secondary);background:rgba(255,255,255,0.03)}
+.toc-list a.active{color:var(--red-500);background:rgba(239,68,68,0.05)}
+.toc-list a.h3-link{padding-left:1.5rem;font-size:.75rem}
+
+/* Prose */
+.prose h2{font-size:1.5rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text-primary);scroll-margin-top:5rem}
+.prose h2::before{content:'';display:inline-block;width:3px;height:1.25em;background:var(--red-600);border-radius:2px;margin-right:.75rem;vertical-align:middle}
+.prose h3{font-size:1.125rem;font-weight:600;margin:2rem 0 .75rem;scroll-margin-top:5rem}
+.prose p{color:var(--text-secondary);margin-bottom:1.25rem;line-height:1.75}
+.prose strong{color:var(--text-primary);font-weight:600}
+.prose a{color:var(--red-500);text-decoration:underline;text-underline-offset:2px}.prose a:hover{color:var(--red-400)}
+.prose ul,.prose ol{margin:0 0 1.25rem;padding-left:0;list-style:none}
+.prose ul li,.prose ol li{display:flex;align-items:flex-start;gap:.625rem;color:var(--text-secondary);margin-bottom:.5rem;line-height:1.6}
+.prose ul li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red-500);flex-shrink:0;margin-top:.6rem}
+.prose ol{counter-reset:ol-counter}
+.prose ol li{counter-increment:ol-counter}
+.prose ol li::before{content:counter(ol-counter)'.';font-family:var(--font-mono);font-size:.8125rem;color:var(--red-500);font-weight:600;min-width:1.5rem;flex-shrink:0;margin-top:.1rem}
+.prose blockquote{background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:.75rem;padding:1.25rem 1.5rem;margin:1.5rem 0;color:var(--text-secondary);font-style:italic;line-height:1.65}
+.prose .img-placeholder{width:100%;border-radius:.75rem;margin:1.5rem 0;aspect-ratio:16/9;background:var(--bg-card);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.875rem}
+.prose hr{border:none;border-top:1px solid var(--border-subtle);margin:2rem 0}
+
+/* Share */
+.share-section{border-top:1px solid var(--border-subtle);padding-top:2rem;margin-top:2rem}
+.share-section h3{font-size:.875rem;font-weight:600;margin-bottom:1rem;color:var(--text-muted)}
+.share-buttons{display:flex;gap:.5rem;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:.375rem;padding:.5rem .875rem;border-radius:.5rem;font-size:.8125rem;font-weight:500;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .2s;text-decoration:none}
+.share-btn:hover{border-color:var(--text-muted);color:var(--text-primary)}
+
+/* Author bio */
+.author-bio{background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:1rem;padding:1.5rem;display:flex;gap:1rem;align-items:flex-start;margin-top:2rem}
+.author-bio .avatar-lg{width:4rem;height:4rem;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;color:var(--text-muted)}
+.author-bio .bio-text h4{font-size:1rem;font-weight:600;margin-bottom:.25rem}.author-bio .bio-text p{color:var(--text-secondary);font-size:.875rem;line-height:1.6}
+
+/* Related */
+.related-section{background:var(--bg-surface);padding:clamp(4rem,6vw,6rem) 0}
+.related-section h2{font-size:1.5rem;font-weight:700;margin-bottom:2rem;text-align:center}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:64rem;margin-inline:auto}
+.related-card{background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:1rem;overflow:hidden;text-decoration:none;color:inherit;transition:transform .25s,box-shadow .25s}
+.related-card:hover{transform:translateY(-4px);box-shadow:var(--glow-sm)}
+.related-card .card-image{aspect-ratio:16/9;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.8125rem}
+.related-card .card-body{padding:1.25rem}
+.related-card h3{font-size:1rem;font-weight:600;margin-bottom:.5rem;line-height:1.35}
+.related-card .meta-row{margin-top:.75rem}
+
+.footer{background:var(--bg-base);border-top:1px solid var(--border-subtle);padding:3rem 0 2rem}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;font-size:.8125rem;color:var(--text-muted)}
+.footer-social{display:flex;gap:1rem}.footer-social a{color:var(--text-muted);transition:color .2s}.footer-social a:hover{color:var(--text-primary)}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress" aria-hidden="true"></div>
+
+<nav class="navbar" role="navigation">
+  <div class="navbar-inner">
+    <a href="/" class="logo"><span class="logo-text"><span class="logo-smart">SMART</span><span class="logo-counter">Counter</span></span></a>
+    <ul class="nav-links"><li><a href="/features">Features</a></li><li><a href="/use-cases">Use Cases</a></li><li><a href="/packages">Packages</a></li><li><a href="/faq">FAQ</a></li><li><a href="/blog" aria-current="page">Blog</a></li><li><a href="/contact">Contact</a></li></ul>
+    <a href="/demo" class="btn btn-primary">Get Demo</a>
+  </div>
+</nav>
+
+<!-- Article Header -->
+<header class="article-header">
+  <div class="container">
+    <div class="reveal">
+      <div class="cat-badge">Retail Analytics</div>
+      <div class="meta-row"><span>Apr 20, 2026</span><span class="dot"></span><span>5 min read</span></div>
+      <h1>5 Metrics Every Retail Manager Should Track Daily</h1>
+      <p class="excerpt">Most retail managers check sales numbers daily but miss the traffic metrics that explain why sales are up or down.</p>
+      <div class="author-row">
+        <div class="avatar">RD</div>
+        <div><div class="author-name">Ritel Data Team</div><div class="author-date">Published Apr 20, 2026</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="container"><div class="featured-image reveal">[Featured Article Image — Dashboard with 5 KPI Cards]</div></div>
+
+<!-- Article Content + TOC -->
+<div class="container">
+  <div class="article-layout">
+    <article class="prose reveal">
+
+      <h2 id="intro">Why Traffic Metrics Matter More Than Sales Alone</h2>
+      <p>If your sales dropped 15% this week, what happened? Was it fewer visitors, or the same traffic with worse conversion? Without traffic data, you can't tell — and you can't fix what you can't diagnose.</p>
+      <p><strong>Sales numbers tell you what happened. Traffic metrics tell you why.</strong> Here are the five numbers that separate data-driven retail managers from gut-driven ones.</p>
+
+      <h2 id="metric-1">1. Total Visitor Traffic</h2>
+      <p>The most fundamental metric: how many people walked into your store today? Not transactions — actual human bodies through the door. This is your <strong>top-of-funnel</strong> for physical retail.</p>
+      <p>Track it hourly, daily, and weekly. Compare same-day last week. A sudden drop might mean a nearby competitor opened, or your window display changed, or there's construction blocking your entrance.</p>
+
+      <h2 id="metric-2">2. Conversion Rate</h2>
+      <p>Divide POS transactions by visitor count. That's your conversion rate. Most retailers are shocked when they first see this number — it's often lower than they assumed.</p>
+      <blockquote>"Our stores were averaging 8% conversion. We assumed it was 25-30% because we only saw the people who actually bought something. The gap was eye-opening."</blockquote>
+      <p>A 1% improvement in conversion at scale is worth more than most marketing campaigns. And you can't improve what you don't measure.</p>
+
+      <h2 id="metric-3">3. Peak Hour Distribution</h2>
+      <p>When are your busiest hours? Not when you think — when the data says. Peak hours determine staffing, promotion timing, and even music playlist energy.</p>
+      <div class="img-placeholder">[Hourly Traffic Chart — Bar Graph Showing Peak at 2-4 PM]</div>
+      <p>Common surprise: many fashion stores peak between 2-4 PM, not during lunch hour. Supermarkets peak at 10-11 AM on weekdays but 3-5 PM on weekends. Your assumption might be costing you labor spend.</p>
+
+      <h2 id="metric-4">4. Dwell Time by Zone</h2>
+      <p>How long do visitors spend in different areas of your store? The fitting room zone, the new arrivals display, the sale rack — each tells a different story.</p>
+      <ul>
+        <li>High dwell + high conversion = your best zones. Protect them.</li>
+        <li>High dwell + low conversion = interest without action. Check pricing or product availability.</li>
+        <li>Low dwell = dead zone. Move products or change the display.</li>
+      </ul>
+
+      <h2 id="metric-5">5. Traffic-to-Staff Ratio</h2>
+      <p>Divide visitor count by staff on floor for each hour. Too high means undertaffed (missed sales). Too low means overstaffed (wasted labor).</p>
+      <p>The ideal ratio varies by retail format, but tracking it daily lets you spot patterns: maybe Saturday mornings are always understaffed, or Tuesday afternoons always overstaffed. Adjust shifts accordingly.</p>
+
+      <hr>
+
+      <h2 id="getting-started">Getting Started</h2>
+      <p>You need <strong>accurate people counting</strong> as the foundation — everything else derives from it. SmartCounter's 99.9% accuracy means you can trust the numbers enough to make real decisions.</p>
+      <p>Start with metrics 1 and 2 (traffic + conversion). Once you have those, the other three follow naturally. Most of our customers see actionable insights within the first week.</p>
+      <p><a href="/demo">Request a free demo</a> to see these metrics live with your store's data.</p>
+
+      <!-- Share -->
+      <div class="share-section">
+        <h3>Share this article</h3>
+        <div class="share-buttons">
+          <a href="#" class="share-btn"><i data-lucide="twitter" style="width:14px;height:14px;"></i> Twitter</a>
+          <a href="#" class="share-btn"><i data-lucide="linkedin" style="width:14px;height:14px;"></i> LinkedIn</a>
+          <a href="#" class="share-btn"><i data-lucide="facebook" style="width:14px;height:14px;"></i> Facebook</a>
+          <a href="#" class="share-btn"><i data-lucide="message-circle" style="width:14px;height:14px;"></i> WhatsApp</a>
+          <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href)"><i data-lucide="link" style="width:14px;height:14px;"></i> Copy Link</button>
+        </div>
+      </div>
+
+      <!-- Author bio -->
+      <div class="author-bio">
+        <div class="avatar-lg">RD</div>
+        <div class="bio-text">
+          <h4>Ritel Data Team</h4>
+          <p>The product and analytics team at PT Ritel Data Indonesia. We write about retail analytics, people counting technology, and data-driven store management based on real customer deployments across Indonesia.</p>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- TOC Sidebar -->
+    <aside class="toc">
+      <div class="toc-title">On This Page</div>
+      <ul class="toc-list">
+        <li><a href="#intro" class="active">Why Traffic Metrics Matter</a></li>
+        <li><a href="#metric-1">1. Total Visitor Traffic</a></li>
+        <li><a href="#metric-2">2. Conversion Rate</a></li>
+        <li><a href="#metric-3">3. Peak Hour Distribution</a></li>
+        <li><a href="#metric-4">4. Dwell Time by Zone</a></li>
+        <li><a href="#metric-5">5. Traffic-to-Staff Ratio</a></li>
+        <li><a href="#getting-started">Getting Started</a></li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+<!-- Related -->
+<section class="related-section">
+  <div class="container">
+    <h2 class="reveal">You Might Also Like</h2>
+    <div class="related-grid">
+      <a href="/blog/heatmap-optimization-guide" class="related-card reveal">
+        <div class="card-image">[Article Image]</div>
+        <div class="card-body"><div class="cat-badge">Tips &amp; Tricks</div><h3>How to Use Heatmap Data to Redesign Your Store Layout</h3><div class="meta-row"><span>Ayu R.</span><span class="dot"></span><span>7 min</span></div></div>
+      </a>
+      <a href="/blog/conversion-rate-retail" class="related-card reveal">
+        <div class="card-image">[Article Image]</div>
+        <div class="card-body"><div class="cat-badge">Retail Analytics</div><h3>Understanding Conversion Rate in Physical Retail</h3><div class="meta-row"><span>Ritel Data Team</span><span class="dot"></span><span>4 min</span></div></div>
+      </a>
+      <a href="/blog/staff-scheduling-traffic-data" class="related-card reveal">
+        <div class="card-image">[Article Image]</div>
+        <div class="card-body"><div class="cat-badge">Tips &amp; Tricks</div><h3>Stop Over-Staffing: Schedule Shifts Based on Traffic Data</h3><div class="meta-row"><span>Ritel Data Team</span><span class="dot"></span><span>5 min</span></div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-inner"><span>&copy; 2026 PT Ritel Data Indonesia.</span><div class="footer-social"><a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" style="width:18px;height:18px;"></i></a><a href="#" aria-label="Instagram"><i data-lucide="instagram" style="width:18px;height:18px;"></i></a></div></div></div></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  lucide.createIcons();
+  const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target)}})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Reading progress
+  const bar=document.getElementById('progress');
+  window.addEventListener('scroll',()=>{
+    const h=document.documentElement;
+    const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+    bar.style.width=pct+'%';
+  },{passive:true});
+
+  // TOC active state
+  const headings=document.querySelectorAll('.prose h2[id]');
+  const tocLinks=document.querySelectorAll('.toc-list a');
+  const tocObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        tocLinks.forEach(l=>l.classList.remove('active'));
+        const link=document.querySelector(`.toc-list a[href="#${e.target.id}"]`);
+        if(link)link.classList.add('active');
+      }
+    });
+  },{threshold:0,rootMargin:'-80px 0px -70% 0px'});
+  headings.forEach(h=>tocObs.observe(h));
+});
+</script>
+</body>
+</html>

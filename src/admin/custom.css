@@ -1,0 +1,95 @@
+@layer payload {
+  :root {
+    --font-body: 'Fira Sans', system-ui, sans-serif;
+    --font-mono: 'Fira Code', monospace;
+
+    --sc-accent: #DC2626;
+    --sc-accent-hover: #b91c1c;
+    --sc-accent-soft: rgba(220, 38, 38, 0.12);
+  }
+
+  html[data-theme='dark'] {
+    --color-base-0: rgb(255, 255, 255);
+    --color-base-50: rgb(240, 240, 240);
+    --color-base-100: rgb(224, 224, 224);
+    --color-base-150: rgb(208, 208, 208);
+    --color-base-200: rgb(192, 192, 192);
+    --color-base-250: rgb(176, 176, 176);
+    --color-base-300: rgb(160, 160, 160);
+    --color-base-350: rgb(144, 144, 144);
+    --color-base-400: rgb(128, 128, 128);
+    --color-base-450: rgb(119, 119, 119);
+    --color-base-500: rgb(100, 100, 100);
+    --color-base-550: rgb(85, 85, 85);
+    --color-base-600: rgb(74, 74, 74);
+    --color-base-650: rgb(60, 60, 60);
+    --color-base-700: rgb(51, 51, 51);
+    --color-base-750: rgb(42, 42, 42);
+    --color-base-800: rgb(40, 40, 40);
+    --color-base-850: rgb(30, 30, 30);
+    --color-base-900: rgb(20, 20, 20);
+    --color-base-950: rgb(12, 12, 12);
+    --color-base-1000: rgb(12, 12, 12);
+
+    --theme-elevation-0: var(--color-base-950);
+    --theme-elevation-50: var(--color-base-900);
+    --theme-elevation-100: var(--color-base-850);
+    --theme-elevation-150: var(--color-base-750);
+  }
+
+  /* Primary buttons → SC red */
+  .btn.btn--style-primary,
+  button.btn.btn--style-primary {
+    background: var(--sc-accent);
+    border-color: var(--sc-accent);
+  }
+
+  .btn.btn--style-primary:hover,
+  button.btn.btn--style-primary:hover {
+    background: var(--sc-accent-hover);
+    border-color: var(--sc-accent-hover);
+  }
+
+  /* Pill/tag accents */
+  .pill--has-action:hover,
+  .pill--style-primary {
+    background: var(--sc-accent-soft);
+    color: var(--sc-accent);
+  }
+
+  /* Nav active indicator */
+  .nav__link--active::after,
+  .nav__link:hover::after {
+    background: var(--sc-accent);
+  }
+
+  /* Dashboard card links */
+  .dashboard .card__actions a,
+  .dashboard .card__click {
+    color: var(--sc-accent);
+  }
+
+  /* Collection list create-new button accent */
+  .collection-list__header .btn.btn--style-primary {
+    background: var(--sc-accent);
+    border-color: var(--sc-accent);
+  }
+
+  /* Step-nav breadcrumb link color */
+  .step-nav a {
+    color: var(--sc-accent);
+  }
+
+  /* Sidebar nav group labels */
+  .nav-group__label {
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  /* Hide default dashboard collections/globals grid — custom overview replaces it */
+  .modular-dashboard {
+    display: none !important;
+  }
+}

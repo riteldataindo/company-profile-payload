@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCounter Admin — Use Cases</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0c0c0c;
+    --bg-1: #141414;
+    --bg-2: #1e1e1e;
+    --bg-3: #282828;
+    --bg-4: #333;
+    --text-0: #f0f0f0;
+    --text-1: #b0b0b0;
+    --text-2: #777;
+    --border: #2a2a2a;
+    --accent: #DC2626;
+    --accent-soft: rgba(220, 38, 38, 0.12);
+    --green: #22c55e;
+    --green-bg: rgba(34, 197, 94, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+  }
+
+  body {
+    font-family: 'Fira Sans', system-ui, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-0);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Payload-like sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-logo .brand {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-logo .brand .red { color: #FF0000; font-variant: small-caps; }
+  .sidebar-logo .admin-tag {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--bg-3);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .sidebar-section {
+    padding: 16px 12px 8px;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-1);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sidebar-item:hover { background: var(--bg-2); color: var(--text-0); }
+  .sidebar-item.active { background: var(--bg-3); color: var(--text-0); }
+
+  .sidebar-item .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .sidebar-user .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+
+  .sidebar-user .name { font-size: 13px; font-weight: 500; }
+  .sidebar-user .role { font-size: 11px; color: var(--text-2); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .page-header-left h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .page-header-left p {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .page-header .action-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--bg-1);
+    color: var(--text-0);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-header .action-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 12px 16px;
+    border-bottom: 2px solid transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-1);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text-0); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Grid view */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .grid-item {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+
+  .grid-item:hover {
+    border-color: var(--accent);
+    background: var(--bg-2);
+  }
+
+  .grid-item-image {
+    width: 100%;
+    height: 140px;
+    background: var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--text-2);
+  }
+
+  .grid-item-content {
+    padding: 12px;
+  }
+
+  .grid-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-0);
+    margin-bottom: 4px;
+  }
+
+  .grid-item-slug {
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: 'Fira Code', monospace;
+    margin-bottom: 8px;
+  }
+
+  .grid-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .toggle-switch {
+    width: 32px;
+    height: 18px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-switch.active {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.15s;
+  }
+
+  .toggle-switch.active::after {
+    left: 18px;
+  }
+
+  .grid-item-sort {
+    color: var(--text-2);
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+  }
+
+  .edit-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .edit-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Form */
+  .form-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .form-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-1);
+    margin-bottom: 6px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-0);
+    font-family: 'Fira Sans', system-ui, sans-serif;
+    font-size: 13px;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-row.full {
+    grid-template-columns: 1fr;
+  }
+
+  .image-upload {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--bg-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .image-upload:hover {
+    border-color: var(--accent);
+    background: var(--bg-3);
+  }
+
+  .image-upload p {
+    color: var(--text-2);
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .image-upload .upload-hint {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--bg-1);
+    color: var(--text-0);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn:hover {
+    background: var(--bg-2);
+    border-color: var(--bg-4);
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn.primary:hover {
+    background: #b91c1c;
+  }
+
+  .btn.secondary {
+    background: transparent;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar (Payload-like) -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span class="brand"><span class="red">SMART</span>Counter</span>
+    <span class="admin-tag">Admin</span>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-item">Dashboard</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Collections</div>
+    <div class="sidebar-item">Pages</div>
+    <div class="sidebar-item">Blog Posts</div>
+    <div class="sidebar-item">Blog Categories</div>
+    <div class="sidebar-item">Features</div>
+    <div class="sidebar-item active">Use Cases</div>
+    <div class="sidebar-item">Pricing Tiers</div>
+    <div class="sidebar-item">FAQ Items</div>
+    <div class="sidebar-item">Client Logos</div>
+    <div class="sidebar-item">Testimonials</div>
+    <div class="sidebar-item">
+      Form Submissions
+      <span class="badge">3</span>
+    </div>
+    <div class="sidebar-item">Deployment Locations</div>
+    <div class="sidebar-item">Media</div>
+    <div class="sidebar-item">Users</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Globals</div>
+    <div class="sidebar-item">Site Settings</div>
+    <div class="sidebar-item">Navigation</div>
+    <div class="sidebar-item">Homepage</div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="avatar">SA</div>
+      <div>
+        <div class="name">Super Admin</div>
+        <div class="role">super_admin</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Use Cases</h1>
+      <p>Manage industry use cases and case studies</p>
+    </div>
+    <button class="action-btn primary">New Use Case</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(event, 'list')">Use Cases List</div>
+    <div class="tab" onclick="switchTab(event, 'edit')">Edit Use Case</div>
+  </div>
+
+  <!-- List View Tab -->
+  <div id="list" class="tab-content active">
+    <div class="grid-container">
+      <div class="grid-item">
+        <div class="grid-item-image">Store</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Retail & Department Store</div>
+          <div class="grid-item-slug">retail-department-store</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-item-image">Building</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Mall & Shopping Center</div>
+          <div class="grid-item-slug">mall-shopping-center</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#2</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-item-image">Shirt</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Fashion & Boutique</div>
+          <div class="grid-item-slug">fashion-boutique</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-item-image">Pill</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Pharmacy & Healthcare</div>
+          <div class="grid-item-slug">pharmacy-healthcare</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#4</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-item-image">ShoppingCart</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Supermarket & Minimarket</div>
+          <div class="grid-item-slug">supermarket-minimarket</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#5</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-item-image">Crown</div>
+        <div class="grid-item-content">
+          <div class="grid-item-title">Luxury & Premium Store</div>
+          <div class="grid-item-slug">luxury-premium-store</div>
+          <div class="grid-item-actions">
+            <div class="toggle-switch active"></div>
+            <a href="#" class="edit-link">Edit</a>
+            <div class="grid-item-sort">#6</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit View Tab -->
+  <div id="edit" class="tab-content">
+    <div class="form-card">
+      <div class="form-card-title">Basic Information</div>
+      <div class="form-group form-row full">
+        <label>Industry Name</label>
+        <input type="text" value="Retail & Department Store" />
+      </div>
+      <div class="form-group form-row full">
+        <label>Slug</label>
+        <input type="text" value="retail-department-store" />
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label>Icon (Lucide Name)</label>
+          <input type="text" value="Store" placeholder="e.g. Store, Building, Shirt" />
+        </div>
+      </div>
+      <div class="form-group form-row full">
+        <label>Short Description</label>
+        <input type="text" placeholder="One-line description" value="Track customer flow and optimize store layout for maximum sales" />
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Content</div>
+      <div class="form-group form-row full">
+        <label>Long Description</label>
+        <textarea placeholder="Detailed description of this use case...">Retail stores and department stores benefit from real-time visitor analytics. Monitor foot traffic during peak hours, analyze customer dwell times in different zones, and optimize staff allocation. Use demographic insights to tailor marketing strategies and improve store layout efficiency.</textarea>
+      </div>
+      <div class="form-group form-row full">
+        <label>Hero Image</label>
+        <div class="image-upload">
+          <p>Click or drag to upload hero image</p>
+          <div class="upload-hint">JPG, PNG up to 5MB (1600x800px recommended)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Organization</div>
+      <div class="form-group form-row">
+        <div>
+          <label>Sort Order</label>
+          <input type="number" value="1" />
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 0;">
+        <input type="checkbox" id="visible" checked />
+        <label for="visible" style="text-transform: none; letter-spacing: normal; font-weight: 500; margin: 0; cursor: pointer;">Visible on website</label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn primary">Save Changes</button>
+      <button class="btn secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(event, tabName) {
+    const tabs = document.querySelectorAll('.tab');
+    const contents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => tab.classList.remove('active'));
+    contents.forEach(content => content.classList.remove('active'));
+
+    event.target.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+  }
+
+  // Toggle switch interaction
+  document.querySelectorAll('.toggle-switch').forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      this.classList.toggle('active');
+    });
+  });
+</script>
+
+</body>
+</html>

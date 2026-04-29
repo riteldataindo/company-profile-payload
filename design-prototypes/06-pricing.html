@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packages — AI People Counting System Plans | SmartCounter</title>
+<meta name="description" content="SmartCounter packages for AI people counting and CCTV analytics. Basic, Add-On, and Premium tiers. Hardware and installation included. Contact us for a custom quote.">
+<link rel="canonical" href="https://smartcounter.id/packages">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --red-400: #F87171; --red-500: #EF4444; --red-600: #DC2626; --red-700: #B91C1C;
+  --bg-base: #09090B; --bg-surface: #18181B; --bg-card: #27272A; --bg-elevated: #3F3F46;
+  --text-primary: #FAFAFA; --text-secondary: #A1A1AA; --text-muted: #71717A;
+  --border-subtle: #27272A; --border-default: #3F3F46;
+  --logo-red: #FF0000;
+  --glass-bg: rgba(39,39,42,0.60); --glass-border: rgba(255,255,255,0.06);
+  --glow-sm: 0 0 20px rgba(239,68,68,0.15); --glow-md: 0 0 40px rgba(239,68,68,0.25);
+  --font-sans: 'Fira Sans', system-ui, sans-serif; --font-mono: 'Fira Code', monospace;
+  --container: min(80rem, 100% - 2rem);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg-base); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+.container { width: var(--container); margin-inline: auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* Navbar */
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 0; background: rgba(9,9,11,0.85); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--border-subtle); }
+.navbar-inner { width: var(--container); margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+.logo-text { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
+.logo-smart { color: var(--logo-red); font-variant: small-caps; }
+.logo-counter { color: var(--text-primary); }
+.nav-links { display: flex; gap: 1.75rem; list-style: none; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a[aria-current] { color: var(--text-primary); }
+.btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; white-space: nowrap; }
+.btn-primary { background: var(--red-600); color: #fff; }
+.btn-primary:hover { background: var(--red-700); box-shadow: var(--glow-sm); }
+.btn-outline { background: transparent; color: var(--red-500); border: 1px solid var(--red-600); }
+.btn-outline:hover { background: rgba(220,38,38,0.1); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-default); }
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text-primary); }
+@media (max-width: 768px) { .nav-links { display: none; } }
+
+/* Shared */
+.section { padding: clamp(5rem, 8vw, 8rem) 0; }
+.section-surface { background: var(--bg-surface); }
+.glass-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 1rem; padding: 1.5rem; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+.glass-card:hover { transform: translateY(-4px); box-shadow: var(--glow-sm); border-color: rgba(239,68,68,0.2); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.1s; } .reveal-d2 { transition-delay: 0.2s; } .reveal-d3 { transition-delay: 0.3s; }
+.badge { display: inline-flex; align-items: center; gap: 0.375rem; background: rgba(239,68,68,0.1); color: var(--red-400); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── Page Header ── */
+.page-header { padding-top: 8rem; padding-bottom: 3rem; text-align: center; position: relative; }
+.page-header-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(239,68,68,0.08) 0%, transparent 70%); pointer-events: none; }
+.breadcrumb { display: flex; justify-content: center; gap: 0.5rem; font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem; position: relative; z-index: 1; }
+.breadcrumb a { color: var(--text-muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text-secondary); }
+.page-header h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+.page-header .subtitle { color: var(--text-secondary); font-size: 1.0625rem; max-width: 32rem; margin-inline: auto; position: relative; z-index: 1; }
+
+/* ── Pricing Cards ── */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: start; max-width: 64rem; margin-inline: auto; }
+@media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; max-width: 28rem; } }
+.pricing-card { padding: 2rem; position: relative; }
+.pricing-card.featured { border-color: var(--red-600); box-shadow: var(--glow-md); background: rgba(220,38,38,0.05); transform: scale(1.03); }
+.pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+.popular-badge { position: absolute; top: -0.75rem; left: 50%; transform: translateX(-50%); background: var(--red-600); color: #fff; font-size: 0.6875rem; font-weight: 700; padding: 0.25rem 0.875rem; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.06em; }
+.tier-name { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+.tier-price { font-family: var(--font-mono); font-size: 2.25rem; font-weight: 700; margin-bottom: 0.25rem; font-variant-numeric: tabular-nums; }
+.tier-price .unit { font-size: 0.9375rem; color: var(--text-muted); font-weight: 400; }
+.tier-desc { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+.pricing-features li { display: flex; align-items: center; gap: 0.625rem; font-size: 0.9375rem; }
+.pricing-features li i { flex-shrink: 0; }
+.pricing-features li.included i { color: var(--red-500); }
+.pricing-features li.excluded { color: var(--text-muted); }
+.pricing-features li.excluded i { color: var(--bg-elevated); }
+.pricing-card .btn { width: 100%; justify-content: center; padding: 0.75rem; }
+
+/* ── Comparison Table ── */
+.comparison-section { max-width: 64rem; margin-inline: auto; }
+.comparison-section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; text-align: center; }
+.table-wrap { overflow-x: auto; border-radius: 1rem; border: 1px solid var(--border-subtle); }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+thead { position: sticky; top: 0; z-index: 2; }
+thead th { background: var(--bg-card); padding: 1rem 1.25rem; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-subtle); }
+thead th:first-child { text-align: left; }
+thead th.featured-col { color: var(--red-400); }
+tbody td { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border-subtle); text-align: center; }
+tbody td:first-child { text-align: left; color: var(--text-secondary); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+.check-icon { color: var(--red-500); }
+.x-icon { color: var(--bg-elevated); }
+
+/* ── Pricing FAQ ── */
+.faq-list { max-width: 48rem; margin-inline: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+.faq-item { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 0.75rem; overflow: hidden; }
+.faq-trigger { width: 100%; padding: 1.125rem 1.25rem; background: none; border: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--text-primary); font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; text-align: left; cursor: pointer; }
+.faq-trigger i { color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0; }
+.faq-item.open .faq-trigger i { transform: rotate(180deg); }
+.faq-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+.faq-body-inner { padding: 0 1.25rem 1.125rem; color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.65; }
+
+/* ── Enterprise CTA ── */
+.enterprise-cta {
+  text-align: center; padding: 3rem 2rem; border-radius: 1rem;
+  background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+  max-width: 48rem; margin: 0 auto;
+}
+.enterprise-cta h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+.enterprise-cta p { color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 1.5rem; }
+
+/* Footer */
+.footer { background: var(--bg-base); border-top: 1px solid var(--border-subtle); padding: 3rem 0 2rem; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; color: var(--text-muted); }
+.footer-social { display: flex; gap: 1rem; }
+.footer-social a { color: var(--text-muted); transition: color 0.2s; } .footer-social a:hover { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" role="navigation">
+  <div class="navbar-inner">
+    <a href="/" class="logo"><span class="logo-text"><span class="logo-smart">SMART</span><span class="logo-counter">Counter</span></span></a>
+    <ul class="nav-links">
+      <li><a href="/features">Features</a></li>
+      <li><a href="/use-cases">Use Cases</a></li>
+      <li><a href="/packages" aria-current="page">Packages</a></li>
+      <li><a href="/faq">FAQ</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <a href="/demo" class="btn btn-primary">Get Demo</a>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<header class="page-header">
+  <div class="page-header-glow" aria-hidden="true"></div>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a> <span>/</span> <span>Packages</span></nav>
+    <h1 class="reveal">People Counting System Packages</h1>
+    <p class="subtitle reveal">Choose the right AI-powered CCTV analytics package for your business. All plans include sensor hardware and professional installation.</p>
+  </div>
+</header>
+
+<!-- Package Cards -->
+<section class="section" style="padding-top:2rem;">
+  <div class="container">
+    <div class="pricing-grid" style="align-items:stretch;">
+      <!-- Basic -->
+      <div class="glass-card pricing-card reveal" style="display:flex;flex-direction:column;">
+        <div class="tier-name">Basic</div>
+        <div class="tier-desc">Core people counting and traffic analytics.</div>
+        <ul class="pricing-features" style="flex:1;">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Events Analytics</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Conversion Rate</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> In-Out Traffic Analytics</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> 24/7 Dedicated Local Support</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> SLA 99.9% Uptime Guarantee</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Customizable Reporting</li>
+        </ul>
+        <a href="/contact" class="btn btn-outline" style="margin-top:auto;">Contact Us</a>
+      </div>
+
+      <!-- Add-On (Featured) -->
+      <div class="glass-card pricing-card featured reveal reveal-d1" style="display:flex;flex-direction:column;">
+        <div class="popular-badge">Best Offer</div>
+        <div class="tier-name">Add-On</div>
+        <div class="tier-desc">Advanced CCTV AI analytics for deeper insights.</div>
+        <ul class="pricing-features" style="flex:1;">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Dwelling Time</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Shopper Journey</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Passers-By Detection</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Store Heatmap Analysis</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Gender Analysis (M/F ratio)</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Age Profiling &amp; Segmentation</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> Visitor Traffic (Staff Elimination)</li>
+        </ul>
+        <a href="/contact" class="btn btn-primary" style="margin-top:auto;">Contact Us</a>
+      </div>
+
+      <!-- Premium -->
+      <div class="glass-card pricing-card reveal reveal-d2" style="display:flex;flex-direction:column;">
+        <div class="tier-name">Premium</div>
+        <div class="tier-desc">Complete suite — everything in one package.</div>
+        <ul class="pricing-features" style="flex:1;">
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> All Basic Features</li>
+          <li class="included"><i data-lucide="check" style="width:16px;height:16px;"></i> All Add-On Features</li>
+        </ul>
+        <a href="/contact" class="btn btn-outline" style="margin-top:auto;">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison Table -->
+<section class="section section-surface">
+  <div class="container">
+    <div class="comparison-section reveal">
+      <h2>Feature Comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:220px;">Feature</th>
+              <th style="min-width:100px;">Basic</th>
+              <th style="min-width:100px;" class="featured-col">Add-On</th>
+              <th style="min-width:100px;">Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Events Analytics</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Conversion Rate</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>In-Out Traffic Analytics</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>24/7 Dedicated Local Support</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>SLA 99.9% Uptime Guarantee</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Customizable Reporting</td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Dwelling Time</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Shopper Journey</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Passers-By Detection</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Store Heatmap Analysis</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Gender Analysis (M/F)</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Age Profiling &amp; Segmentation</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+            <tr><td>Visitor Traffic (Staff Elimination)</td><td><span class="x-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td><td><span class="check-icon"><i data-lucide="check" style="width:16px;height:16px;"></i></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing FAQ -->
+<section class="section">
+  <div class="container">
+    <h2 style="text-align:center;font-size:1.5rem;font-weight:700;margin-bottom:2rem;" class="reveal">Common Questions About Our Packages</h2>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Is there a long-term contract?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">No. All plans are month-to-month with no lock-in. We offer discounts for annual commitments, but you're free to cancel at the end of any billing cycle.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Can I upgrade or downgrade anytime?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Yes. Plan changes take effect at the start of your next billing cycle. Upgrading unlocks new features immediately. Downgrading disables premium features at cycle end — your data is preserved.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Is hardware included?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Yes. All plans include sensor hardware, professional installation, calibration, and ongoing maintenance at no extra cost.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">Do you offer a free trial or demo?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">We offer a free personalized demo with your actual store layout. You can also explore our self-service live demo at demo.smartcounter.id — no registration needed.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">What payment methods do you accept?<i data-lucide="chevron-down" style="width:18px;height:18px;"></i></button>
+        <div class="faq-body"><div class="faq-body-inner">Bank transfer (BCA, Mandiri, BNI, BRI), corporate invoice (NET 30 for Premium), and credit card. All prices are in Indonesian Rupiah and subject to 11% PPN.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Enterprise CTA -->
+<section class="section section-surface">
+  <div class="container">
+    <div class="enterprise-cta reveal">
+      <h3>Need a Custom Plan for 50+ Locations?</h3>
+      <p>Our enterprise team will build a tailored package with volume pricing, SLA guarantees, and dedicated infrastructure.</p>
+      <a href="/contact" class="btn btn-primary"><i data-lucide="message-circle" style="width:16px;height:16px;"></i> Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <span>&copy; 2026 PT Ritel Data Indonesia. All rights reserved.</span>
+      <div class="footer-social">
+        <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" style="width:18px;height:18px;"></i></a>
+        <a href="#" aria-label="Instagram"><i data-lucide="instagram" style="width:18px;height:18px;"></i></a>
+        <a href="#" aria-label="YouTube"><i data-lucide="youtube" style="width:18px;height:18px;"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => obs.observe(el));
+
+  document.querySelectorAll('.faq-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const body = item.querySelector('.faq-body');
+      const isOpen = item.classList.contains('open');
+      if (isOpen) { body.style.maxHeight = '0'; item.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+      else { body.style.maxHeight = body.scrollHeight + 'px'; item.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
+    });
+  });
+});
+</script>
+</body>
+</html>

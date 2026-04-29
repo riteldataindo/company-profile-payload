@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>People Counting for Fashion Stores — AI Visitor Analytics | SmartCounter</title>
+<meta name="description" content="SmartCounter's AI people counting system for fashion retail. Track fitting room conversion, dwell time by collection zone, and measure campaign impact with CCTV analytics.">
+<link rel="canonical" href="https://smartcounter.id/use-cases/fashion">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--red-400:#F87171;--red-500:#EF4444;--red-600:#DC2626;--red-700:#B91C1C;--bg-base:#09090B;--bg-surface:#18181B;--bg-card:#27272A;--bg-elevated:#3F3F46;--text-primary:#FAFAFA;--text-secondary:#A1A1AA;--text-muted:#71717A;--border-subtle:#27272A;--border-default:#3F3F46;--logo-red:#FF0000;--glass-bg:rgba(39,39,42,0.60);--glass-border:rgba(255,255,255,0.06);--glow-sm:0 0 20px rgba(239,68,68,0.15);--glow-md:0 0 40px rgba(239,68,68,0.25);--font-sans:'Fira Sans',system-ui,sans-serif;--font-mono:'Fira Code',monospace;--container:min(80rem,100% - 2rem)}
+html{scroll-behavior:smooth}body{font-family:var(--font-sans);background:var(--bg-base);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.container{width:var(--container);margin-inline:auto}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0;background:rgba(9,9,11,0.85);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--border-subtle)}
+.navbar-inner{width:var(--container);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}.logo-text{font-weight:700;font-size:1.25rem;letter-spacing:-0.02em}.logo-smart{color:var(--logo-red);font-variant:small-caps}.logo-counter{color:var(--text-primary)}
+.nav-links{display:flex;gap:1.75rem;list-style:none}.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}.nav-links a:hover,.nav-links a[aria-current]{color:var(--text-primary)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.625rem 1.25rem;border-radius:.5rem;font-size:.875rem;font-weight:600;font-family:var(--font-sans);cursor:pointer;text-decoration:none;transition:all .2s;border:none;white-space:nowrap}
+.btn-primary{background:var(--red-600);color:#fff}.btn-primary:hover{background:var(--red-700);box-shadow:var(--glow-sm)}
+.btn-outline{background:transparent;color:var(--red-500);border:1px solid var(--red-600)}.btn-outline:hover{background:rgba(220,38,38,0.1)}
+.btn-lg{padding:.875rem 1.75rem;font-size:1rem}
+@media(max-width:768px){.nav-links{display:none}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}.reveal.visible{opacity:1;transform:translateY(0)}
+.badge{display:inline-flex;align-items:center;gap:.375rem;background:rgba(239,68,68,0.1);color:var(--red-400);padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+
+/* Full-width image hero */
+.uc-hero{position:relative;min-height:420px;display:flex;align-items:flex-end;overflow:hidden;padding:0 0 3rem}
+.uc-hero-bg{position:absolute;inset:0;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.875rem}
+.uc-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--bg-base) 0%,rgba(9,9,11,0.6) 50%,rgba(9,9,11,0.3) 100%);pointer-events:none}
+.uc-hero .container{position:relative;z-index:2;padding-top:8rem}
+.uc-hero .breadcrumb{display:flex;gap:.5rem;font-size:.8125rem;color:rgba(250,250,250,0.6);margin-bottom:1rem}
+.uc-hero .breadcrumb a{color:rgba(250,250,250,0.6);text-decoration:none}.uc-hero .breadcrumb a:hover{color:var(--text-primary)}
+.uc-hero h1{font-size:clamp(2rem,5vw,3.25rem);font-weight:700;letter-spacing:-0.03em;margin-bottom:.75rem}
+.uc-hero .subtitle{color:var(--text-secondary);font-size:1.0625rem;max-width:36rem;margin-bottom:1.5rem}
+
+/* Stats section */
+.stats-section{background:var(--bg-surface);padding:clamp(4rem,6vw,6rem) 0}
+.stats-layout{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+@media(max-width:768px){.stats-layout{grid-template-columns:1fr;gap:2rem}}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.stat-card{background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:.75rem;padding:1.25rem;text-align:center}
+.stat-card .stat-value{font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--red-400);font-variant-numeric:tabular-nums}
+.stat-card .stat-label{font-size:.8125rem;color:var(--text-muted);margin-top:.25rem}
+.stats-text h2{font-size:1.5rem;font-weight:700;margin-bottom:1rem;letter-spacing:-0.02em}
+.stats-text p{color:var(--text-secondary);margin-bottom:1rem;line-height:1.7}
+.check-list{list-style:none;display:flex;flex-direction:column;gap:.625rem}
+.check-list li{display:flex;align-items:flex-start;gap:.5rem;color:var(--text-secondary);font-size:.9375rem}
+.check-list li i{color:var(--red-500);flex-shrink:0;margin-top:3px}
+
+/* Content */
+.content-section{padding:clamp(4rem,6vw,6rem) 0}
+.prose{max-width:48rem;margin-inline:auto}
+.prose h2{font-size:1.5rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text-primary)}
+.prose h2::before{content:'';display:inline-block;width:3px;height:1.25em;background:var(--red-600);border-radius:2px;margin-right:.75rem;vertical-align:middle}
+.prose h3{font-size:1.125rem;font-weight:600;margin:2rem 0 .75rem}
+.prose p{color:var(--text-secondary);margin-bottom:1.25rem;line-height:1.7}
+.prose ul{margin:0 0 1.25rem;padding-left:0;list-style:none}
+.prose ul li{display:flex;align-items:flex-start;gap:.625rem;color:var(--text-secondary);margin-bottom:.5rem;line-height:1.6}
+.prose ul li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red-500);flex-shrink:0;margin-top:.6rem}
+
+/* Features for industry */
+.features-for-section{background:var(--bg-surface);padding:clamp(4rem,6vw,6rem) 0}
+.features-for-section h2{font-size:1.5rem;font-weight:700;margin-bottom:2rem;text-align:center}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem}
+.feat-card{background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:1rem;padding:1.25rem;text-decoration:none;color:inherit;transition:transform .25s,box-shadow .25s,border-color .25s}
+.feat-card:hover{transform:translateY(-4px);box-shadow:var(--glow-sm);border-color:rgba(239,68,68,0.2)}
+.feat-card .icon-wrap{width:2.25rem;height:2.25rem;border-radius:.5rem;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;color:var(--red-500)}
+.feat-card h3{font-size:.9375rem;font-weight:600;margin-bottom:.25rem}.feat-card p{color:var(--text-secondary);font-size:.8125rem}
+
+/* Testimonial */
+.testimonial-section{padding:clamp(4rem,6vw,6rem) 0}
+.testimonial-card{max-width:40rem;margin-inline:auto;background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:1rem;padding:2rem 2.5rem;text-align:center}
+.testimonial-card .quote{font-size:1.0625rem;color:var(--text-secondary);line-height:1.7;font-style:italic;margin-bottom:1.25rem}
+.testimonial-card .author-row{display:flex;align-items:center;justify-content:center;gap:.75rem}
+.testimonial-card .avatar{width:2.5rem;height:2.5rem;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.75rem;font-weight:600;flex-shrink:0}
+.testimonial-card .author-info{text-align:left}.testimonial-card .author-name{font-weight:600;font-size:.875rem}.testimonial-card .author-role{color:var(--text-muted);font-size:.8125rem}
+
+/* CTA */
+.uc-cta{background:var(--bg-surface);padding:clamp(4rem,6vw,6rem) 0;text-align:center}
+.uc-cta h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;margin-bottom:.5rem}
+.uc-cta p{color:var(--text-secondary);margin-bottom:1.5rem}
+.uc-cta .actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+
+.footer{background:var(--bg-base);border-top:1px solid var(--border-subtle);padding:3rem 0 2rem}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;font-size:.8125rem;color:var(--text-muted)}
+.footer-social{display:flex;gap:1rem}.footer-social a{color:var(--text-muted);transition:color .2s}.footer-social a:hover{color:var(--text-primary)}
+</style>
+</head>
+<body>
+
+<nav class="navbar" role="navigation">
+  <div class="navbar-inner">
+    <a href="/" class="logo"><span class="logo-text"><span class="logo-smart">SMART</span><span class="logo-counter">Counter</span></span></a>
+    <ul class="nav-links"><li><a href="/features">Features</a></li><li><a href="/use-cases" aria-current="page">Use Cases</a></li><li><a href="/packages">Packages</a></li><li><a href="/faq">FAQ</a></li><li><a href="/blog">Blog</a></li><li><a href="/contact">Contact</a></li></ul>
+    <a href="/demo" class="btn btn-primary">Get Demo</a>
+  </div>
+</nav>
+
+<!-- Full-width Image Hero -->
+<section class="uc-hero">
+  <div class="uc-hero-bg">[Fashion Store Interior Photography]</div>
+  <div class="uc-hero-overlay" aria-hidden="true"></div>
+  <div class="container">
+    <nav class="breadcrumb reveal" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/use-cases">Use Cases</a><span>/</span><span>Fashion Store</span></nav>
+    <div class="badge reveal" style="margin-bottom:1rem;"><i data-lucide="shirt" style="width:14px;height:14px;"></i> Fashion Retail</div>
+    <h1 class="reveal">People Counting & AI Analytics for Fashion Stores</h1>
+    <p class="subtitle reveal">Understand how customers shop your collections. From fitting room conversion to campaign impact — data that drives visual merchandising decisions.</p>
+    <a href="/demo" class="btn btn-primary btn-lg reveal"><i data-lucide="play" style="width:16px;height:16px;"></i> Get Demo for Fashion</a>
+  </div>
+</section>
+
+<!-- Why SmartCounter -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-layout reveal">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value">+34%</div><div class="stat-label">Accessory sales after layout change</div></div>
+        <div class="stat-card"><div class="stat-value">2.4x</div><div class="stat-label">Higher conversion in hot zones</div></div>
+        <div class="stat-card"><div class="stat-value">18min</div><div class="stat-label">Avg. dwell time in premium</div></div>
+        <div class="stat-card"><div class="stat-value">-22%</div><div class="stat-label">Staff cost after shift optimization</div></div>
+      </div>
+      <div class="stats-text">
+        <h2>Why Fashion Stores Need Traffic Analytics</h2>
+        <p>Fashion retail lives and dies by visual merchandising, campaign timing, and customer experience. Without traffic data, you're optimizing blind.</p>
+        <ul class="check-list">
+          <li><i data-lucide="check" style="width:16px;height:16px;"></i> Measure which collections draw the most foot traffic</li>
+          <li><i data-lucide="check" style="width:16px;height:16px;"></i> Track fitting room to checkout conversion rate</li>
+          <li><i data-lucide="check" style="width:16px;height:16px;"></i> Compare campaign impact: traffic before vs after window change</li>
+          <li><i data-lucide="check" style="width:16px;height:16px;"></i> Optimize staffing around peak shopping hours</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Content -->
+<section class="content-section">
+  <div class="container">
+    <div class="prose reveal">
+      <h2>The Fashion Retail Challenge</h2>
+      <p>Fashion stores invest heavily in visual merchandising, seasonal displays, and store design. But most lack the data to measure whether these investments actually drive customer engagement and sales. A new window display costs time and money — but did it increase foot traffic? Did the new collection zone attract more dwell time?</p>
+      <p>SmartCounter gives fashion retailers the same data-driven approach that e-commerce has had for years. See which zones attract the most attention, how long customers browse, and where they go next.</p>
+
+      <h2>How Fashion Stores Use SmartCounter</h2>
+
+      <h3>Visual Merchandising Optimization</h3>
+      <p>Use heatmap data to understand which display areas draw the most traffic. Move high-margin items from dead zones to hot zones. Test new layouts and measure the impact within days, not seasons.</p>
+
+      <h3>Fitting Room Analytics</h3>
+      <p>The fitting room is where browsing becomes buying. Track how many visitors enter the fitting room zone versus how many proceed to checkout. A low fitting room conversion rate might mean sizing issues, poor lighting, or insufficient staff assistance.</p>
+
+      <h3>Campaign Measurement</h3>
+      <p>Launch a new window display or promotional event? Compare foot traffic, dwell time, and conversion rates from the week before to the week after. Get hard numbers on campaign ROI instead of anecdotal feedback.</p>
+
+      <h3>Seasonal Planning</h3>
+      <p>Analyze traffic patterns across months and seasons. Know exactly when your customer base shifts (back-to-school, holiday shopping, sale periods) and plan staffing, inventory, and displays accordingly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features for Fashion -->
+<section class="features-for-section">
+  <div class="container">
+    <h2 class="reveal">Features Perfect for Fashion Stores</h2>
+    <div class="features-grid">
+      <a href="/features/heatmap" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="flame" style="width:18px;height:18px;"></i></div><h3>Heatmap Analytics</h3><p>See which displays and zones attract the most attention.</p></a>
+      <a href="/features/dwelling-time" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="timer" style="width:18px;height:18px;"></i></div><h3>Dwelling Time</h3><p>Measure engagement per collection zone and fitting area.</p></a>
+      <a href="/features/demographics" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="scan-face" style="width:18px;height:18px;"></i></div><h3>Demographics</h3><p>Understand your customer profile — age and gender mix.</p></a>
+      <a href="/features/conversion-rate" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="percent" style="width:18px;height:18px;"></i></div><h3>Conversion Rate</h3><p>Track visitors vs POS transactions per hour and day.</p></a>
+      <a href="/features/people-counting" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="users" style="width:18px;height:18px;"></i></div><h3>People Counting</h3><p>99.9% accurate traffic measurement at every entrance.</p></a>
+      <a href="/features/staff-optimization" class="feat-card reveal"><div class="icon-wrap"><i data-lucide="user-cog" style="width:18px;height:18px;"></i></div><h3>Staff Optimization</h3><p>Align floor staff with traffic to maximize service quality.</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonial -->
+<section class="testimonial-section">
+  <div class="container">
+    <div class="testimonial-card reveal">
+      <p class="quote">"We moved our accessories display from a dead zone near the back wall to the high-traffic corridor between fitting rooms and checkout. Accessory sales increased 34% in the first month. SmartCounter paid for itself in week two."</p>
+      <div class="author-row">
+        <div class="avatar">AR</div>
+        <div class="author-info"><div class="author-name">Ayu Rahmawati</div><div class="author-role">Visual Merchandising Manager, BeautyHaul</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="uc-cta">
+  <div class="container reveal">
+    <h2>Start Tracking Your Fashion Store Visitors Today</h2>
+    <p>Book a personalized demo and see how SmartCounter works for fashion retail.</p>
+    <div class="actions">
+      <a href="/demo" class="btn btn-primary btn-lg"><i data-lucide="play" style="width:16px;height:16px;"></i> Get Free Demo</a>
+      <a href="/use-cases" class="btn btn-outline">View All Use Cases</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-inner"><span>&copy; 2026 PT Ritel Data Indonesia.</span><div class="footer-social"><a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" style="width:18px;height:18px;"></i></a><a href="#" aria-label="Instagram"><i data-lucide="instagram" style="width:18px;height:18px;"></i></a></div></div></div></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  lucide.createIcons();
+  const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target)}})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+});
+</script>
+</body>
+</html>

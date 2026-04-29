@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - SmartCounter Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fira Sans', sans-serif;
+            background: #0c0c0c;
+            color: #f0f0f0;
+            height: 100%;
+        }
+
+        :root {
+            --bg-0: #0c0c0c;
+            --bg-1: #141414;
+            --bg-2: #1e1e1e;
+            --bg-3: #282828;
+            --bg-4: #333;
+            --text-0: #f0f0f0;
+            --text-1: #b0b0b0;
+            --text-2: #777;
+            --border: #2a2a2a;
+            --accent: #DC2626;
+            --green: #22c55e;
+            --amber: #f59e0b;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-1);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-1);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 150ms, color 150ms;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-2);
+            color: var(--text-0);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-0);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-0);
+            cursor: pointer;
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 150ms, border-color 150ms;
+        }
+
+        .btn:hover {
+            background: var(--bg-3);
+            border-color: var(--text-2);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #991f1f;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-1);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .tab:hover {
+            color: var(--text-0);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* List View */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .list-item {
+            background: var(--bg-2);
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto auto;
+            gap: 20px;
+            align-items: center;
+            cursor: pointer;
+            transition: background 150ms;
+        }
+
+        .list-item:hover {
+            background: var(--bg-3);
+        }
+
+        .list-item-question {
+            font-size: 13px;
+            color: var(--text-0);
+            font-weight: 500;
+        }
+
+        .list-item-question-preview {
+            font-size: 12px;
+            color: var(--text-1);
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-general {
+            background: var(--bg-4);
+            color: var(--text-1);
+        }
+
+        .badge-installation {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .badge-analytics {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+        }
+
+        .badge-pricing {
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+        }
+
+        .badge-technical {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .sort-order {
+            font-size: 12px;
+            color: var(--text-2);
+            text-align: right;
+            width: 40px;
+        }
+
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background: var(--bg-4);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            transition: background 150ms;
+        }
+
+        .toggle-switch.active {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .toggle-switch-thumb {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: left 150ms;
+        }
+
+        .toggle-switch.active .toggle-switch-thumb {
+            left: 18px;
+        }
+
+        .list-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-1);
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 150ms, color 150ms;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-4);
+            color: var(--text-0);
+        }
+
+        /* Modal/Form Section */
+        .form-section {
+            display: none;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-0);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-0);
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 13px;
+            transition: border-color 150ms;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: var(--bg-3);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-4);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-1);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-mark">S</div>
+                <span>SmartCounter<br>ADMIN</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Collections</div>
+                <div class="sidebar-item active">FAQ</div>
+                <div class="sidebar-item">Client Logos</div>
+                <div class="sidebar-item">Media Library</div>
+                <div class="sidebar-item">Analytics Events</div>
+                <div class="sidebar-item">User Subscriptions</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Globals</div>
+                <div class="sidebar-item">Site Settings</div>
+                <div class="sidebar-item">Navigation</div>
+                <div class="sidebar-item">Footer</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header">
+                <h1 class="header-title">FAQ</h1>
+                <div class="header-actions">
+                    <button class="btn">Sort by Order</button>
+                    <button class="btn btn-primary" onclick="showEditForm()">+ Add FAQ</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Edit Form (Initially Hidden) -->
+                <div class="form-section" id="editForm">
+                    <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">Create FAQ Item</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Question</label>
+                        <input type="text" class="form-input" placeholder="Enter FAQ question" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Answer</label>
+                        <textarea class="form-textarea" placeholder="Enter detailed answer (supports basic formatting)"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <input type="text" class="form-input" placeholder="e.g., General, Installation, Analytics">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sort Order</label>
+                            <input type="number" class="form-input" placeholder="0" value="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-input" id="publishCheckbox" checked>
+                            <label for="publishCheckbox" style="font-size: 13px; color: var(--text-1); cursor: pointer; margin: 0;">Published</label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary">Save</button>
+                        <button class="btn btn-secondary" onclick="hideEditForm()">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- FAQ List -->
+                <h3 style="font-size: 13px; font-weight: 600; color: var(--text-1); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 16px;">Items (5)</h3>
+
+                <div class="list-container">
+                    <!-- Item 1 -->
+                    <div class="list-item">
+                        <div>
+                            <div class="list-item-question">What is SmartCounter and how does it work?</div>
+                            <div class="list-item-question-preview">SmartCounter is a lightweight analytics solution...</div>
+                        </div>
+                        <span class="badge badge-general">General</span>
+                        <span class="sort-order">1</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-switch-thumb"></div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="icon-btn" onclick="showEditForm()">Edit</button>
+                            <button class="icon-btn" style="color: var(--accent);">Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="list-item">
+                        <div>
+                            <div class="list-item-question">How do I install SmartCounter on my website?</div>
+                            <div class="list-item-question-preview">To install SmartCounter, you need to add a script...</div>
+                        </div>
+                        <span class="badge badge-installation">Installation</span>
+                        <span class="sort-order">2</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-switch-thumb"></div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="icon-btn" onclick="showEditForm()">Edit</button>
+                            <button class="icon-btn" style="color: var(--accent);">Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="list-item">
+                        <div>
+                            <div class="list-item-question">What data does SmartCounter track?</div>
+                            <div class="list-item-question-preview">SmartCounter tracks pageviews, unique visitors...</div>
+                        </div>
+                        <span class="badge badge-analytics">Analytics</span>
+                        <span class="sort-order">3</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-switch-thumb"></div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="icon-btn" onclick="showEditForm()">Edit</button>
+                            <button class="icon-btn" style="color: var(--accent);">Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 -->
+                    <div class="list-item">
+                        <div>
+                            <div class="list-item-question">What are the pricing plans?</div>
+                            <div class="list-item-question-preview">We offer Free, Pro, and Enterprise plans...</div>
+                        </div>
+                        <span class="badge badge-pricing">Pricing</span>
+                        <span class="sort-order">4</span>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-switch-thumb"></div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="icon-btn" onclick="showEditForm()">Edit</button>
+                            <button class="icon-btn" style="color: var(--accent);">Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Item 5 -->
+                    <div class="list-item">
+                        <div>
+                            <div class="list-item-question">Is SmartCounter compatible with my CMS?</div>
+                            <div class="list-item-question-preview">SmartCounter works with any modern website...</div>
+                        </div>
+                        <span class="badge badge-technical">Technical</span>
+                        <span class="sort-order">5</span>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-switch-thumb"></div>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="icon-btn" onclick="showEditForm()">Edit</button>
+                            <button class="icon-btn" style="color: var(--accent);">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showEditForm() {
+            document.getElementById('editForm').classList.add('active');
+        }
+
+        function hideEditForm() {
+            document.getElementById('editForm').classList.remove('active');
+        }
+
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

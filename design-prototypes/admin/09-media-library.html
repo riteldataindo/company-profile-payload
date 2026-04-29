@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Library - SmartCounter Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fira Sans', sans-serif;
+            background: #0c0c0c;
+            color: #f0f0f0;
+            height: 100%;
+        }
+
+        :root {
+            --bg-0: #0c0c0c;
+            --bg-1: #141414;
+            --bg-2: #1e1e1e;
+            --bg-3: #282828;
+            --bg-4: #333;
+            --text-0: #f0f0f0;
+            --text-1: #b0b0b0;
+            --text-2: #777;
+            --border: #2a2a2a;
+            --accent: #DC2626;
+            --green: #22c55e;
+            --amber: #f59e0b;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-1);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-1);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 150ms, color 150ms;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-2);
+            color: var(--text-0);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-0);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-0);
+            cursor: pointer;
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 150ms, border-color 150ms;
+        }
+
+        .btn:hover {
+            background: var(--bg-3);
+            border-color: var(--text-2);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #991f1f;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Grid and Panel Layout */
+        .content-main {
+            flex: 1;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 4px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--bg-2);
+            cursor: pointer;
+            transition: border-color 150ms, background 150ms;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: var(--bg-3);
+        }
+
+        .upload-zone-text {
+            color: var(--text-1);
+            font-size: 13px;
+        }
+
+        .upload-zone-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .upload-zone-hint {
+            font-size: 11px;
+            color: var(--text-2);
+            margin-top: 8px;
+        }
+
+        /* Grid View */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .media-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background 150ms, border-color 150ms;
+        }
+
+        .media-card:hover {
+            background: var(--bg-3);
+            border-color: var(--accent);
+        }
+
+        .media-card.selected {
+            border-color: var(--accent);
+            background: var(--bg-3);
+        }
+
+        .media-card-image {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, var(--bg-3), var(--bg-4));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-2);
+            font-size: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .media-card-image.color1 {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        }
+
+        .media-card-image.color2 {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        .media-card-image.color3 {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
+        .media-card-image.color4 {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .media-card-image.color5 {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+        }
+
+        .media-card-content {
+            padding: 8px;
+        }
+
+        .media-card-filename {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-0);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .media-card-size {
+            font-size: 9px;
+            color: var(--text-2);
+            margin-top: 4px;
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            width: 320px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            display: none;
+        }
+
+        .detail-panel.active {
+            display: flex;
+        }
+
+        .detail-preview {
+            width: 100%;
+            height: 180px;
+            background: var(--bg-3);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-2);
+            font-size: 12px;
+        }
+
+        .detail-preview.color1 {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        }
+
+        .detail-preview.color2 {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        .detail-preview.color3 {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
+        .detail-preview.color4 {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .detail-preview.color5 {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+        }
+
+        .detail-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-0);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-value {
+            font-size: 12px;
+            color: var(--text-1);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .detail-input {
+            width: 100%;
+            padding: 8px 10px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-0);
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 12px;
+            transition: border-color 150ms;
+        }
+
+        .detail-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .detail-input.highlight {
+            border-color: var(--accent);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .detail-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px 10px;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-0);
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 12px;
+            resize: none;
+            transition: border-color 150ms;
+        }
+
+        .detail-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .detail-grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-grid-value {
+            font-size: 11px;
+            color: var(--text-0);
+            font-weight: 500;
+        }
+
+        .detail-grid-label {
+            font-size: 9px;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: var(--bg-3);
+            color: var(--text-0);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: background 150ms;
+        }
+
+        .detail-btn:hover {
+            background: var(--bg-4);
+        }
+
+        .detail-btn.danger {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .detail-btn.danger:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-1);
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-mark">S</div>
+                <span>SmartCounter<br>ADMIN</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Collections</div>
+                <div class="sidebar-item">FAQ</div>
+                <div class="sidebar-item">Client Logos</div>
+                <div class="sidebar-item active">Media Library</div>
+                <div class="sidebar-item">Analytics Events</div>
+                <div class="sidebar-item">User Subscriptions</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Globals</div>
+                <div class="sidebar-item">Site Settings</div>
+                <div class="sidebar-item">Navigation</div>
+                <div class="sidebar-item">Footer</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header">
+                <h1 class="header-title">Media Library</h1>
+                <div class="header-actions">
+                    <button class="btn">Search</button>
+                    <button class="btn btn-primary" onclick="triggerUpload()">+ Upload</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="content-main">
+                    <!-- Upload Zone -->
+                    <div class="upload-zone" onclick="triggerUpload()">
+                        <div class="upload-zone-icon">↓</div>
+                        <div class="upload-zone-text">Drag and drop media or click to browse</div>
+                        <div class="upload-zone-hint">PNG, JPG, GIF up to 10MB</div>
+                    </div>
+
+                    <!-- Media Grid -->
+                    <h3 style="font-size: 13px; font-weight: 600; color: var(--text-1); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 16px;">Media (5 files)</h3>
+
+                    <div class="grid-container">
+                        <!-- Media Card 1 -->
+                        <div class="media-card" onclick="selectMedia(this, 'color1')">
+                            <div class="media-card-image color1">Image</div>
+                            <div class="media-card-content">
+                                <div class="media-card-filename">hero-banner.jpg</div>
+                                <div class="media-card-size">2.4 MB</div>
+                            </div>
+                        </div>
+
+                        <!-- Media Card 2 -->
+                        <div class="media-card" onclick="selectMedia(this, 'color2')">
+                            <div class="media-card-image color2">Image</div>
+                            <div class="media-card-content">
+                                <div class="media-card-filename">feature-01.png</div>
+                                <div class="media-card-size">156 KB</div>
+                            </div>
+                        </div>
+
+                        <!-- Media Card 3 -->
+                        <div class="media-card" onclick="selectMedia(this, 'color3')">
+                            <div class="media-card-image color3">Image</div>
+                            <div class="media-card-content">
+                                <div class="media-card-filename">dashboard.png</div>
+                                <div class="media-card-size">512 KB</div>
+                            </div>
+                        </div>
+
+                        <!-- Media Card 4 -->
+                        <div class="media-card" onclick="selectMedia(this, 'color4')">
+                            <div class="media-card-image color4">Image</div>
+                            <div class="media-card-content">
+                                <div class="media-card-filename">team-photo.jpg</div>
+                                <div class="media-card-size">1.8 MB</div>
+                            </div>
+                        </div>
+
+                        <!-- Media Card 5 -->
+                        <div class="media-card" onclick="selectMedia(this, 'color5')">
+                            <div class="media-card-image color5">Image</div>
+                            <div class="media-card-content">
+                                <div class="media-card-filename">screenshot.png</div>
+                                <div class="media-card-size">890 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Panel -->
+                <div class="detail-panel" id="detailPanel">
+                    <div class="detail-preview" id="previewColor">Image Preview</div>
+
+                    <div class="detail-section">
+                        <div class="detail-label">Alt Text</div>
+                        <input type="text" class="detail-input highlight" placeholder="Required for accessibility" value="Dashboard screenshot showing analytics metrics">
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-label">Caption</div>
+                        <textarea class="detail-textarea" placeholder="Optional caption or description">SmartCounter dashboard with real-time analytics</textarea>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-label">File Info</div>
+                        <div class="detail-grid">
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value" id="fileSize">1,234 KB</div>
+                                <div class="detail-grid-label">Size</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value" id="fileDims">1920 x 1080</div>
+                                <div class="detail-grid-label">Dimensions</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value">JPG</div>
+                                <div class="detail-grid-label">Format</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value" id="uploadDate">2 days ago</div>
+                                <div class="detail-grid-label">Uploaded</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-label">Generated Sizes</div>
+                        <div class="detail-grid" style="gap: 8px;">
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value">400 x 300</div>
+                                <div class="detail-grid-label">Thumbnail</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value">800 x 600</div>
+                                <div class="detail-grid-label">Card</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value">1920 x _</div>
+                                <div class="detail-grid-label">Hero</div>
+                            </div>
+                            <div class="detail-grid-item">
+                                <div class="detail-grid-value">1200 x 630</div>
+                                <div class="detail-grid-label">OG Image</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="detail-btn">Download</button>
+                        <button class="detail-btn danger" onclick="deleteMedia()">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function triggerUpload() {
+            alert('Open file upload dialog');
+        }
+
+        function selectMedia(element, colorClass) {
+            // Remove selected from all cards
+            document.querySelectorAll('.media-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            // Add selected to clicked card
+            element.classList.add('selected');
+
+            // Show detail panel
+            document.getElementById('detailPanel').classList.add('active');
+            document.getElementById('previewColor').className = 'detail-preview ' + colorClass;
+        }
+
+        function deleteMedia() {
+            if (confirm('Delete this media file?')) {
+                document.getElementById('detailPanel').classList.remove('active');
+                alert('Media deleted');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Logos - SmartCounter Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Fira+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fira Sans', sans-serif;
+            background: #0c0c0c;
+            color: #f0f0f0;
+            height: 100%;
+        }
+
+        :root {
+            --bg-0: #0c0c0c;
+            --bg-1: #141414;
+            --bg-2: #1e1e1e;
+            --bg-3: #282828;
+            --bg-4: #333;
+            --text-0: #f0f0f0;
+            --text-1: #b0b0b0;
+            --text-2: #777;
+            --border: #2a2a2a;
+            --accent: #DC2626;
+            --green: #22c55e;
+            --amber: #f59e0b;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-1);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-1);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 150ms, color 150ms;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-2);
+            color: var(--text-0);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-0);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-0);
+            cursor: pointer;
+            font-family: 'Fira Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 150ms, border-color 150ms;
+        }
+
+        .btn:hover {
+            background: var(--bg-3);
+            border-color: var(--text-2);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #991f1f;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        /* Grid View */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: background 150ms, border-color 150ms;
+        }
+
+        .logo-card:hover {
+            background: var(--bg-3);
+            border-color: var(--text-2);
+        }
+
+        .logo-card-image {
+            width: 100%;
+            height: 160px;
+            background: var(--bg-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-2);
+            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-card-content {
+            padding: 16px;
+        }
+
+        .logo-card-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-0);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .logo-card-url {
+            font-size: 11px;
+            color: var(--text-2);
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .logo-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-2);
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sort-order {
+            font-size: 11px;
+            color: var(--text-2);
+        }
+
+        .toggle-switch {
+            width: 32px;
+            height: 18px;
+            border-radius: 9px;
+            background: var(--bg-4);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            transition: background 150ms;
+        }
+
+        .toggle-switch.active {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .toggle-switch-thumb {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: left 150ms;
+        }
+
+        .toggle-switch.active .toggle-switch-thumb {
+            left: 16px;
+        }
+
+        .logo-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-1);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: background 150ms, color 150ms;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-4);
+            color: var(--text-0);
+        }
+
+        .icon-btn.delete:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Add New Card */
+        .add-card {
+            background: var(--bg-2);
+            border: 2px dashed var(--border);
+            border-radius: 4px;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 150ms, background 150ms;
+        }
+
+        .add-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-3);
+        }
+
+        .add-card-content {
+            text-align: center;
+            color: var(--text-1);
+        }
+
+        .add-card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .add-card-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Drag Handle */
+        .drag-handle {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-2);
+            cursor: grab;
+            font-size: 12px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Metadata Section */
+        .metadata-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .metadata-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .metadata-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-1);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-mark">S</div>
+                <span>SmartCounter<br>ADMIN</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Collections</div>
+                <div class="sidebar-item">FAQ</div>
+                <div class="sidebar-item active">Client Logos</div>
+                <div class="sidebar-item">Media Library</div>
+                <div class="sidebar-item">Analytics Events</div>
+                <div class="sidebar-item">User Subscriptions</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Globals</div>
+                <div class="sidebar-item">Site Settings</div>
+                <div class="sidebar-item">Navigation</div>
+                <div class="sidebar-item">Footer</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header">
+                <h1 class="header-title">Client Logos</h1>
+                <div class="header-actions">
+                    <button class="btn">Sort by Order</button>
+                    <button class="btn btn-primary" onclick="addNewLogo()">+ Add Logo</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <h3 style="font-size: 13px; font-weight: 600; color: var(--text-1); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 16px;">Logos (7)</h3>
+
+                <div class="grid-container">
+                    <!-- Logo Card 1 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">TechCorp Inc</div>
+                            <div class="logo-card-url">techcorp.com</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 1</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 2 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">Digital Solutions</div>
+                            <div class="logo-card-url">digitalsol.io</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 2</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 3 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">CloudBase Systems</div>
+                            <div class="logo-card-url">cloudbase.dev</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 3</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 4 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">NextGen Analytics</div>
+                            <div class="logo-card-url">nextgen.ai</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 4</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 5 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">DataFlow Enterprise</div>
+                            <div class="logo-card-url">dataflow.com</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 5</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 6 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">Velocity Labs</div>
+                            <div class="logo-card-url">velocity.tech</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 6</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card 7 -->
+                    <div class="logo-card">
+                        <div class="logo-card-image">Logo Placeholder</div>
+                        <div class="logo-card-content">
+                            <div class="logo-card-name">Smart Insights Co</div>
+                            <div class="logo-card-url">smartinsights.io</div>
+                            <div class="logo-card-meta">
+                                <span class="sort-order">Order: 7</span>
+                            </div>
+                            <div class="metadata-section">
+                                <div class="metadata-left">
+                                    <div class="drag-handle">≡</div>
+                                    <div class="toggle-switch" onclick="toggleSwitch(this)">
+                                        <div class="toggle-switch-thumb"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="logo-card-actions">
+                                <button class="icon-btn" onclick="editLogo()">Edit</button>
+                                <button class="icon-btn delete" onclick="deleteLogo()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add New Card -->
+                    <div class="add-card" onclick="addNewLogo()">
+                        <div class="add-card-content">
+                            <div class="add-card-icon">+</div>
+                            <div class="add-card-text">Add Logo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        function addNewLogo() {
+            alert('Open add logo modal');
+        }
+
+        function editLogo() {
+            alert('Open edit logo modal');
+        }
+
+        function deleteLogo() {
+            if (confirm('Delete this logo?')) {
+                alert('Logo deleted');
+            }
+        }
+    </script>
+</body>
+</html>

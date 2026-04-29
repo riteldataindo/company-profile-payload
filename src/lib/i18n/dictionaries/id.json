@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "features": "Fitur",
+    "useCases": "Studi Kasus",
+    "packages": "Paket",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "contact": "Hubungi Kami",
+    "getDemo": "Coba Demo"
+  },
+  "hero": {
+    "badge": "#1 Platform People Counting Indonesia",
+    "title": "People Counting",
+    "titleHighlight": "& Analitik Pengunjung",
+    "subtitle": "Berhenti menebak, mulai gunakan data. SmartCounter mengubah kamera CCTV Anda menjadi sistem penghitung pengunjung berbasis AI — analitik pengunjung real-time, heatmap, dan insight demografis dengan akurasi 99.9%. Tingkatkan penjualan hingga 40% dengan keputusan berbasis data.",
+    "ctaPrimary": "Coba Demo Gratis",
+    "ctaSecondary": "Lihat Semua Fitur"
+  },
+  "common": {
+    "contactUs": "Hubungi Kami",
+    "learnMore": "Selengkapnya",
+    "explore": "Jelajahi",
+    "readArticle": "Baca artikel",
+    "viewAll": "Lihat Semua",
+    "copyright": "© 2026 PT Ritel Data Indonesia. Hak cipta dilindungi.",
+    "storesServed": "Toko Terlayani",
+    "accuracy": "Akurasi",
+    "analyticsFeatures": "Fitur Analitik"
+  },
+  "painPoints": {
+    "title": "Masih Menghitung Pengunjung Manual?",
+    "subtitle": "Inilah yang terjadi saat Anda tidak memiliki data pengunjung yang akurat."
+  },
+  "features": {
+    "badge": "Analitik CCTV Cerdas",
+    "title": "12+ Fitur Analitik Berbasis AI",
+    "subtitle": "Dari people counting hingga heatmap — semua yang dibutuhkan sistem CCTV AI untuk mentransformasi inteligensi retail Anda."
+  },
+  "useCases": {
+    "title": "People Counting untuk Setiap Format Retail",
+    "subtitle": "Dari butik fashion hingga mall besar, CCTV AI SmartCounter menyesuaikan dengan ruang dan kebutuhan Anda."
+  },
+  "coverage": {
+    "title": "Dipercaya Industri Retail Modern",
+    "subtitle": "untuk Analitik Pengunjung Cerdas — terpasang di seluruh Indonesia"
+  },
+  "packages": {
+    "title": "Pilih Paket Anda",
+    "subtitle": "Tiga paket untuk setiap skala retail. Semua termasuk perangkat keras dan instalasi."
+  },
+  "faq": {
+    "title": "Pertanyaan yang Sering Ditanyakan"
+  },
+  "cta": {
+    "title": "Siap Mentransformasi Insight Retail Anda?",
+    "subtitle": "Bergabung dengan 300+ toko di Indonesia yang sudah menggunakan SmartCounter untuk keputusan berbasis data."
+  },
+  "footer": {
+    "product": "Produk",
+    "resources": "Sumber Daya",
+    "contactInfo": "Kontak",
+    "description": "Platform analitik pengunjung #1 Indonesia yang membantu toko fisik meningkatkan pendapatan hingga 40% dengan data yang akurat dan real-time."
+  }
+}

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCounter Admin — Dashboard Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0c0c0c;
+    --bg-1: #141414;
+    --bg-2: #1e1e1e;
+    --bg-3: #282828;
+    --bg-4: #333;
+    --text-0: #f0f0f0;
+    --text-1: #b0b0b0;
+    --text-2: #777;
+    --border: #2a2a2a;
+    --accent: #DC2626;
+    --accent-soft: rgba(220, 38, 38, 0.12);
+    --green: #22c55e;
+    --green-bg: rgba(34, 197, 94, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+  }
+
+  body {
+    font-family: 'Fira Sans', system-ui, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-0);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Payload-like sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-logo .brand {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .sidebar-logo .brand .red { color: #FF0000; font-variant: small-caps; }
+  .sidebar-logo .admin-tag {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--bg-3);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .sidebar-section {
+    padding: 16px 12px 8px;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-1);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sidebar-item:hover { background: var(--bg-2); color: var(--text-0); }
+  .sidebar-item.active { background: var(--bg-3); color: var(--text-0); }
+
+  .sidebar-item .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .sidebar-user .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+
+  .sidebar-user .name { font-size: 13px; font-weight: 500; }
+  .sidebar-user .role { font-size: 11px; color: var(--text-2); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    padding: 32px 40px;
+    max-width: 1100px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .page-header .back-link {
+    float: right;
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .page-header .back-link:hover { text-decoration: underline; }
+
+  /* Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .sub {
+    font-size: 11px;
+    color: var(--text-2);
+  }
+
+  .stat-card .sub .highlight { color: var(--accent); font-weight: 600; }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title .count {
+    font-size: 11px;
+    color: var(--text-2);
+    font-weight: 400;
+  }
+
+  .list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-row:last-child { border-bottom: none; }
+
+  .list-row .title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-0);
+  }
+
+  .list-row .meta {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-top: 2px;
+  }
+
+  .list-row.unread {
+    background: var(--accent-soft);
+    margin: 0 -12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+  }
+
+  .badge-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .badge-published { background: var(--green-bg); color: var(--green); }
+  .badge-draft { background: var(--bg-3); color: var(--text-2); }
+  .badge-new { background: var(--accent-soft); color: var(--accent); }
+  .badge-read { background: var(--bg-3); color: var(--text-2); }
+  .badge-replied { background: var(--green-bg); color: var(--green); }
+  .badge-contact { background: var(--bg-3); color: var(--text-1); }
+  .badge-demo { background: var(--amber-bg); color: var(--amber); }
+
+  .card-link {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .card-link:hover { text-decoration: underline; }
+
+  /* Quick actions */
+  .actions-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--bg-1);
+    color: var(--text-0);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .action-btn:hover {
+    background: var(--bg-2);
+    border-color: var(--bg-4);
+  }
+
+  .action-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .action-btn.primary:hover {
+    background: #b91c1c;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar (Payload-like) -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span class="brand"><span class="red">SMART</span>Counter</span>
+    <span class="admin-tag">Admin</span>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-item active">Dashboard</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Collections</div>
+    <div class="sidebar-item">Pages</div>
+    <div class="sidebar-item">Blog Posts</div>
+    <div class="sidebar-item">Blog Categories</div>
+    <div class="sidebar-item">Features</div>
+    <div class="sidebar-item">Use Cases</div>
+    <div class="sidebar-item">Pricing Tiers</div>
+    <div class="sidebar-item">FAQ Items</div>
+    <div class="sidebar-item">Client Logos</div>
+    <div class="sidebar-item">Testimonials</div>
+    <div class="sidebar-item">
+      Form Submissions
+      <span class="badge">3</span>
+    </div>
+    <div class="sidebar-item">Deployment Locations</div>
+    <div class="sidebar-item">Media</div>
+    <div class="sidebar-item">Users</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Globals</div>
+    <div class="sidebar-item">Site Settings</div>
+    <div class="sidebar-item">Navigation</div>
+    <div class="sidebar-item">Homepage</div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="avatar">SA</div>
+      <div>
+        <div class="name">Super Admin</div>
+        <div class="role">super_admin</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Dashboard -->
+<div class="main">
+  <div class="page-header">
+    <a href="#" class="back-link">Back to Website &rarr;</a>
+    <h1>Dashboard</h1>
+    <p>SmartCounter company profile — content overview</p>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Blog Posts</div>
+      <div class="value">12</div>
+      <div class="sub"><span class="highlight">8</span> published &middot; 4 draft</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Features</div>
+      <div class="value">12</div>
+      <div class="sub">visible on website</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Form Submissions</div>
+      <div class="value">47</div>
+      <div class="sub"><span class="highlight">3 unread</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Last Update</div>
+      <div class="value" style="font-size: 20px;">2h ago</div>
+      <div class="sub">most recent content change</div>
+    </div>
+  </div>
+
+  <!-- Two Column: Recent Posts + Recent Submissions -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">
+        Recent Blog Posts
+        <span class="count">12 total</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">How AI People Counting Works in Retail</div>
+          <div class="meta">2 hours ago</div>
+        </div>
+        <span class="badge-status badge-published">Published</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">5 Ways Heatmap Analytics Boost Sales</div>
+          <div class="meta">1 day ago</div>
+        </div>
+        <span class="badge-status badge-published">Published</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">SmartCounter vs Manual Counting: ROI Analysis</div>
+          <div class="meta">3 days ago</div>
+        </div>
+        <span class="badge-status badge-draft">Draft</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">Queue Management for Pharmacy Retail</div>
+          <div class="meta">5 days ago</div>
+        </div>
+        <span class="badge-status badge-published">Published</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">Demographic Analytics: Privacy-First Approach</div>
+          <div class="meta">1 week ago</div>
+        </div>
+        <span class="badge-status badge-draft">Draft</span>
+      </div>
+      <a href="#" class="card-link">View All Posts &rarr;</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        Recent Form Submissions
+        <span class="count">47 total</span>
+      </div>
+      <div class="list-row unread">
+        <div>
+          <div class="title">budi.santoso@ptmajujaya.id</div>
+          <div class="meta"><span class="badge-status badge-demo" style="margin-right: 4px;">demo</span> 15 minutes ago</div>
+        </div>
+        <span class="badge-status badge-new">New</span>
+      </div>
+      <div class="list-row unread">
+        <div>
+          <div class="title">sarah@fashionhub.co.id</div>
+          <div class="meta"><span class="badge-status badge-contact" style="margin-right: 4px;">contact</span> 2 hours ago</div>
+        </div>
+        <span class="badge-status badge-new">New</span>
+      </div>
+      <div class="list-row unread">
+        <div>
+          <div class="title">ops@grandmall.id</div>
+          <div class="meta"><span class="badge-status badge-demo" style="margin-right: 4px;">demo</span> 5 hours ago</div>
+        </div>
+        <span class="badge-status badge-new">New</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">marketing@supermart.co.id</div>
+          <div class="meta"><span class="badge-status badge-demo" style="margin-right: 4px;">demo</span> 1 day ago</div>
+        </div>
+        <span class="badge-status badge-replied">Replied</span>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="title">andi.manager@beautyhaul.id</div>
+          <div class="meta"><span class="badge-status badge-contact" style="margin-right: 4px;">contact</span> 2 days ago</div>
+        </div>
+        <span class="badge-status badge-read">Read</span>
+      </div>
+      <a href="#" class="card-link">View All Submissions &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-title">Quick Actions</div>
+    <div class="actions-row">
+      <a href="#" class="action-btn primary">New Blog Post</a>
+      <a href="#" class="action-btn">Edit Site Settings</a>
+      <a href="#" class="action-btn">Homepage Config</a>
+      <a href="#" class="action-btn">Manage Features</a>
+      <a href="#" class="action-btn">Deployment Map</a>
+      <a href="#" class="action-btn">Export Submissions CSV</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

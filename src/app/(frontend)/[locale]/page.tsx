@@ -1,0 +1,52 @@
+import type { Locale } from '@/lib/i18n/config'
+import { isValidLocale } from '@/lib/i18n/config'
+import { getDictionary } from '@/lib/i18n/getDictionary'
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+
+import { Hero } from '@/components/sections/Hero'
+import { PainPoints } from '@/components/sections/PainPoints'
+import { FeaturesGrid } from '@/components/sections/FeaturesGrid'
+import { HeatmapBenefit } from '@/components/sections/HeatmapBenefit'
+import { UseCasesShowcase } from '@/components/sections/UseCasesShowcase'
+import { DeploymentMap } from '@/components/sections/DeploymentMap'
+import { ClientLogos } from '@/components/sections/ClientLogos'
+import { PackagesTeaser } from '@/components/sections/PackagesTeaser'
+import { FaqAccordion } from '@/components/sections/FaqAccordion'
+import { CtaBanner } from '@/components/sections/CtaBanner'
+
+export const metadata: Metadata = {
+  title: 'People Counting & Visitor Analytics Indonesia | SmartCounter',
+  description:
+    "Indonesia's #1 people counting and visitor analytics platform. Turn CCTV cameras into AI-powered analytics — 99.9% accuracy, real-time heatmaps, demographics, and traffic insights for retail stores, malls, and shopping centers. Increase sales up to 40%.",
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  if (!isValidLocale(locale)) notFound()
+
+  const dict = await getDictionary(locale as Locale)
+
+  return (
+    <>
+      <Hero locale={locale} dict={dict} />
+      <PainPoints dict={dict} />
+      <section className="px-4 py-20 md:py-32">
+        <div className="mx-auto max-w-7xl">
+          <DeploymentMap dict={dict} />
+          <ClientLogos />
+        </div>
+      </section>
+      <FeaturesGrid locale={locale} dict={dict} />
+      <HeatmapBenefit dict={dict} />
+      <UseCasesShowcase locale={locale} dict={dict} />
+      <PackagesTeaser locale={locale} dict={dict} />
+      <FaqAccordion dict={dict} />
+      <CtaBanner locale={locale} dict={dict} />
+    </>
+  )
+}

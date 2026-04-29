@@ -1,0 +1,128 @@
+{
+  "nav": {
+    "features": "Features",
+    "useCases": "Use Cases",
+    "packages": "Packages",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "contact": "Contact Us",
+    "getDemo": "Get Demo"
+  },
+  "hero": {
+    "badge": "#1 People Counting Platform Indonesia",
+    "title": "People Counting",
+    "titleHighlight": "& Visitor Analytics",
+    "subtitle": "Stop guessing, start using data. SmartCounter turns your CCTV cameras into an AI-powered people counting system — real-time visitor analytics, heatmaps, and demographic insights with 99.9% accuracy. Increase sales up to 40% with data-driven decisions.",
+    "ctaPrimary": "Get Free Demo",
+    "ctaSecondary": "View All Features"
+  },
+  "common": {
+    "contactUs": "Contact Us",
+    "learnMore": "Learn more",
+    "explore": "Explore",
+    "readArticle": "Read article",
+    "viewAll": "View All",
+    "copyright": "© 2026 PT Ritel Data Indonesia. All rights reserved.",
+    "storesServed": "Stores Served",
+    "accuracy": "Accuracy",
+    "analyticsFeatures": "Analytics Features"
+  },
+  "painPoints": {
+    "title": "Still Counting Visitors Manually?",
+    "subtitle": "Here's what happens when you don't have accurate visitor data.",
+    "items": [
+      { "title": "Revenue Not Maximized", "desc": "Without accurate foot traffic data, you can't identify peak hours, optimize promotions, or measure campaign ROI. Revenue opportunities slip through every day." },
+      { "title": "Inefficient Staffing", "desc": "Scheduling staff without knowing traffic patterns leads to overstaffing during slow hours and understaffing during peaks — wasting up to 30% of labor costs." },
+      { "title": "Suboptimal Layout", "desc": "Without heatmap and traffic flow data, you can't tell which zones attract customers and which are dead spots. Product placement is based on guesswork, not data." }
+    ]
+  },
+  "features": {
+    "badge": "Smart CCTV Analytics",
+    "title": "12+ AI-Powered Analytics Features",
+    "subtitle": "From people counting to heatmap analytics — everything a CCTV AI system needs to transform your retail intelligence.",
+    "items": [
+      { "name": "Visitor Traffic", "desc": "Monitor visitor count in real-time with 99.9% accuracy. Track entries, exits, and net foot traffic across all entrances — powered by AI computer vision." },
+      { "name": "In-Out Traffic", "desc": "Analyze visitor entry-exit patterns at any time. Understand peak hours, compare day-over-day trends, and measure the impact of promotions on foot traffic." },
+      { "name": "Dwell Time", "desc": "Measure how long visitors spend in your store or specific zones. Longer dwell time correlates with higher conversion and engagement." },
+      { "name": "Passers-by", "desc": "Count potential visitors passing by your store entrance. Measure your capture rate and optimize storefront displays to attract more walk-ins." },
+      { "name": "Entering Rate", "desc": "Conversion rate from passers-by to actual visitors. Understand how effective your storefront, signage, and promotions are at driving foot traffic." },
+      { "name": "Group Rate", "desc": "Identify group or individual visit patterns. Understand whether customers shop alone or in groups to optimize your service approach and space layout." },
+      { "name": "Demographic", "desc": "Complete age and gender visitor profiles without collecting personal data. Privacy-compliant AI computer vision for targeted marketing decisions." },
+      { "name": "Occupancy", "desc": "Store capacity and real-time density levels. Ensure safety compliance, manage crowd flow, and trigger alerts when thresholds are exceeded." },
+      { "name": "Service Efficiency", "desc": "Evaluate staff service speed and efficiency. Align staffing levels with visitor traffic patterns to reduce wait times and labor costs." },
+      { "name": "Heatmap", "desc": "Visualize busiest areas for layout optimization. AI-powered CCTV heatmaps show hot zones, dead zones, and customer movement patterns in real spatial data." },
+      { "name": "Queuing", "desc": "Queue management and customer wait time tracking. Detect queue lengths, trigger alerts, and improve checkout efficiency with real-time data." },
+      { "name": "In-Store Routes", "desc": "Map visitor journey paths inside your store. Understand entry-to-exit movement, identify high-traffic corridors, and optimize product placement." }
+    ]
+  },
+  "heatmap": {
+    "badge": "CCTV AI Heatmaps",
+    "title": "See Where Your Customers Go",
+    "desc": "SmartCounter's AI camera analytics turn raw CCTV footage into actionable heatmap intelligence. Our computer vision processes millions of data points into clear overlays on your actual store floor plan.",
+    "bullets": [
+      "Real-time overlay on your actual store floor plan",
+      "Compare peak vs off-peak patterns side by side",
+      "Identify dead zones and optimize product placement"
+    ]
+  },
+  "useCases": {
+    "title": "People Counting for Every Retail Format",
+    "subtitle": "From boutique fashion to large shopping malls, SmartCounter's CCTV AI adapts to your space and counting requirements.",
+    "items": [
+      { "name": "Retail & Department Store", "desc": "Optimize product layout and increase sales conversion with accurate footfall data. Align staffing with peak hours across every outlet.", "stat": "+35% conversion" },
+      { "name": "Mall & Shopping Center", "desc": "Understand tenant traffic patterns and optimize marketing strategy for each zone. Floor-level occupancy and tenant benchmarking.", "stat": "+50% tenant insight" },
+      { "name": "Fashion & Boutique", "desc": "Identify favorite products with heatmap and enhance visual merchandising. Track fitting room conversion and campaign impact.", "stat": "+45% engagement" },
+      { "name": "Pharmacy & Healthcare", "desc": "Manage patient queues more efficiently and improve service quality with queuing analytics. Optimize pharmacist scheduling.", "stat": "-45% wait time" },
+      { "name": "Supermarket & Minimarket", "desc": "Schedule staffing based on peak hours and reduce operational costs. Aisle-level traffic flow and checkout queue management.", "stat": "-30% labor cost" },
+      { "name": "Luxury & Premium Store", "desc": "Deliver personalized experience with demographic insights and service efficiency. Privacy-compliant clienteling analytics.", "stat": "+60% satisfaction" }
+    ]
+  },
+  "coverage": {
+    "title": "Trusted by Modern Retail Industries",
+    "subtitle": "for Intelligent Visitor Analytics — deployed across Indonesia"
+  },
+  "packages": {
+    "title": "Choose Your Package",
+    "subtitle": "Three tiers designed for every retail scale. All include hardware and installation.",
+    "items": [
+      { "name": "Basic", "desc": "Core people counting and traffic analytics.", "features": ["Events Analytics", "Conversion Rate", "In-Out Traffic Analytics", "24/7 Dedicated Local Support", "SLA 99.9% Uptime Guarantee", "Customizable Reporting"] },
+      { "name": "Add-On", "desc": "Advanced CCTV AI analytics for deeper insights.", "badge": "Best Offer", "features": ["Dwelling Time", "Shopper Journey", "Passers-By Detection", "Store Heatmap Analysis", "Gender Analysis (M/F ratio)", "Age Profiling & Segmentation", "Visitor Traffic (Staff Elimination)"] },
+      { "name": "Premium", "desc": "Complete suite — everything in one package.", "features": ["All Basic Features", "All Add-On Features"] }
+    ]
+  },
+  "faqItems": [
+    { "q": "How does SmartCounter technology work?", "a": "SmartCounter uses sensors and AI computer vision to detect and track visitors in real-time with 99.9% accuracy. Data flows directly to your dashboard without any delay." },
+    { "q": "Is installation difficult and time-consuming?", "a": "Not at all! Our technician team will handle the entire installation process. Average installation is completed in 1-2 business days and ready to use immediately." },
+    { "q": "Is visitor data secure and privacy compliant?", "a": "Absolutely! SmartCounter only counts and analyzes movement patterns without recording personal identity. 100% compliant with data privacy regulations." },
+    { "q": "How long does it take to achieve ROI?", "a": "Most of our clients achieve ROI within 3-6 months through operational efficiency, layout optimization, and increased sales conversion." },
+    { "q": "Is there training available for using the dashboard?", "a": "Yes! We provide comprehensive training for your team. Our dashboard is also designed to be user-friendly, easy to learn even without technical background." },
+    { "q": "Is it suitable for small stores or only for large retail?", "a": "SmartCounter is suitable for all business sizes! Our Basic package is designed specifically for single stores, while Add-On and Premium packages are for larger operations." }
+  ],
+  "faq": {
+    "title": "Frequently Asked Questions"
+  },
+  "cta": {
+    "title": "Ready to Transform Your Retail Insights?",
+    "subtitle": "Join 300+ stores across Indonesia already using SmartCounter for data-driven decisions."
+  },
+  "waFloat": {
+    "title": "SmartCounter",
+    "status": "Online — usually replies in minutes",
+    "intro": "How can we help? Pick a topic or write your own message.",
+    "suggestions": [
+      "I want to learn more about SmartCounter",
+      "How much does SmartCounter cost?",
+      "How does SmartCounter installation work?",
+      "I want to schedule a free demo",
+      "Is there a trial for SmartCounter?"
+    ],
+    "placeholder": "Write your message...",
+    "send": "Send via WhatsApp"
+  },
+  "footer": {
+    "product": "Product",
+    "resources": "Resources",
+    "contactInfo": "Contact",
+    "description": "Indonesia's #1 visitor analytics platform that helps physical stores increase revenue up to 40% with accurate and real-time data."
+  }
+}

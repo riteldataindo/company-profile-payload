@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "features": "기능",
+    "useCases": "활용 사례",
+    "packages": "패키지",
+    "faq": "FAQ",
+    "blog": "블로그",
+    "contact": "문의하기",
+    "getDemo": "데모 신청"
+  },
+  "hero": {
+    "badge": "#1 인도네시아 방문자 분석 플랫폼",
+    "title": "People Counting",
+    "titleHighlight": "& 방문자 분석",
+    "subtitle": "추측을 멈추고 데이터를 활용하세요. SmartCounter는 CCTV 카메라를 AI 기반 방문자 카운팅 시스템으로 전환합니다 — 99.9% 정확도의 실시간 방문자 분석, 히트맵, 인구통계 인사이트. 데이터 기반 의사결정으로 매출을 최대 40% 향상시키세요.",
+    "ctaPrimary": "무료 데모 신청",
+    "ctaSecondary": "모든 기능 보기"
+  },
+  "common": {
+    "contactUs": "문의하기",
+    "learnMore": "자세히 보기",
+    "explore": "탐색하기",
+    "readArticle": "기사 읽기",
+    "viewAll": "전체 보기",
+    "copyright": "© 2026 PT Ritel Data Indonesia. All rights reserved.",
+    "storesServed": "도입 매장",
+    "accuracy": "정확도",
+    "analyticsFeatures": "분석 기능"
+  },
+  "painPoints": {
+    "title": "아직도 수동으로 방문자를 세고 있나요?",
+    "subtitle": "정확한 방문자 데이터가 없으면 어떤 일이 발생하는지 확인하세요."
+  },
+  "features": {
+    "badge": "스마트 CCTV 분석",
+    "title": "12가지 이상의 AI 기반 분석 기능",
+    "subtitle": "방문자 카운팅부터 히트맵 분석까지 — 리테일 인텔리전스를 혁신하는 CCTV AI 시스템의 모든 것."
+  },
+  "useCases": {
+    "title": "모든 리테일 형태를 위한 People Counting",
+    "subtitle": "부티크 패션부터 대형 쇼핑몰까지, SmartCounter의 CCTV AI가 공간과 요구에 맞게 적응합니다."
+  },
+  "coverage": {
+    "title": "현대 리테일 산업의 신뢰",
+    "subtitle": "지능형 방문자 분석 — 인도네시아 전역에 배포"
+  },
+  "packages": {
+    "title": "패키지를 선택하세요",
+    "subtitle": "모든 리테일 규모에 맞는 3가지 패키지. 하드웨어와 설치가 모두 포함됩니다."
+  },
+  "faq": {
+    "title": "자주 묻는 질문"
+  },
+  "cta": {
+    "title": "리테일 인사이트를 혁신할 준비가 되셨나요?",
+    "subtitle": "인도네시아 전역 300개 이상의 매장이 이미 SmartCounter를 사용하고 있습니다."
+  },
+  "footer": {
+    "product": "제품",
+    "resources": "리소스",
+    "contactInfo": "연락처",
+    "description": "인도네시아 #1 방문자 분석 플랫폼. 정확한 실시간 데이터로 오프라인 매장의 매출을 최대 40% 향상시키세요."
+  }
+}

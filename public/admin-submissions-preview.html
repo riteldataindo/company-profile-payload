@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCounter Admin — Form Submissions Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-0: #0c0c0c;
+    --bg-1: #141414;
+    --bg-2: #1e1e1e;
+    --bg-3: #282828;
+    --bg-4: #333;
+    --text-0: #f0f0f0;
+    --text-1: #b0b0b0;
+    --text-2: #777;
+    --border: #2a2a2a;
+    --accent: #DC2626;
+    --accent-soft: rgba(220, 38, 38, 0.12);
+    --green: #22c55e;
+    --green-bg: rgba(34, 197, 94, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+  }
+
+  body {
+    font-family: 'Fira Sans', system-ui, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-0);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar (same as dashboard) */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-logo .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  .sidebar-logo .brand .red { color: #FF0000; font-variant: small-caps; }
+  .sidebar-logo .admin-tag {
+    font-size: 9px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--bg-3); padding: 2px 6px; border-radius: 3px;
+  }
+
+  .sidebar-section { padding: 16px 12px 8px; }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 0 8px; margin-bottom: 6px;
+  }
+
+  .sidebar-item {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 8px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 500; color: var(--text-1);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .sidebar-item:hover { background: var(--bg-2); color: var(--text-0); }
+  .sidebar-item.active { background: var(--bg-3); color: var(--text-0); }
+  .sidebar-item .badge {
+    background: var(--accent); color: #fff; font-size: 10px;
+    font-weight: 700; padding: 1px 6px; border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* Main content */
+  .main { flex: 1; padding: 32px 40px; max-width: 1100px; }
+
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .page-header h1 { font-size: 22px; font-weight: 700; }
+  .page-header p { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+  .header-actions { display: flex; gap: 10px; }
+
+  .btn {
+    padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-1); color: var(--text-0);
+    cursor: pointer; transition: all 0.15s; text-decoration: none;
+  }
+  .btn:hover { background: var(--bg-2); border-color: var(--bg-4); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #b91c1c; }
+
+  /* Filters */
+  .filters {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: center;
+  }
+
+  .filter-group {
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .filter-label {
+    font-size: 11px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  .filter-select {
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-1); color: var(--text-0);
+    font-family: 'Fira Sans', sans-serif; cursor: pointer;
+  }
+
+  .filter-search {
+    padding: 6px 12px; border-radius: 6px; font-size: 12px;
+    border: 1px solid var(--border); background: var(--bg-1); color: var(--text-0);
+    font-family: 'Fira Sans', sans-serif; width: 220px;
+  }
+
+  .filter-search::placeholder { color: var(--text-2); }
+  .filter-search:focus { outline: none; border-color: var(--accent); }
+
+  .result-count {
+    margin-left: auto; font-size: 12px; color: var(--text-2);
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600;
+    color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border); background: var(--bg-2);
+  }
+
+  td {
+    padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--bg-2); }
+
+  tr.unread td { background: var(--accent-soft); }
+  tr.unread:hover td { background: rgba(220, 38, 38, 0.18); }
+
+  .email-cell { font-weight: 500; }
+  .email-cell .name { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+
+  .badge-status {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+  }
+  .badge-new { background: var(--accent-soft); color: var(--accent); }
+  .badge-read { background: var(--bg-3); color: var(--text-2); }
+  .badge-replied { background: var(--green-bg); color: var(--green); }
+  .badge-contact { background: var(--bg-3); color: var(--text-1); }
+  .badge-demo { background: var(--amber-bg); color: var(--amber); }
+
+  .time { font-size: 12px; color: var(--text-2); font-family: 'Fira Code', monospace; }
+
+  .actions-cell { text-align: right; }
+  .action-link {
+    font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500;
+  }
+  .action-link:hover { text-decoration: underline; }
+
+  /* Detail panel (slide-in preview) */
+  .detail-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
+    background: var(--bg-1); border-left: 1px solid var(--border);
+    padding: 28px; overflow-y: auto; z-index: 10;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.4);
+  }
+
+  .detail-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .detail-header h2 { font-size: 16px; font-weight: 700; }
+
+  .close-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg-2); color: var(--text-1); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .close-btn:hover { background: var(--bg-3); color: var(--text-0); }
+
+  .detail-meta {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 20px;
+  }
+
+  .detail-time { font-size: 12px; color: var(--text-2); }
+
+  .detail-data {
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .data-row {
+    display: flex; gap: 12px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-row:last-child { border-bottom: none; }
+
+  .data-label {
+    font-size: 11px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    width: 100px; flex-shrink: 0; padding-top: 2px;
+  }
+
+  .data-value { font-size: 13px; color: var(--text-0); line-height: 1.5; }
+
+  .status-select {
+    padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-2); color: var(--text-0);
+    font-family: 'Fira Sans', sans-serif; width: 100%; cursor: pointer;
+  }
+
+  .status-label {
+    font-size: 11px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-top: 1px solid var(--border);
+    background: var(--bg-2);
+  }
+
+  .pagination-info { font-size: 12px; color: var(--text-2); }
+  .pagination-btns { display: flex; gap: 4px; }
+
+  .page-btn {
+    padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-1); color: var(--text-1);
+    cursor: pointer;
+  }
+  .page-btn:hover { background: var(--bg-3); color: var(--text-0); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span class="brand"><span class="red">SMART</span>Counter</span>
+    <span class="admin-tag">Admin</span>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-item">Dashboard</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Collections</div>
+    <div class="sidebar-item">Pages</div>
+    <div class="sidebar-item">Blog Posts</div>
+    <div class="sidebar-item">Features</div>
+    <div class="sidebar-item">Use Cases</div>
+    <div class="sidebar-item">FAQ Items</div>
+    <div class="sidebar-item active">
+      Form Submissions
+      <span class="badge">3</span>
+    </div>
+    <div class="sidebar-item">Deployment Locations</div>
+    <div class="sidebar-item">Media</div>
+  </div>
+</nav>
+
+<!-- Main: List View -->
+<div class="main">
+  <div class="page-header">
+    <div>
+      <h1>Form Submissions</h1>
+      <p>47 submissions &middot; 3 unread</p>
+    </div>
+    <div class="header-actions">
+      <a href="#" class="btn">Export CSV</a>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">Type</span>
+      <select class="filter-select">
+        <option>All</option>
+        <option>Contact</option>
+        <option>Demo</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <select class="filter-select">
+        <option>All</option>
+        <option>New</option>
+        <option>Read</option>
+        <option>Replied</option>
+      </select>
+    </div>
+    <input type="text" class="filter-search" placeholder="Search by email...">
+    <span class="result-count">Showing 10 of 47</span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Received</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="unread">
+          <td><span class="badge-status badge-demo">Demo</span></td>
+          <td class="email-cell">budi.santoso@ptmajujaya.id<div class="name">Budi Santoso — PT Maju Jaya</div></td>
+          <td><span class="badge-status badge-new">New</span></td>
+          <td class="time">15m ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr class="unread">
+          <td><span class="badge-status badge-contact">Contact</span></td>
+          <td class="email-cell">sarah@fashionhub.co.id<div class="name">Sarah Wijaya — Fashion Hub</div></td>
+          <td><span class="badge-status badge-new">New</span></td>
+          <td class="time">2h ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr class="unread">
+          <td><span class="badge-status badge-demo">Demo</span></td>
+          <td class="email-cell">ops@grandmall.id<div class="name">Ahmad Rizki — Grand Mall</div></td>
+          <td><span class="badge-status badge-new">New</span></td>
+          <td class="time">5h ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr>
+          <td><span class="badge-status badge-demo">Demo</span></td>
+          <td class="email-cell">marketing@supermart.co.id<div class="name">Rina Sari — Supermart</div></td>
+          <td><span class="badge-status badge-replied">Replied</span></td>
+          <td class="time">1d ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr>
+          <td><span class="badge-status badge-contact">Contact</span></td>
+          <td class="email-cell">andi.manager@beautyhaul.id<div class="name">Andi — BeautyHaul</div></td>
+          <td><span class="badge-status badge-read">Read</span></td>
+          <td class="time">2d ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr>
+          <td><span class="badge-status badge-demo">Demo</span></td>
+          <td class="email-cell">retail@tokopedia.com<div class="name">Dwi Prasetyo — Tokopedia Retail</div></td>
+          <td><span class="badge-status badge-replied">Replied</span></td>
+          <td class="time">3d ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+        <tr>
+          <td><span class="badge-status badge-contact">Contact</span></td>
+          <td class="email-cell">info@apotek-kimia.id<div class="name">Farma Team — Apotek Kimia</div></td>
+          <td><span class="badge-status badge-read">Read</span></td>
+          <td class="time">4d ago</td>
+          <td class="actions-cell"><a href="#" class="action-link">View</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="pagination-info">Page 1 of 5</span>
+      <div class="pagination-btns">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Panel (slide-in) -->
+<div class="detail-panel">
+  <div class="detail-header">
+    <h2>Submission Detail</h2>
+    <button class="close-btn">&times;</button>
+  </div>
+
+  <div class="detail-meta">
+    <span class="badge-status badge-demo">Demo Request</span>
+    <span class="badge-status badge-new">New</span>
+    <span class="detail-time">15 minutes ago</span>
+  </div>
+
+  <div class="detail-data">
+    <div class="data-row">
+      <div class="data-label">Name</div>
+      <div class="data-value">Budi Santoso</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Email</div>
+      <div class="data-value">budi.santoso@ptmajujaya.id</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Phone</div>
+      <div class="data-value">+62 812-3456-7890</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Company</div>
+      <div class="data-value">PT Maju Jaya</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Store Count</div>
+      <div class="data-value">6 – 20 stores</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Message</div>
+      <div class="data-value">Kami tertarik menggunakan SmartCounter untuk 12 outlet fashion kami di Jabodetabek. Bisa dijadwalkan demo untuk minggu depan?</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 16px;">
+    <div class="status-label">Update Status</div>
+    <select class="status-select">
+      <option value="new" selected>New</option>
+      <option value="read">Read</option>
+      <option value="replied">Replied</option>
+    </select>
+  </div>
+
+  <div style="display: flex; gap: 8px;">
+    <a href="#" class="btn primary" style="flex: 1; text-align: center;">Reply via WhatsApp</a>
+    <a href="#" class="btn" style="flex: 1; text-align: center;">Reply via Email</a>
+  </div>
+</div>
+
+</body>
+</html>
