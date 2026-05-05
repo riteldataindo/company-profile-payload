@@ -2,7 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const Features: CollectionConfig = {
   slug: 'features',
-  admin: { useAsTitle: 'name' },
+  labels: { singular: 'Feature', plural: 'Features' },
+  admin: {
+    useAsTitle: 'name',
+    group: 'Pages',
+    description: 'Product features shown on the Features page and homepage.',
+    defaultColumns: ['name', 'icon', 'sortOrder', 'isVisible'],
+    components: { views: { list: { Component: '/admin/views/FeaturesView' } } },
+  },
   fields: [
     { name: 'name', type: 'text', required: true, localized: true },
     { name: 'slug', type: 'text', required: true, unique: true },

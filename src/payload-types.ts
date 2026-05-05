@@ -143,6 +143,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Articles published on the blog. Supports SEO metadata and multi-language.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog-posts".
  */
@@ -283,6 +285,8 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Product features shown on the Features page and homepage.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "features".
  */
@@ -325,6 +329,8 @@ export interface Feature {
   createdAt: string;
 }
 /**
+ * Industry use cases shown on the Use Cases page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "use-cases".
  */
@@ -368,6 +374,8 @@ export interface UseCase {
   createdAt: string;
 }
 /**
+ * Pricing packages on the Packages page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pricing-tiers".
  */
@@ -391,6 +399,8 @@ export interface PricingTier {
   createdAt: string;
 }
 /**
+ * Questions & answers on the FAQ page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "faq-items".
  */
@@ -422,7 +432,7 @@ export interface FaqItem {
   createdAt: string;
 }
 /**
- * Form submissions from contact and demo request pages. Export via /api/export-submissions.
+ * Form submissions from contact and demo request pages.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
@@ -454,7 +464,7 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
- * Deployment dots on the Indonesia map. Longitude/Latitude must be inside the land mass.
+ * Deployment dots on the Indonesia map.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "deployment-locations".
@@ -871,13 +881,37 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: number;
+  /**
+   * Brand name shown in browser tab and SEO
+   */
   siteName?: string | null;
+  /**
+   * Short tagline for SEO meta description and social sharing
+   */
   siteDescription?: string | null;
+  /**
+   * Main logo used in header and footer
+   */
   logo?: (number | null) | Media;
+  /**
+   * Small icon shown in browser tab (recommended: 32x32 PNG)
+   */
   favicon?: (number | null) | Media;
+  /**
+   * Shown in footer and contact page
+   */
   contactEmail?: string | null;
+  /**
+   * Phone number with country code
+   */
   contactPhone?: string | null;
+  /**
+   * Office address shown in footer
+   */
   contactAddress?: string | null;
+  /**
+   * WhatsApp number without + (used for floating chat button)
+   */
   whatsappNumber?: string | null;
   socialLinks?: {
     instagram?: string | null;
@@ -885,7 +919,13 @@ export interface SiteSetting {
     youtube?: string | null;
     tiktok?: string | null;
   };
+  /**
+   * Google Analytics tracking ID (e.g. G-XXXXXXXXXX)
+   */
   googleAnalyticsId?: string | null;
+  /**
+   * Default image for social media sharing (recommended: 1200x630)
+   */
   defaultOgImage?: (number | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;

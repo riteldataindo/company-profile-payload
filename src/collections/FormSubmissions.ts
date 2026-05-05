@@ -2,10 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form-submissions',
+  labels: { singular: 'Submission', plural: 'Submissions' },
   admin: {
     useAsTitle: 'email',
+    group: 'Inbox',
     defaultColumns: ['formType', 'email', 'status', 'createdAt'],
-    description: 'Form submissions from contact and demo request pages. Export via /api/export-submissions.',
+    description: 'Form submissions from contact and demo request pages.',
+    hideAPIURL: true,
+    components: { views: { list: { Component: '/admin/views/InboxView' } } },
   },
   fields: [
     {
@@ -38,7 +42,7 @@ export const FormSubmissions: CollectionConfig = {
   ],
   access: {
     read: () => true,
-    create: () => true,
+    create: ({ req }) => !req?.user,
     update: () => true,
     delete: () => true,
   },

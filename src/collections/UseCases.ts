@@ -2,7 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const UseCases: CollectionConfig = {
   slug: 'use-cases',
-  admin: { useAsTitle: 'industryName' },
+  labels: { singular: 'Use Case', plural: 'Use Cases' },
+  admin: {
+    useAsTitle: 'industryName',
+    group: 'Pages',
+    description: 'Industry use cases shown on the Use Cases page.',
+    defaultColumns: ['industryName', 'icon', 'sortOrder', 'isVisible'],
+    components: { views: { list: { Component: '/admin/views/UseCasesView' } } },
+  },
   fields: [
     { name: 'industryName', type: 'text', required: true, localized: true },
     { name: 'slug', type: 'text', required: true, unique: true },

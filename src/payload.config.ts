@@ -33,7 +33,15 @@ export default buildConfig({
         Logo: '/admin/components/Logo',
         Icon: '/admin/components/Icon',
       },
+      actions: ['/admin/components/TopbarActions'],
+      providers: ['/admin/components/CmdPaletteProvider'],
       beforeDashboard: ['/admin/components/DashboardOverview'],
+      views: {
+        seoManagement: {
+          Component: '/admin/views/SeoManagementView',
+          path: '/seo-management',
+        },
+      },
     },
     style: path.resolve(dirname, 'admin/custom.css'),
   },

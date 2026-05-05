@@ -2,7 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const PricingTiers: CollectionConfig = {
   slug: 'pricing-tiers',
-  admin: { useAsTitle: 'name' },
+  labels: { singular: 'Package', plural: 'Packages' },
+  admin: {
+    useAsTitle: 'name',
+    group: 'Pages',
+    description: 'Pricing packages on the Packages page.',
+    defaultColumns: ['name', 'isFeatured', 'sortOrder'],
+    components: { views: { list: { Component: '/admin/views/PricingView' } } },
+  },
   fields: [
     { name: 'name', type: 'text', required: true, localized: true },
     { name: 'slug', type: 'text', required: true, unique: true },

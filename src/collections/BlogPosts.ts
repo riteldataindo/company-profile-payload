@@ -2,7 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
-  admin: { useAsTitle: 'title' },
+  labels: { singular: 'Blog Post', plural: 'Blog Posts' },
+  admin: {
+    useAsTitle: 'title',
+    group: 'Content',
+    description: 'Articles published on the blog. Supports SEO metadata and multi-language.',
+    defaultColumns: ['title', 'status', 'category', 'publishedAt', 'updatedAt'],
+    components: { views: { list: { Component: '/admin/views/PostsView' } } },
+  },
   fields: [
     { name: 'title', type: 'text', required: true, localized: true },
     { name: 'slug', type: 'text', required: true, unique: true },

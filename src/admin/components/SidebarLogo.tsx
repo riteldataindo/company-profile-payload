@@ -1,8 +1,22 @@
+'use client'
+
 import React from 'react'
 
-export default function Icon() {
+export default function SidebarLogo() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap' }}>
+    <a
+      href="/admin"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '14px 16px',
+        borderBottom: '1px solid var(--sc-sidebar-border, rgba(255,255,255,0.04))',
+        textDecoration: 'none',
+        color: 'inherit',
+        marginBottom: 4,
+      }}
+    >
       <div
         style={{
           width: 28,
@@ -22,7 +36,6 @@ export default function Icon() {
             color: '#fff',
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             letterSpacing: '-0.02em',
-            display: 'inline',
           }}
         >
           SC
@@ -35,12 +48,10 @@ export default function Icon() {
             fontWeight: 800,
             letterSpacing: '-0.03em',
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            whiteSpace: 'nowrap',
-            display: 'block',
           }}
         >
-          <span style={{ color: '#dc2626', display: 'inline' }}>Smart</span>
-          <span style={{ color: 'var(--sc-text, #fafafa)', display: 'inline' }}>Counter</span>
+          <span style={{ color: '#dc2626' }}>Smart</span>
+          <span style={{ color: 'var(--sc-text, #fafafa)' }}>Counter</span>
         </span>
         <span
           style={{
@@ -50,12 +61,11 @@ export default function Icon() {
             textTransform: 'uppercase',
             letterSpacing: '0.14em',
             fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
-            display: 'block',
           }}
         >
           Admin
         </span>
       </div>
-    </div>
+    </a>
   )
 }

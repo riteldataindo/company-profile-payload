@@ -2,9 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 export const DeploymentLocations: CollectionConfig = {
   slug: 'deployment-locations',
+  labels: { singular: 'Location', plural: 'Locations' },
   admin: {
     useAsTitle: 'cityName',
-    description: 'Deployment dots on the Indonesia map. Longitude/Latitude must be inside the land mass.',
+    group: 'Marketing',
+    description: 'Deployment dots on the Indonesia map.',
+    defaultColumns: ['cityName', 'isMajor', 'isVisible', 'sortOrder'],
+    components: { views: { list: { Component: '/admin/views/LocationsView' } } },
   },
   fields: [
     { name: 'cityName', type: 'text', required: true, admin: { description: 'City name shown on hover and as label' } },
