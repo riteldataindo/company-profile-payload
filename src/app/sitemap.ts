@@ -5,12 +5,6 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
 const locales = ['en', 'id', 'ko', 'ja', 'zh']
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [features, useCases, blogResult] = await Promise.all([
-    getFeatures(),
-    getUseCases(),
-    getBlogPosts({ limit: 100 }),
-  ])
-
   const entries: MetadataRoute.Sitemap = []
 
   const staticPages = [
@@ -32,18 +26,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: page.changeFrequency,
         priority: page.priority,
         alternates: {
-          languages: Object.fromEntries(
-            locales.map((l) => [l, `${SITE_URL}/${l}${page.path}`])
-          ),
+          languages: {
+            ...Object.fromEntries(
+              locales.map((l) => [l, `${SITE_URL}/${l}${page.path}`])
+            ),
+            'x-default': `${SITE_URL}/en${page.path}`,
+          },
         },
       })
     }
   }
 
-  for (const feature of features) {
-    const slug = (feature as any).slug
-    if (!slug) continue
-    for (const locale of locales) {
+  for (const locale of locales) {
+    const [localeFeatures, localeUseCases, localeBlogResult] = await Promise.all([
+      getFeatures(locale),
+      getUseCases(locale),
+      getBlogPosts({ limit: 100, locale }),
+    ])
+
+    for (const feature of localeFeatures) {
+      const slug = (feature as any).slug
+      if (!slug) continue
       entries.push({
         url: `${SITE_URL}/${locale}/features/${slug}`,
         lastModified: (feature as any).updatedAt ? new Date((feature as any).updatedAt) : new Date(),
@@ -51,12 +54,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       })
     }
-  }
 
-  for (const useCase of useCases) {
-    const slug = (useCase as any).slug
-    if (!slug) continue
-    for (const locale of locales) {
+    for (const useCase of localeUseCases) {
+      const slug = (useCase as any).slug
+      if (!slug) continue
       entries.push({
         url: `${SITE_URL}/${locale}/use-cases/${slug}`,
         lastModified: (useCase as any).updatedAt ? new Date((useCase as any).updatedAt) : new Date(),
@@ -64,12 +65,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       })
     }
-  }
 
-  for (const post of blogResult.docs) {
-    const slug = (post as any).slug
-    if (!slug) continue
-    for (const locale of locales) {
+    for (const post of localeBlogResult.docs) {
+      const slug = (post as any).slug
+      if (!slug) continue
       entries.push({
         url: `${SITE_URL}/${locale}/blog/${slug}`,
         lastModified: (post as any).updatedAt ? new Date((post as any).updatedAt) : new Date(),

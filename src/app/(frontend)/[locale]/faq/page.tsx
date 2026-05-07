@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { faqPageSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
 import { getFaqItems } from '@/lib/data'
 import { FaqClient } from '@/components/faq/FaqClient'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
@@ -183,13 +183,8 @@ export default async function FaqPage({
     }))
   }
 
-  const allFaqItems = faqData.flatMap((cat) =>
-    cat.items.map((item) => ({ question: item.question, answer: item.answer }))
-  )
-
   return (
     <section className="px-4 py-20 md:py-32">
-      <JsonLd data={faqPageSchema(allFaqItems)} />
       <JsonLd data={breadcrumbSchema([
         { name: 'Home', url: `/${locale}` },
         { name: 'FAQ', url: `/${locale}/faq` },

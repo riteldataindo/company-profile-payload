@@ -5,6 +5,7 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import sharp from 'sharp'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { generateSeoSuggestion, extractRichText } from '@/lib/seo/suggest'
 
 import { BlogPosts } from '@/collections/BlogPosts'
 import { BlogCategories } from '@/collections/BlogCategories'
@@ -36,10 +37,12 @@ export default buildConfig({
       actions: ['/admin/components/TopbarActions'],
       providers: ['/admin/components/CmdPaletteProvider'],
       beforeDashboard: ['/admin/components/DashboardOverview'],
+      afterNavLinks: ['/admin/components/SeoNavLink'],
       views: {
         seoManagement: {
-          Component: '/admin/views/SeoManagementView',
+          Component: '/admin/views/SeoManagementPage',
           path: '/seo-management',
+          exact: true,
         },
       },
     },
@@ -73,8 +76,20 @@ export default buildConfig({
     seoPlugin({
       collections: ['blog-posts', 'features', 'use-cases'],
       uploadsCollection: 'media',
-      generateTitle: ({ doc }) => `${doc?.title || 'SmartCounter'} — AI People Counting`,
-      generateDescription: ({ doc }) => doc?.excerpt || doc?.shortDescription || '',
+      generateTitle: ({ doc }) => {
+        const name = doc?.title || doc?.name || doc?.industryName || 'SmartCounter'
+        const excerpt = doc?.excerpt || doc?.shortDescription || ''
+        const fullContent = extractRichText(doc?.content || doc?.longDescription)
+        const result = generateSeoSuggestion({ name, excerpt, fullContent })
+        return result.title
+      },
+      generateDescription: ({ doc }) => {
+        const name = doc?.title || doc?.name || doc?.industryName || ''
+        const excerpt = doc?.excerpt || doc?.shortDescription || ''
+        const fullContent = extractRichText(doc?.content || doc?.longDescription)
+        const result = generateSeoSuggestion({ name, excerpt, fullContent })
+        return result.description
+      },
     }),
   ],
   localization: {

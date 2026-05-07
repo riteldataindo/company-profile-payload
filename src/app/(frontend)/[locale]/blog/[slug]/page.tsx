@@ -6,11 +6,13 @@ import { notFound } from 'next/navigation'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { getDictionary } from '@/lib/i18n/getDictionary'
 import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar'
+import { ComparisonTable, VideoEmbed, InlineImage } from '@/components/blog/BlogEnrichment'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
-import { getBlogPost as getPayloadBlogPost, getBlogPosts as getPayloadBlogPosts } from '@/lib/data'
+import { getBlogPost as getPayloadBlogPost, getBlogPosts as getPayloadBlogPosts, findBlogPostByAnySlug } from '@/lib/data'
 import { getBlogPost as getLocalBlogPost, blogPosts } from '@/lib/blog-data'
 import { extractParagraphs } from '@/lib/richtext'
 
@@ -53,18 +55,27 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
+  const locales = ['en', 'id', 'ko', 'ja', 'zh']
   try {
-    const payloadPosts = await getPayloadBlogPosts({ limit: 100, locale: 'en' })
-    return payloadPosts.docs.flatMap((post: any) => [
-      { locale: 'en', slug: post.slug },
-      { locale: 'id', slug: post.slug },
-    ])
+    const params: { locale: string; slug: string }[] = []
+    for (const locale of locales) {
+      const result = await getPayloadBlogPosts({ limit: 100, locale })
+      for (const post of result.docs) {
+        const slug = (post as any).slug
+        if (slug) params.push({ locale, slug })
+      }
+    }
+    if (params.length === 0) {
+      return locales.flatMap(locale =>
+        blogPosts.map(post => ({ locale, slug: post.slug }))
+      )
+    }
+    return params
   } catch (error) {
     console.error('Error generating static params:', error)
-    return blogPosts.flatMap((post) => [
-      { locale: 'en', slug: post.slug },
-      { locale: 'id', slug: post.slug },
-    ])
+    return locales.flatMap(locale =>
+      blogPosts.map(post => ({ locale, slug: post.slug }))
+    )
   }
 }
 
@@ -77,14 +88,16 @@ export default async function BlogPostPage({
 
   if (!isValidLocale(locale)) notFound()
 
-  const payloadPost = await getPayloadBlogPost(slug, locale)
-  const localPost = getLocalBlogPost(slug)
-  const post = (payloadPost || localPost) as any
+  let payloadPost = await getPayloadBlogPost(slug, locale)
 
-  if (!post) {
-    notFound()
+  if (!payloadPost) {
+    payloadPost = await findBlogPostByAnySlug(slug, locale)
   }
 
+  const localPost = !payloadPost ? getLocalBlogPost(slug) : null
+  const post = (payloadPost || localPost) as any
+
+  const dict = await getDictionary(locale as Locale)
   const postDate = post.date || post.publishedAt || new Date().toISOString()
   const postAuthor = typeof post.author === 'object' ? post.author?.name : post.author
   const postCategory = typeof post.category === 'string' ? post.category : post.category?.name
@@ -142,38 +155,61 @@ export default async function BlogPostPage({
               </div>
             </div>
 
-            <div className="aspect-[16/8] rounded-2xl bg-bg-card border border-white/[0.06] flex items-center justify-center text-sm text-text-muted mb-10">
-              [Featured Image]
-            </div>
+            {post.featuredImage?.url || post.meta?.image?.url ? (
+              <div className="aspect-[16/8] rounded-2xl overflow-hidden border border-white/[0.06] mb-10">
+                <img
+                  src={post.featuredImage?.url || post.meta?.image?.url}
+                  alt={post.featuredImage?.alt || post.title}
+                  width={1200} height={630}
+                  className="w-full h-full object-cover"
+                  fetchPriority="high"
+                />
+              </div>
+            ) : (
+              <div className="aspect-[16/8] rounded-2xl bg-bg-card border border-white/[0.06] flex items-center justify-center text-sm text-text-muted mb-10">
+                [Featured Image]
+              </div>
+            )}
 
-            {/* Article Content with Section IDs */}
+            {/* Article Content with Section IDs + Enrichment */}
             <div className="space-y-5">
               {contentParagraphs.map((paragraph: string, i: number) => {
                 const matchingSection = (post.sections || [])?.find((s: any) =>
                   paragraph?.includes(s.title)
                 )
-
-                if (matchingSection) {
-                  return (
-                    <div key={i} id={matchingSection.id}>
-                      <p className="text-text-secondary leading-relaxed font-semibold text-lg pt-4">
-                        {paragraph}
-                      </p>
-                    </div>
-                  )
-                }
+                const midPoint = Math.floor(contentParagraphs.length / 2)
 
                 return (
-                  <p key={i} className="text-text-secondary leading-relaxed">
-                    {paragraph}
-                  </p>
+                  <div key={i}>
+                    {matchingSection ? (
+                      <div id={matchingSection.id}>
+                        <h2 className="text-text-secondary leading-relaxed font-semibold text-lg pt-4">
+                          {paragraph}
+                        </h2>
+                      </div>
+                    ) : (
+                      <p className="text-text-secondary leading-relaxed">
+                        {paragraph}
+                      </p>
+                    )}
+                    {i === midPoint && <InlineImage slug={slug} position="mid" />}
+                  </div>
                 )
               })}
             </div>
 
+            {/* Comparison Table */}
+            <ComparisonTable slug={slug} />
+
+            {/* Inline Image — end of article */}
+            <InlineImage slug={slug} position="end" />
+
+            {/* Video Embed */}
+            <VideoEmbed />
+
             {/* Social Share */}
             <div className="border-t border-white/[0.06] mt-10 pt-8">
-              <h3 className="text-sm font-semibold text-text-primary mb-4">Share this article</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-4">{dict.detail.shareArticle}</h3>
               <SocialShareButtons title={post.title} slug={slug} locale={locale} />
             </div>
 
@@ -204,7 +240,7 @@ export default async function BlogPostPage({
                 href={`/${locale}/blog`}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary-600 px-6 py-3 text-sm font-semibold text-primary-500 transition-all hover:bg-primary-600/10"
               >
-                Back to Blog
+                {dict.detail.backToBlog}
               </Link>
             </div>
           </article>

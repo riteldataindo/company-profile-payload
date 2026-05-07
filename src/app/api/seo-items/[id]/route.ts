@@ -4,7 +4,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 interface UpdateSeoItemRequest {
   collection: string
-  meta: {
+  locale?: string
+  slug?: string
+  meta?: {
     title?: string
     description?: string
     image?: string | null
@@ -50,10 +52,12 @@ export async function PATCH(
 
     const payload = await getPayload({ config: configPromise })
 
-    // Fetch the current document
+    const locale = body.locale || 'en'
+
     const currentDoc = await payload.findByID({
       collection: body.collection as 'blog-posts' | 'features' | 'use-cases',
       id: itemId,
+      locale,
     })
 
     if (!currentDoc) {
@@ -63,35 +67,27 @@ export async function PATCH(
       )
     }
 
-    // Prepare updated meta object
-    const updatedMeta = {
-      ...currentDoc.meta,
-    }
+    const updateData: Record<string, unknown> = {}
 
-    if (body.meta.title !== undefined) {
-      updatedMeta.title = body.meta.title || null
-    }
-
-    if (body.meta.description !== undefined) {
-      updatedMeta.description = body.meta.description || null
-    }
-
-    if (body.meta.image !== undefined) {
-      if (body.meta.image === null) {
-        updatedMeta.image = null
-      } else if (body.meta.image) {
-        // Convert string image ID to number
-        updatedMeta.image = parseInt(body.meta.image, 10)
+    if (body.meta) {
+      const updatedMeta = { ...currentDoc.meta }
+      if (body.meta.title !== undefined) updatedMeta.title = body.meta.title || null
+      if (body.meta.description !== undefined) updatedMeta.description = body.meta.description || null
+      if (body.meta.image !== undefined) {
+        updatedMeta.image = body.meta.image === null ? null : body.meta.image ? parseInt(body.meta.image, 10) : null
       }
+      updateData.meta = updatedMeta
     }
 
-    // Update the document
+    if (body.slug) {
+      updateData.slug = body.slug
+    }
+
     const updated = await payload.update({
       collection: body.collection as 'blog-posts' | 'features' | 'use-cases',
       id: itemId,
-      data: {
-        meta: updatedMeta,
-      },
+      locale,
+      data: updateData,
     })
 
     // Get title based on collection type

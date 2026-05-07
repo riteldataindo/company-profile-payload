@@ -37,9 +37,10 @@ import { default as default_5917d9a725f1f9c28bef4ae470fc5ceb } from '../../../ad
 import { default as default_fde206bfba86c5e4225a034862628d02 } from '../../../admin/components/Icon'
 import { default as default_ee23b055e36af2f792f5acea4d3aaff6 } from '../../../admin/components/Logo'
 import { default as default_c4c2b74656c7eb34371be5af42bfd539 } from '../../../admin/components/TopbarActions'
+import { default as default_9791f5d905ef8f6a59ee8a588cb5c5a7 } from '../../../admin/components/SeoNavLink'
 import { default as default_6a453fb64e4cd789517fe62201d21a79 } from '../../../admin/components/DashboardOverview'
 import { default as default_846d0fdca9928cb0ffedbc0e0ab6614f } from '../../../admin/components/CmdPaletteProvider'
-import { default as default_fd6e77cf9f1c706f4f0806c8b8c3b4eb } from '../../../admin/views/SeoManagementView'
+import { default as default_d11c7988e3899e21a3425f2c0225380d } from '../../../admin/views/SeoManagementPage'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -83,8 +84,9 @@ export const importMap = {
   "/admin/components/Icon#default": default_fde206bfba86c5e4225a034862628d02,
   "/admin/components/Logo#default": default_ee23b055e36af2f792f5acea4d3aaff6,
   "/admin/components/TopbarActions#default": default_c4c2b74656c7eb34371be5af42bfd539,
+  "/admin/components/SeoNavLink#default": default_9791f5d905ef8f6a59ee8a588cb5c5a7,
   "/admin/components/DashboardOverview#default": default_6a453fb64e4cd789517fe62201d21a79,
   "/admin/components/CmdPaletteProvider#default": default_846d0fdca9928cb0ffedbc0e0ab6614f,
-  "/admin/views/SeoManagementView#default": default_fd6e77cf9f1c706f4f0806c8b8c3b4eb,
+  "/admin/views/SeoManagementPage#default": default_d11c7988e3899e21a3425f2c0225380d,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

@@ -28,6 +28,43 @@ export function organizationSchema() {
   }
 }
 
+export function localBusinessSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_URL}/#localbusiness`,
+    name: 'SmartCounter by PT Ritel Data Indonesia',
+    url: SITE_URL,
+    logo: `${SITE_URL}/images/logo.png`,
+    image: `${SITE_URL}/images/logo.png`,
+    description: 'AI-powered people counting and visitor analytics platform. Transform existing CCTV cameras into smart visitor sensors with 99.9% accuracy.',
+    telephone: '+62-882-1001-9165',
+    email: 'info@riteldata.id',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Sunter Agung',
+      addressLocality: 'Jakarta Utara',
+      addressRegion: 'DKI Jakarta',
+      postalCode: '14350',
+      addressCountry: 'ID',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -6.1384,
+      longitude: 106.8629,
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'Indonesia',
+    },
+    priceRange: '$$',
+    sameAs: [
+      'https://www.linkedin.com/company/smartcounter',
+      'https://www.instagram.com/smartcounter.id',
+    ],
+  }
+}
+
 export function websiteSchema() {
   return {
     '@context': 'https://schema.org',
@@ -123,6 +160,25 @@ export function blogPostingSchema(post: {
       image: { '@type': 'ImageObject', url: post.image },
     }),
     inLanguage: post.locale,
+  }
+}
+
+export function authorSchema(author: {
+  name: string
+  url?: string
+  jobTitle?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author.name,
+    jobTitle: author.jobTitle || 'Product & Analytics Team',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'PT Ritel Data Indonesia',
+      url: 'https://smartcounter.id',
+    },
+    ...(author.url && { url: author.url }),
   }
 }
 

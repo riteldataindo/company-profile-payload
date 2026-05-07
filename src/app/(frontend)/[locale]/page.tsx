@@ -4,7 +4,7 @@ import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
-import { organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
+import { organizationSchema, localBusinessSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 
 import { Hero } from '@/components/sections/Hero'
@@ -54,6 +54,7 @@ export default async function HomePage({
   return (
     <>
       <JsonLd data={organizationSchema()} />
+      <JsonLd data={localBusinessSchema()} />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={softwareApplicationSchema()} />
       <Hero locale={locale} dict={dict} />

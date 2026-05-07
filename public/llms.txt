@@ -1,0 +1,48 @@
+# SmartCounter
+> AI-powered people counting and visitor analytics platform for retail stores, malls, and shopping centers in Indonesia. Uses existing CCTV cameras with computer vision and deep learning for 99.9% accurate visitor counting, heatmaps, demographics, queue detection, and occupancy monitoring.
+
+## Company
+- PT Ritel Data Indonesia
+- Founded in Jakarta, Indonesia
+- Serves 300+ retail locations across Indonesia
+- Contact: info@riteldata.id | +62 882-1001-9165
+
+## Core Product
+SmartCounter transforms existing CCTV cameras into AI-powered visitor analytics sensors. No additional hardware required. Works with Hikvision, Dahua, Uniview, and other IP cameras.
+
+## Key Features
+- [Visitor Traffic](https://smartcounter.id/en/features/visitor-traffic): Real-time entry/exit counting with 99.9% accuracy
+- [In/Out Traffic](https://smartcounter.id/en/features/in-out-traffic): Separate entry and exit counts across all entrances
+- [Dwell Time](https://smartcounter.id/en/features/dwell-time): Measure time spent in specific zones
+- [Heatmap](https://smartcounter.id/en/features/heatmap): Visualize visitor movement patterns
+- [Demographic](https://smartcounter.id/en/features/demographic): Privacy-compliant age and gender estimation
+- [Queuing](https://smartcounter.id/en/features/queuing): Real-time queue length and wait time monitoring
+- [Occupancy](https://smartcounter.id/en/features/occupancy): Real-time occupancy monitoring with safety alerts
+- [In-Store Routes](https://smartcounter.id/en/features/in-store-routes): Track visitor paths through your store
+
+## Industry Solutions
+- [Retail Store](https://smartcounter.id/en/use-cases/retail): Conversion rate, staffing optimization, layout analytics
+- [Shopping Mall](https://smartcounter.id/en/use-cases/mall): Tenant benchmarking, zone traffic, revenue-based leasing
+- [Fashion Retail](https://smartcounter.id/en/use-cases/fashion): Fitting room conversion, collection performance
+- [Pharmacy](https://smartcounter.id/en/use-cases/pharmacy): Prescription queue monitoring, scheduling
+- [Supermarket](https://smartcounter.id/en/use-cases/supermarket): Aisle analytics, checkout queue management
+- [Luxury Retail](https://smartcounter.id/en/use-cases/luxury): Privacy-first VIP analytics
+
+## Blog (Indonesian)
+- [Apa Itu People Counting System?](https://smartcounter.id/id/blog/apa-itu-people-counting-system): Panduan lengkap teknologi AI penghitung pengunjung
+- [Cara Kerja People Counting CCTV AI](https://smartcounter.id/id/blog/cara-kerja-people-counting-cctv-ai): Teknologi computer vision dan deep learning di balik akurasi 99.9%
+- [Manfaat Visitor Counter Toko Retail](https://smartcounter.id/id/blog/manfaat-visitor-counter-toko-retail): 7 manfaat utama, ROI, dan studi kasus
+- [CCTV AI Visitor Analytics](https://smartcounter.id/id/blog/cctv-ai-people-counting-visitor-analytics): Ubah CCTV biasa menjadi analitik pengunjung cerdas
+
+## Blog (English)
+- [How People Counting Drives Retail Sales](https://smartcounter.id/en/blog/people-counting-retail-sales): Data-driven strategies for 25%+ sales uplift
+- [Mall Tenant Benchmarking](https://smartcounter.id/en/blog/mall-tenant-benchmarking): Objective traffic measurement for fair revenue sharing
+- [Queue Management](https://smartcounter.id/en/blog/queue-management-checkout): AI-powered queue detection reduces wait times 40-60%
+
+## Key Facts
+- 99.9% counting accuracy using YOLO + DeepSORT algorithms
+- Works with existing CCTV infrastructure (no new hardware)
+- Privacy-first: no face recognition, no personal data stored
+- Real-time dashboard accessible via browser and mobile
+- 5 languages supported: English, Indonesian, Korean, Japanese, Chinese
+- Typical ROI: 2-3 months payback, 15-25% sales increase in first 6 months
