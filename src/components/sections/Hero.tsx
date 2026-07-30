@@ -1,43 +1,11 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Sparkles, Play } from 'lucide-react'
 
 interface HeroProps {
   locale: string
   dict: Record<string, any>
-}
-
-function CountUp({ target, suffix, decimal }: { target: number; suffix: string; decimal?: boolean }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const counted = useRef(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting || counted.current) return
-        counted.current = true
-        const duration = 1600
-        const start = performance.now()
-        const step = (now: number) => {
-          const t = Math.min((now - start) / duration, 1)
-          const ease = 1 - Math.pow(1 - t, 3)
-          const val = ease * target
-          el.textContent = (decimal ? val.toFixed(1) : Math.round(val).toString()) + suffix
-          if (t < 1) requestAnimationFrame(step)
-        }
-        requestAnimationFrame(step)
-      },
-      { threshold: 0.5 },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [target, suffix, decimal])
-
-  return <span ref={ref} className="font-mono text-3xl font-bold tabular-nums text-text-primary md:text-4xl">0{suffix}</span>
 }
 
 export function Hero({ locale, dict }: HeroProps) {
@@ -61,7 +29,7 @@ export function Hero({ locale, dict }: HeroProps) {
         <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-text-secondary md:text-xl">
           {dict.hero.subtitle}
         </p>
-        <div className="mb-16 flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             href={`/${locale}/demo`}
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-7 py-3 text-base font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
@@ -75,20 +43,6 @@ export function Hero({ locale, dict }: HeroProps) {
           >
             {dict.hero.ctaSecondary}
           </Link>
-        </div>
-        <div className="mx-auto grid max-w-xl grid-cols-3 gap-8 rounded-2xl border border-white/[0.06] bg-bg-card/60 p-6 backdrop-blur-xl">
-          <div className="text-center">
-            <span className="font-mono text-3xl font-bold text-text-primary md:text-4xl">Live</span>
-            <div className="mt-1 text-xs text-text-muted">{dict.common.liveAnalytics}</div>
-          </div>
-          <div className="text-center">
-            <CountUp target={12} suffix="+" />
-            <div className="mt-1 text-xs text-text-muted">{dict.common.analyticsFeatures}</div>
-          </div>
-          <div className="text-center">
-            <span className="font-mono text-3xl font-bold text-text-primary md:text-4xl">Built-in</span>
-            <div className="mt-1 text-xs text-text-muted">{dict.common.privacyFirst}</div>
-          </div>
         </div>
       </div>
     </section>
