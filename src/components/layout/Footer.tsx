@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Globe, Mail, ExternalLink } from 'lucide-react'
+import { SmartCounterLogo } from '@/components/brand/SmartCounterLogo'
 
 interface FooterProps {
   locale: string
@@ -19,10 +20,7 @@ export function Footer({ locale, dict, siteSettings }: FooterProps) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <span className="text-lg font-bold">
-              <span className="text-logo-red" style={{ fontVariant: 'small-caps' }}>SMART</span>
-              <span className="text-text-primary">Counter</span>
-            </span>
+            <SmartCounterLogo className="h-auto w-[170px]" />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-secondary">
               {dict.footer.description}
             </p>
