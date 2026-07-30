@@ -1,5 +1,5 @@
 import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
+import { isValidLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -179,12 +179,21 @@ const useCasesData: Record<
 }
 
 export async function generateStaticParams() {
-  const cmsUseCases = await getUseCases('en')
-  const slugs = new Set([
-    ...Object.keys(useCasesData),
-    ...cmsUseCases.map((useCase) => useCase.slug).filter(Boolean),
-  ])
-  return Array.from(slugs, (slug) => ({ slug }))
+  const params: { locale: string; slug: string }[] = []
+
+  for (const locale of locales) {
+    const cmsUseCases = await getUseCases(locale)
+    const slugs = new Set([
+      ...Object.keys(useCasesData),
+      ...cmsUseCases.map((useCase) => useCase.slug).filter(Boolean),
+    ])
+
+    for (const slug of slugs) {
+      params.push({ locale, slug })
+    }
+  }
+
+  return params
 }
 
 export async function generateMetadata(
