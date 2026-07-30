@@ -1,5 +1,5 @@
 import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
+import { isValidLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -302,13 +302,21 @@ const fallbackFeaturesData: Record<string, {
 }
 
 export async function generateStaticParams() {
-  try {
-    const features = await getFeatures('en')
-    return features.map((f: any) => ({ slug: f.slug }))
-  } catch (error) {
-    console.error('Error generating static params:', error)
-    return Object.keys(fallbackFeaturesData).map((slug) => ({ slug }))
+  const params: { locale: string; slug: string }[] = []
+
+  for (const locale of locales) {
+    const features = await getFeatures(locale)
+    const slugs = new Set([
+      ...Object.keys(fallbackFeaturesData),
+      ...features.map((feature: any) => feature.slug).filter(Boolean),
+    ])
+
+    for (const slug of slugs) {
+      params.push({ locale, slug })
+    }
   }
+
+  return params
 }
 
 export async function generateMetadata(
