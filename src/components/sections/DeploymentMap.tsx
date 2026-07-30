@@ -153,9 +153,6 @@ export function DeploymentMap({ dict, locations }: DeploymentMapProps) {
         <div className="text-sm text-text-secondary">
           <span className="mr-1 font-mono text-lg font-bold text-text-primary">{dots.length}</span> cities
         </div>
-        <div className="text-sm text-text-secondary">
-          <span className="mr-1 font-mono text-lg font-bold text-text-primary">300+</span> stores
-        </div>
       </div>
     </div>
   )

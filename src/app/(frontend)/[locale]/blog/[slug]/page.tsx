@@ -12,7 +12,12 @@ import { ComparisonTable, VideoEmbed, InlineImage } from '@/components/blog/Blog
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
-import { getBlogPost as getPayloadBlogPost, getBlogPosts as getPayloadBlogPosts, findBlogPostByAnySlug } from '@/lib/data'
+import {
+  findBlogPostByAnySlug,
+  getBlogPost as getPayloadBlogPost,
+  getBlogPosts as getPayloadBlogPosts,
+  getMediaUrl,
+} from '@/lib/data'
 import { getBlogPost as getLocalBlogPost, blogPosts } from '@/lib/blog-data'
 import { extractParagraphs } from '@/lib/richtext'
 
@@ -22,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>
 }): Promise<Metadata> {
   const { slug, locale } = await params
-  const payloadPost = await getPayloadBlogPost(slug, locale)
+  const payloadPost = await getPayloadBlogPost(slug, locale) || await findBlogPostByAnySlug(slug, locale)
   const localPost = getLocalBlogPost(slug)
   const post = payloadPost || localPost
 
@@ -39,18 +44,20 @@ export async function generateMetadata({
   const meta = (post as any).meta || {}
   const seoTitle = meta.title || post.title
   const seoDesc = meta.description || (post as any).excerpt || ''
-  const seoImage = meta.image?.url || undefined
+  const seoImage = getMediaUrl(meta.image) || getMediaUrl((post as any).featuredImage)
   const authorName = (post as any).author?.name || (post as any).author || ''
+  const canonicalSlug = (post as any).slug || slug
 
   return buildMetadata({
     title: seoTitle,
     description: seoDesc,
     locale,
-    path: `/blog/${slug}`,
+    path: `/blog/${canonicalSlug}`,
     ogType: 'article',
     ogImage: seoImage,
     publishedTime: (post as any).publishedAt || (post as any).date || '',
     authors: authorName ? [authorName] : [],
+    noIndex: !payloadPost,
   })
 }
 
@@ -96,6 +103,7 @@ export default async function BlogPostPage({
 
   const localPost = !payloadPost ? getLocalBlogPost(slug) : null
   const post = (payloadPost || localPost) as any
+  if (!post) notFound()
 
   const dict = await getDictionary(locale as Locale)
   const postDate = post.date || post.publishedAt || new Date().toISOString()
@@ -113,10 +121,12 @@ export default async function BlogPostPage({
           data={blogPostingSchema({
             title: post.title,
             excerpt: post.excerpt || '',
-            slug,
+            slug: post.slug || slug,
             locale,
             author: postAuthor || '',
             datePublished: postDate,
+            dateModified: post.updatedAt || postDate,
+            image: getMediaUrl(post.featuredImage) || getMediaUrl(post.meta?.image),
           })}
         />
         <JsonLd
@@ -209,7 +219,7 @@ export default async function BlogPostPage({
 
             {/* Social Share */}
             <div className="border-t border-white/[0.06] mt-10 pt-8">
-              <h3 className="text-sm font-semibold text-text-primary mb-4">{dict.detail.shareArticle}</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-4">{dict.blogDetail.shareArticle}</h3>
               <SocialShareButtons title={post.title} slug={slug} locale={locale} />
             </div>
 
@@ -240,7 +250,7 @@ export default async function BlogPostPage({
                 href={`/${locale}/blog`}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary-600 px-6 py-3 text-sm font-semibold text-primary-500 transition-all hover:bg-primary-600/10"
               >
-                {dict.detail.backToBlog}
+                {dict.blogDetail.backToBlog}
               </Link>
             </div>
           </article>

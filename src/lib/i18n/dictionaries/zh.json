@@ -9,10 +9,10 @@
     "getDemo": "申请演示"
   },
   "hero": {
-    "badge": "#1 印度尼西亚访客分析平台",
+    "badge": "零售客流分析",
     "title": "People Counting",
     "titleHighlight": "& 访客分析",
-    "subtitle": "停止猜测，开始使用数据。SmartCounter将您的CCTV摄像头转化为AI驱动的客流计数系统 — 99.9%准确率的实时访客分析、热力图和人口统计洞察。通过数据驱动决策，销售额最高可提升40%。",
+    "subtitle": "SmartCounter将兼容的CCTV摄像头转化为客流分析系统，提供访客计数、热力图和汇总的人群特征洞察。",
     "ctaPrimary": "免费申请演示",
     "ctaSecondary": "查看所有功能"
   },
@@ -25,7 +25,9 @@
     "copyright": "© 2026 PT Ritel Data Indonesia. 版权所有。",
     "storesServed": "已服务门店",
     "accuracy": "准确率",
-    "analyticsFeatures": "分析功能"
+    "analyticsFeatures": "分析功能",
+    "liveAnalytics": "访客分析",
+    "privacyFirst": "隐私优先"
   },
   "painPoints": {
     "title": "还在手动统计访客吗？",
@@ -53,12 +55,12 @@
   },
   "cta": {
     "title": "准备好变革您的零售洞察了吗？",
-    "subtitle": "印度尼西亚全境300多家门店已在使用SmartCounter进行数据驱动决策。"
+    "subtitle": "了解SmartCounter如何支持零售场所的客流分析与运营决策。"
   },
   "footer": {
     "product": "产品",
     "resources": "资源",
     "contactInfo": "联系方式",
-    "description": "印度尼西亚#1访客分析平台。通过准确的实时数据帮助实体店销售额最高提升40%。"
+    "description": "面向实体门店、购物中心和多门店零售运营的访客分析软件。"
   }
 }

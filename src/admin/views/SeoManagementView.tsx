@@ -1,19 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { CitabilityAnalysis } from '@/admin/components/SeoEditor/CitabilityAnalysis'
-import { SparklineInline, ScoreTrendDetail } from '@/admin/components/SeoEditor/ScoreTrend'
 import { CompetitorComparison } from '@/admin/components/SeoEditor/CompetitorComparison'
 import { SEO_GUIDANCE } from '@/admin/data/seo-guidance'
-
-interface SeoCheck {
-  name: string
-  score: number
-  max: number
-  status: 'green' | 'amber' | 'red'
-  tip: string
-  tier?: 'high' | 'medium' | 'info' | 'geo'
-}
+import { auditSeoContent, calculateCoverage, type SeoCheck } from '@/lib/seo/audit'
 
 interface SeoItem {
   id: string
@@ -26,6 +16,7 @@ interface SeoItem {
     description?: string
     imageId?: string | null
   }
+  coverage?: number
   score?: number
   checks?: SeoCheck[]
   sourceContent?: string
@@ -59,14 +50,8 @@ function getScoreColor(score: number): string {
   return '#dc2626'
 }
 
-function getScoreLabel(score: number): string {
-  if (score >= 80) return 'green'
-  if (score >= 40) return 'amber'
-  return 'red'
-}
-
 function calculateScore(item: SeoItem): number {
-  return item.score ?? 0
+  return item.coverage ?? item.score ?? 0
 }
 
 export default function SeoManagementView() {
@@ -84,135 +69,27 @@ export default function SeoManagementView() {
   const [uploadLoading, setUploadLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [liveChecks, setLiveChecks] = useState<SeoCheck[] | null>(null)
-  const [snapshots, setSnapshots] = useState<Record<string, { score: number; timestamp: string; breakdown?: any }[]>>({})
-  const [snapshotLoading, setSnapshotLoading] = useState(false)
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type })
     setTimeout(() => setToast(null), 3000)
   }
 
-  const TOPIC_KW = ['people counting', 'cctv ai', 'visitor analytics', 'analitik pengunjung', 'smart cctv', 'ai camera', 'foot traffic', 'retail analytics']
-
   const recalcChecks = (title: string, desc: string, imageId: string | null, _slug: string, content: string | null, item?: SeoItem) => {
-    const checks: SeoCheck[] = []
-    const tl = title.toLowerCase()
-    const isBlog = item?.type === 'blog'
-
-    // === TECHNICAL (38 pts) ===
-
-    const tLen = title.length
-    checks.push(tLen >= 50 && tLen <= 60
-      ? { name: 'Title Length', score: 8, max: 8, status: 'green', tip: `${tLen} chars — optimal (50-60)`, tier: 'high' }
-      : tLen >= 30 && tLen <= 70
-        ? { name: 'Title Length', score: 5, max: 8, status: 'amber', tip: `${tLen} chars — acceptable, optimal 50-60`, tier: 'high' }
-        : tLen > 0
-          ? { name: 'Title Length', score: 2, max: 8, status: 'red', tip: `${tLen} chars — should be 50-60`, tier: 'high' }
-          : { name: 'Title Length', score: 0, max: 8, status: 'red', tip: 'Missing', tier: 'high' })
-
-    const allTitles = items.map(i => i.meta?.title).filter(Boolean) as string[]
-    const dupes = allTitles.filter(t => t === title).length
-    checks.push(dupes <= 1
-      ? { name: 'Title Unique', score: 7, max: 7, status: 'green', tip: 'Unique', tier: 'high' }
-      : { name: 'Title Unique', score: 0, max: 7, status: 'red', tip: `Duplicate (${dupes})`, tier: 'high' })
-
-    const artifacts = [/ for —/, / for -/, /— —/, /  /, /\[\d+\]/, /\.{2,}/]
-    const hasArt = artifacts.some(p => p.test(title))
-    const words = tl.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean)
-    const bigrams: string[] = []
-    for (let i = 0; i < words.length - 1; i++) bigrams.push(`${words[i]} ${words[i+1]}`)
-    const bgCounts = new Map<string, number>()
-    for (const bg of bigrams) bgCounts.set(bg, (bgCounts.get(bg) || 0) + 1)
-    const repeated = Array.from(bgCounts.entries()).filter(([,c]) => c >= 3)
-
-    if (!hasArt && repeated.length === 0) {
-      checks.push({ name: 'Title Natural', score: 6, max: 6, status: 'green', tip: 'Reads naturally', tier: 'high' })
-    } else {
-      const issues: string[] = []
-      if (hasArt) issues.push('auto-gen artifact')
-      if (repeated.length > 0) issues.push(`repeated: "${repeated[0][0]}"`)
-      checks.push({ name: 'Title Natural', score: 0, max: 6, status: 'red', tip: issues.join('; '), tier: 'high' })
-    }
-
-    checks.push(imageId
-      ? { name: 'OG Image', score: 7, max: 7, status: 'green', tip: 'Present — multi-modal = 156% higher AI selection', tier: 'high' }
-      : { name: 'OG Image', score: 0, max: 7, status: 'red', tip: 'Missing — needed for social + AI citations', tier: 'high' })
-
-    const serverOgAlt = item?.checks?.find(c => c.name === 'OG Image Alt')
-    checks.push(serverOgAlt || { name: 'OG Image Alt', score: imageId ? 6 : 0, max: 6, status: imageId ? 'green' : 'red', tip: imageId ? 'Assumed present' : 'No image', tier: 'high' })
-
-    const serverContentAlt = item?.checks?.find(c => c.name === 'Content Image Alt')
-    if (serverContentAlt) checks.push(serverContentAlt)
-    else checks.push({ name: 'Content Image Alt', score: 2, max: 4, status: 'amber', tip: 'Check in server response', tier: 'high' })
-
-    // === CTR & TRUST (30 pts) ===
-
-    const dLen = desc.length
-    checks.push(dLen >= 120 && dLen <= 150
-      ? { name: 'Desc Length', score: 7, max: 7, status: 'green', tip: `${dLen} chars — optimal for SERP CTR (120-150)`, tier: 'medium' }
-      : dLen >= 80
-        ? { name: 'Desc Length', score: 4, max: 7, status: 'amber', tip: `${dLen} chars — ideal 120-150`, tier: 'medium' }
-        : { name: 'Desc Length', score: dLen > 0 ? 2 : 0, max: 7, status: dLen > 0 ? 'amber' : 'red', tip: dLen > 0 ? `${dLen} chars — too short` : 'Missing', tier: 'medium' })
-
-    const descSentences = desc.split(/\.\s*/).filter(s => s.trim().length > 3)
-    const last = descSentences[descSentences.length - 1] || ''
-    const lastVerb = /\b(is|are|help|track|use|learn|get|boost|reduce|monitor|detect|provide|transform|optimize|untuk|dengan|yang|dapat|bisa|membantu)\b/i.test(last)
-    let dnScore = 0
-    if (descSentences.length >= 1) dnScore += 3
-    if (lastVerb || last.length > 25) dnScore += 3
-    checks.push({ name: 'Desc Natural', score: Math.min(dnScore, 6), max: 6, status: dnScore >= 6 ? 'green' : dnScore >= 3 ? 'amber' : 'red', tip: dnScore >= 6 ? 'Reads naturally' : 'Ends abruptly', tier: 'medium' })
-
-    const serverEEAT = (item?.checks || []).filter(c => c.name.startsWith('E-E-A-T'))
-    if (serverEEAT.length > 0) {
-      checks.push(...serverEEAT)
-    } else {
-      checks.push({ name: 'E-E-A-T: Depth', score: 10, max: 17, status: 'amber', tip: 'Check server data', tier: 'medium' })
-    }
-
-    // === GEO / AI SEARCH (17 pts) ===
-
-    const contentText = content || ''
-    const first60 = contentText.split(/\s+/).slice(0, 60).join(' ').toLowerCase()
-    const hasDef = /\b(adalah|is|refers to|merupakan|yaitu|ialah)\b/.test(first60)
-    if (hasDef) {
-      checks.push({ name: 'Opening Definition', score: 7, max: 7, status: 'green', tip: 'Starts with definition — optimal for AI citation', tier: 'geo' })
-    } else if (contentText.length > 0) {
-      checks.push({ name: 'Opening Definition', score: 2, max: 7, status: 'amber', tip: 'No "X is/adalah..." in first 60 words — add for AI Overviews', tier: 'geo' })
-    } else {
-      checks.push({ name: 'Opening Definition', score: 0, max: 7, status: 'red', tip: 'No content — AI crawlers need SSR text', tier: 'geo' })
-    }
-
-    const paras = contentText.split(/\n\n+|\r\n\r\n+/).filter(p => p.trim().length > 50)
-    const citable = paras.filter(p => { const wc = p.trim().split(/\s+/).length; return wc >= 100 && wc <= 200 })
-    if (citable.length >= 2) {
-      checks.push({ name: 'Citability Blocks', score: 10, max: 10, status: 'green', tip: `${citable.length} citable passages (100-200 words)`, tier: 'geo' })
-    } else if (citable.length === 1) {
-      checks.push({ name: 'Citability Blocks', score: 6, max: 10, status: 'amber', tip: '1 citable passage — aim for 2+ (100-200 words each)', tier: 'geo' })
-    } else {
-      checks.push({ name: 'Citability Blocks', score: 2, max: 10, status: 'amber', tip: 'No 100-200 word passages — AI needs self-contained answer blocks', tier: 'geo' })
-    }
-
-    // === INFORMATIONAL (15 pts) ===
-
-    const cWords = contentText.split(/\s+/).filter(Boolean).length
-    const greenW = isBlog ? 800 : 300
-    const amberW = isBlog ? 400 : 100
-    let cs: number, cst: 'green' | 'amber' | 'red', ct: string
-    if (cWords >= greenW) { cs = 10; cst = 'green'; ct = `${cWords} words — comprehensive` }
-    else if (cWords >= amberW) { cs = 6; cst = 'amber'; ct = `${cWords} words — ${isBlog ? 'target 800+ for depth' : 'consider expanding'}` }
-    else if (cWords > 0) { cs = 3; cst = 'amber'; ct = `${cWords} words — thin content` }
-    else { cs = 0; cst = 'red'; ct = 'No content body' }
-    checks.push({ name: 'Content Depth', score: cs, max: 10, status: cst, tip: ct, tier: 'info' })
-
-    const topicMatches = TOPIC_KW.filter(k => tl.includes(k))
-    if (topicMatches.length >= 1) {
-      checks.push({ name: 'Topic Indicator', score: 5, max: 5, status: 'green', tip: `"${topicMatches[0]}" found in title`, tier: 'info' })
-    } else {
-      const contentMatches = TOPIC_KW.filter(k => contentText.toLowerCase().includes(k))
-      checks.push({ name: 'Topic Indicator', score: contentMatches.length > 0 ? 3 : 2, max: 5, status: 'amber', tip: contentMatches.length > 0 ? 'Topic in content, not title — OK' : 'No exact keyword — fine if semantically covered', tier: 'info' })
-    }
-
-    setLiveChecks(checks)
+    const result = auditSeoContent({
+      metaTitle: title || null,
+      metaDescription: desc || null,
+      imageId,
+      ogImageAlt: editForm.ogImageAlt || item?.ogImageAlt || null,
+      contentImageAlt: item?.contentImageAlt ?? null,
+      sourceContent: content,
+      allTitles: items.map((candidate) => candidate.meta?.title).filter((candidate): candidate is string => Boolean(candidate)),
+      contentType: item?.type === "blog" || item?.type === "feature" ? item.type : "usecase",
+      hasAuthor: Boolean(item?.hasAuthor),
+      hasPublishedAt: Boolean(item?.hasPublishedAt),
+      hasExcerpt: Boolean(item?.hasExcerpt),
+    })
+    setLiveChecks(result.checks)
   }
 
   // Fetch items
@@ -241,20 +118,10 @@ export default function SeoManagementView() {
 
     fetchItems()
 
-    // Fetch score history
-    fetch('/api/seo-scores').then(r => r.json()).then(data => {
-      const grouped: Record<string, { score: number; timestamp: string; breakdown?: any }[]> = {}
-      for (const s of (data.snapshots || [])) {
-        if (!grouped[s.id]) grouped[s.id] = []
-        grouped[s.id].push({ score: s.score, timestamp: s.timestamp, breakdown: s.breakdown })
-      }
-      setSnapshots(grouped)
-    }).catch(() => {})
   }, [localeFilter, typeFilter, statusFilter, searchTerm])
 
   // Filter items based on status
   const filteredItems = items.filter(item => {
-    const score = calculateScore(item)
     const isMissingMeta = !item.meta?.title || !item.meta?.description
     const isMissingImage = !item.meta?.imageId
 
@@ -279,40 +146,6 @@ export default function SeoManagementView() {
       const isMissingImage = !item.meta?.imageId
       return isMissingMeta || isMissingImage
     }).length,
-  }
-
-  const handleAutoFix = async () => {
-    try {
-      setAutoFixLoading(true)
-
-      const res1 = await fetch('/api/seo-items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'auto-fix-all', locale: localeFilter }),
-      })
-      if (!res1.ok) throw new Error('Auto-fix meta failed')
-
-      const res2 = await fetch('/api/seo-items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'use-content-images', locale: localeFilter }),
-      })
-      if (!res2.ok) throw new Error('Auto-fix images failed')
-
-      const refreshParams = new URLSearchParams({ locale: localeFilter })
-      if (typeFilter !== 'all') refreshParams.append('type', typeFilter)
-      const refreshRes = await fetch(`/api/seo-items?${refreshParams.toString()}`)
-      if (refreshRes.ok) {
-        const data = await refreshRes.json()
-        setItems(data.items || [])
-      }
-      setError('')
-      showToast('Auto-fix completed — titles, descriptions & images optimized')
-    } catch (err) {
-      showToast('Auto-fix failed. Please try again.', 'error')
-    } finally {
-      setAutoFixLoading(false)
-    }
   }
 
   const handleSaveEdit = async () => {
@@ -728,56 +561,6 @@ export default function SeoManagementView() {
               Seed ID Slugs
             </button>
           )}
-          <button
-            onClick={async () => {
-              setSnapshotLoading(true)
-              try {
-                const payload = items.map(item => ({ id: item.id, title: item.title, collection: item.collection, score: calculateScore(item), checks: item.checks }))
-                const res = await fetch('/api/seo-scores', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: payload }) })
-                const data = await res.json()
-                showToast(data.message || 'Snapshot saved')
-                // Refresh snapshots
-                const histRes = await fetch('/api/seo-scores')
-                const histData = await histRes.json()
-                const grouped: Record<string, any[]> = {}
-                for (const s of (histData.snapshots || [])) { if (!grouped[s.id]) grouped[s.id] = []; grouped[s.id].push({ score: s.score, timestamp: s.timestamp, breakdown: s.breakdown }) }
-                setSnapshots(grouped)
-              } catch { showToast('Failed to save snapshot', 'error') }
-              setSnapshotLoading(false)
-            }}
-            disabled={snapshotLoading}
-            style={{
-              ...buttonStyle,
-              background: '#3b82f6',
-              opacity: snapshotLoading ? 0.6 : 1,
-              cursor: snapshotLoading ? 'not-allowed' : 'pointer',
-            }}
-            onMouseEnter={e => { if (!snapshotLoading) (e.currentTarget as HTMLButtonElement).style.background = '#2563eb' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#3b82f6' }}
-          >
-            {snapshotLoading ? 'Saving...' : 'Snapshot Scores'}
-          </button>
-          <button
-            onClick={handleAutoFix}
-            disabled={autoFixLoading}
-            style={{
-              ...buttonStyle,
-              opacity: autoFixLoading ? 0.6 : 1,
-              cursor: autoFixLoading ? 'not-allowed' : 'pointer',
-            }}
-            onMouseEnter={e => {
-              if (!autoFixLoading) {
-                (e.currentTarget as HTMLButtonElement).style.background = 'var(--sc-red-hover)'
-                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 24px rgba(220,38,38,0.3)'
-              }
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'var(--sc-red)'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
-            }}
-          >
-            {autoFixLoading ? 'Processing...' : 'Auto-fix All'}
-          </button>
         </div>
       </div>
 
@@ -802,7 +585,7 @@ export default function SeoManagementView() {
           <div style={{ fontSize: 20, fontWeight: 800, color: '#d97706', marginBottom: 4 }}>
             {items.length > 0 ? Math.round(items.reduce((sum, item) => sum + calculateScore(item), 0) / items.length) : 0}%
           </div>
-          <div style={{ fontSize: 12, color: 'var(--sc-text-muted)', fontWeight: 600 }}>AVG SCORE</div>
+          <div style={{ fontSize: 12, color: 'var(--sc-text-muted)', fontWeight: 600 }}>AVG CHECKLIST COVERAGE</div>
         </div>
       </div>
 
@@ -862,7 +645,7 @@ export default function SeoManagementView() {
         <div>Type</div>
         <div style={{ textAlign: 'center' }}>Meta</div>
         <div style={{ textAlign: 'center' }}>OG</div>
-        <div style={{ textAlign: 'center' }}>Score</div>
+        <div style={{ textAlign: 'center' }}>Coverage</div>
       </div>
 
       {/* Table Rows */}
@@ -903,7 +686,6 @@ export default function SeoManagementView() {
                 <div style={{ textAlign: 'center', ...statusBadgeStyle(hasOg) }}>{hasOg ? '✓' : '✗'}</div>
                 <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: getScoreColor(score) }}>{score}%</span>
-                  <SparklineInline snapshots={snapshots[`${item.collection}-${item.id}`] || []} />
                 </div>
               </div>
 
@@ -956,16 +738,15 @@ export default function SeoManagementView() {
                           onChange={e => setEditForm({ ...editForm, metaTitle: e.target.value })}
                           style={inputFieldStyle}
                           placeholder="Page title for search results"
-                          maxLength={60}
                         />
                         <div
                           style={{
                             fontSize: 12,
                             marginTop: 6,
-                            color: editForm.metaTitle.length > 60 ? '#dc2626' : 'var(--sc-text-muted)',
+                            color: 'var(--sc-text-muted)',
                           }}
                         >
-                          {editForm.metaTitle.length}/60
+                          {editForm.metaTitle.length} characters — preview length is not a quality score
                         </div>
                       </div>
 
@@ -1001,16 +782,15 @@ export default function SeoManagementView() {
                             fontFamily: '"Manrope", sans-serif',
                           }}
                           placeholder="Brief description for search results"
-                          maxLength={150}
                         />
                         <div
                           style={{
                             fontSize: 12,
                             marginTop: 6,
-                            color: editForm.metaDescription.length > 150 ? '#dc2626' : 'var(--sc-text-muted)',
+                            color: 'var(--sc-text-muted)',
                           }}
                         >
-                          {editForm.metaDescription.length}/150
+                          {editForm.metaDescription.length} characters — search engines may rewrite this preview
                         </div>
                       </div>
 
@@ -1116,19 +896,11 @@ export default function SeoManagementView() {
                           showToast('Generating smart description...')
                           const suggestion = await fetchSuggestionFn()
                           if (!suggestion) { showToast('Failed to generate', 'error'); return }
-                          const sentences = suggestion.description.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 5)
-                          let desc = ''
-                          for (const s of sentences) {
-                            const next = desc ? desc + ' ' + s.trim() : s.trim()
-                            if (next.length > 150) break
-                            desc = next
-                          }
-                          if (!desc.endsWith('.') && !desc.endsWith('!') && !desc.endsWith('?')) desc += '.'
                           setEditForm(prev => {
-                            doRecalcFn(prev.metaTitle, desc)
-                            return { ...prev, metaDescription: desc }
+                            doRecalcFn(prev.metaTitle, suggestion.description)
+                            return { ...prev, metaDescription: suggestion.description }
                           })
-                          showToast(`Description: ${desc.length} chars`)
+                          showToast(`Description: ${suggestion.description.length} characters`)
                         }
 
                         const fixAll = async (e: React.MouseEvent) => {
@@ -1136,76 +908,13 @@ export default function SeoManagementView() {
                           showToast('Analyzing content & generating suggestions...')
                           const suggestion = await fetchSuggestionFn()
                           if (!suggestion) { showToast('Failed to generate', 'error'); return }
-                          // Build description from complete sentences (120-150 chars)
-                          const sentences = suggestion.description.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 5)
-                          let desc = ''
-                          for (const s of sentences) {
-                            const next = desc ? desc + ' ' + s.trim() : s.trim()
-                            if (next.length > 150) break
-                            desc = next
-                          }
-                          if (!desc.endsWith('.') && !desc.endsWith('!') && !desc.endsWith('?')) desc += '.'
-                          doRecalcFn(suggestion.title, desc)
-                          setEditForm(prev => ({ ...prev, metaTitle: suggestion.title, metaDescription: desc }))
-                          showToast(`Title + description applied (${desc.length} chars)`)
-                        }
-
-                        const fixDescLength = async (e: React.MouseEvent) => {
-                          e.stopPropagation()
-                          const current = editForm.metaDescription
-                          if (current.length >= 120 && current.length <= 150) { showToast('Already optimal'); return }
-                          showToast('Generating optimal description (120-150 chars)...')
-                          const suggestion = await fetchSuggestionFn()
-                          if (!suggestion) { showToast('Failed to generate', 'error'); return }
-
-                          const buildDesc = (raw: string): string => {
-                            const sentences = raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 5)
-                            // Build from complete sentences until 120-160
-                            let result = ''
-                            for (const s of sentences) {
-                              const next = result ? result + ' ' + s.trim() : s.trim()
-                              if (next.length > 150) break
-                              result = next
-                            }
-                            // If still short, pad with content sentences
-                            if (result.length < 120) {
-                              const content = item.sourceContent || ''
-                              const contentSentences = content.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 20 && !result.includes(s.trim()))
-                              for (const s of contentSentences) {
-                                const next = result.replace(/\.$/, '') + '. ' + s.trim()
-                                if (next.length > 150) break
-                                result = next
-                                if (result.length >= 120) break
-                              }
-                            }
-                            if (!result.endsWith('.') && !result.endsWith('!') && !result.endsWith('?')) result += '.'
-                            return result
-                          }
-
-                          let desc = buildDesc(suggestion.description)
-                          // Fallback: use current + extend
-                          if (desc.length < 120 && current.length > 0) desc = buildDesc(current)
-                          setEditForm(prev => {
-                            doRecalcFn(prev.metaTitle, desc)
-                            return { ...prev, metaDescription: desc }
-                          })
-                          showToast(`Description: ${desc.length} chars`)
-                        }
-
-                        const fixTopicIndicator = async (e: React.MouseEvent) => {
-                          e.stopPropagation()
-                          const title = editForm.metaTitle
-                          const hasKw = TOPIC_KW.some(k => title.toLowerCase().includes(k))
-                          if (hasKw) { showToast('Already has topic keyword'); return }
-                          showToast('Adding topic keyword to title...')
-                          const suggestion = await fetchSuggestionFn()
-                          if (suggestion) {
-                            setEditForm(prev => {
-                              doRecalcFn(suggestion.title, prev.metaDescription)
-                              return { ...prev, metaTitle: suggestion.title }
-                            })
-                            showToast('Title updated with topic keyword')
-                          } else { showToast('Failed to generate', 'error') }
+                          doRecalcFn(suggestion.title, suggestion.description)
+                          setEditForm(prev => ({
+                            ...prev,
+                            metaTitle: suggestion.title,
+                            metaDescription: suggestion.description,
+                          }))
+                          showToast('Title and description suggestion applied')
                         }
 
                         const openPayloadEditor = (e: React.MouseEvent) => {
@@ -1215,18 +924,19 @@ export default function SeoManagementView() {
                         }
 
                         const fixMap: Record<string, (e: React.MouseEvent) => void> = {
-                          'Title Length': fixTitle,
+                          'Meta Title': fixTitle,
                           'Title Unique': fixTitle,
-                          'Title Natural': fixTitle,
-                          'Desc Length': fixDescLength,
-                          'Desc Natural': fixDesc,
-                          'Topic Indicator': fixTopicIndicator,
-                          'Opening Definition': openPayloadEditor,
-                          'Citability Blocks': openPayloadEditor,
-                          'Content Depth': openPayloadEditor,
-                          'E-E-A-T: Author': openPayloadEditor,
-                          'E-E-A-T: Excerpt': openPayloadEditor,
-                          'E-E-A-T: Date': openPayloadEditor,
+                          'Title Readability': fixTitle,
+                          'Meta Description': fixDesc,
+                          'Description Readability': fixDesc,
+                          'Social Image': openPayloadEditor,
+                          'Social Image Alt': openPayloadEditor,
+                          'Content Image Alt': openPayloadEditor,
+                          'Public Content': openPayloadEditor,
+                          'Author Attribution': openPayloadEditor,
+                          'Publication Date': openPayloadEditor,
+                          'Editorial Summary': openPayloadEditor,
+                          'Claim Verification': openPayloadEditor,
                         }
 
                         // Guidance now comes from SEO_GUIDANCE imported from seo-guidance.ts
@@ -1235,9 +945,9 @@ export default function SeoManagementView() {
                           <div style={{ marginBottom: 20 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                               <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--sc-text)' }}>
-                                SEO Health Checks
-                                <span style={{ marginLeft: 8, fontSize: 14, fontWeight: 800, fontFamily: 'var(--font-mono)', color: getScoreColor(activeChecks.reduce((s, c) => s + c.score, 0)) }}>
-                                  {activeChecks.reduce((s, c) => s + c.score, 0)}/100
+                                Publication Checklist
+                                <span style={{ marginLeft: 8, fontSize: 14, fontWeight: 800, fontFamily: 'var(--font-mono)', color: getScoreColor(calculateCoverage(activeChecks)) }}>
+                                  {calculateCoverage(activeChecks)}% covered
                                 </span>
                               </label>
                               {activeChecks.some(c => c.status !== 'green' && fixMap[c.name]) && (
@@ -1255,7 +965,7 @@ export default function SeoManagementView() {
                               {(['high', 'medium', 'geo', 'info'] as const).map(tier => {
                                 const tierChecks = activeChecks.filter(c => (c.tier || 'high') === tier)
                                 if (tierChecks.length === 0) return null
-                                const tierLabels: Record<string, string> = { high: 'TECHNICAL', medium: 'CTR & TRUST', geo: 'GEO / AI SEARCH', info: 'INFORMATIONAL' }
+                                const tierLabels: Record<string, string> = { high: 'TECHNICAL & PREVIEW', medium: 'EDITORIAL CLARITY', geo: 'CLAIM VERIFICATION', info: 'PUBLIC CONTENT' }
                                 const tierColors: Record<string, string> = { high: '#dc2626', medium: '#d97706', geo: '#8b5cf6', info: '#3b82f6' }
                                 return (
                                   <React.Fragment key={tier}>
@@ -1351,11 +1061,6 @@ export default function SeoManagementView() {
                     </div>
                   </div>
 
-                  {/* Citability + History + Competitor */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <CitabilityAnalysis sourceContent={item.sourceContent || null} />
-                    <ScoreTrendDetail snapshots={snapshots[`${item.collection}-${item.id}`] || []} />
-                  </div>
                   <CompetitorComparison
                     yourUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/${localeFilter}/${item.collection === 'blog-posts' ? 'blog' : item.collection === 'features' ? 'features' : 'use-cases'}/${item.slug}`}
                   />

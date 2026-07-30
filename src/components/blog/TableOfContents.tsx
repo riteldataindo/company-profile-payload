@@ -15,7 +15,7 @@ export function TableOfContents({ post }: TableOfContentsProps) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveId(entry.id)
+            setActiveId(entry.target.id)
           }
         })
       },

@@ -1,6 +1,5 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 const FEATURES_EN = [
   { id: 1, slug: 'visitor-traffic', name: 'Visitor Traffic', shortDescription: 'Track every visitor entering and leaving your store with AI-powered CCTV analytics — real-time counting with 99.9% accuracy.' },
@@ -54,8 +53,8 @@ const LEXICAL_PLACEHOLDER = {
   root: {
     type: 'root',
     children: [{ type: 'paragraph', children: [{ type: 'text', text: 'Content placeholder.', version: 1 }], version: 1 }],
-    direction: 'ltr',
-    format: '',
+    direction: 'ltr' as const,
+    format: '' as const,
     indent: 0,
     version: 1,
   },
@@ -89,9 +88,11 @@ const BLOGS_ID_SLUGS: Record<string, string> = {
   'cctv-ai-people-counting-visitor-analytics': 'cctv-ai-people-counting-visitor-analytics',
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
     const results = { features: 0, useCases: 0, blogPosts: 0, idSlugs: 0, errors: [] as string[] }
 
     // Re-seed features EN

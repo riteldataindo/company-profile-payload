@@ -75,6 +75,7 @@ export interface Config {
     'faq-items': FaqItem;
     'form-submissions': FormSubmission;
     'deployment-locations': DeploymentLocation;
+    'client-logos': ClientLogo;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -92,6 +93,7 @@ export interface Config {
     'faq-items': FaqItemsSelect<false> | FaqItemsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'deployment-locations': DeploymentLocationsSelect<false> | DeploymentLocationsSelect<true>;
+    'client-logos': ClientLogosSelect<false> | ClientLogosSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -493,6 +495,35 @@ export interface DeploymentLocation {
   createdAt: string;
 }
 /**
+ * Client logos shown in the homepage carousel.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "client-logos".
+ */
+export interface ClientLogo {
+  id: number;
+  /**
+   * Used as the logo alt text and record name.
+   */
+  companyName: string;
+  /**
+   * Upload PNG, JPG, WebP, or SVG. White edge backgrounds, excess margins, and square/portrait sizing are normalized automatically.
+   */
+  logo: number | Media;
+  darkModeLogo?: (number | null) | Media;
+  /**
+   * Optional. Makes the logo clickable.
+   */
+  websiteUrl?: string | null;
+  isVisible?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -547,6 +578,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'deployment-locations';
         value: number | DeploymentLocation;
+      } | null)
+    | ({
+        relationTo: 'client-logos';
+        value: number | ClientLogo;
       } | null)
     | ({
         relationTo: 'media';
@@ -743,6 +778,20 @@ export interface DeploymentLocationsSelect<T extends boolean = true> {
   longitude?: T;
   latitude?: T;
   isMajor?: T;
+  isVisible?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "client-logos_select".
+ */
+export interface ClientLogosSelect<T extends boolean = true> {
+  companyName?: T;
+  logo?: T;
+  darkModeLogo?: T;
+  websiteUrl?: T;
   isVisible?: T;
   sortOrder?: T;
   updatedAt?: T;

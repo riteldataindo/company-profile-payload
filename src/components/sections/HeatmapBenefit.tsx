@@ -7,14 +7,10 @@ function HeatmapMockup() {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-card shadow-[0_0_40px_rgba(239,68,68,0.2)]">
       {/* Dashboard chrome */}
-      <div className="flex items-center justify-between border-b border-border-subtle bg-bg-base/80 px-4 py-2.5">
+      <div className="flex items-center border-b border-border-subtle bg-bg-base/80 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-primary-500" />
           <span className="text-xs font-semibold text-text-secondary">Heatmap — Pondok Indah Mall</span>
-        </div>
-        <div className="flex items-center gap-3 text-[10px] text-text-muted">
-          <span className="rounded bg-bg-card px-2 py-0.5">Today</span>
-          <span>10:00 — 18:00</span>
         </div>
       </div>
 

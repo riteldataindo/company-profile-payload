@@ -5,8 +5,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  images: {
+    localPatterns: [
+      {
+        pathname: '/api/media/file/**',
+      },
+    ],
+  },
   async redirects() {
     return [
+      { source: '/favicon.ico', destination: '/favicon.svg', permanent: false },
       // WordPress blog posts → matching Indonesian blog posts (permanent)
       { source: '/apa-itu-people-counting-system', destination: '/id/blog/apa-itu-people-counting-system', permanent: true },
       { source: '/apa-itu-people-counting-system/', destination: '/id/blog/apa-itu-people-counting-system', permanent: true },

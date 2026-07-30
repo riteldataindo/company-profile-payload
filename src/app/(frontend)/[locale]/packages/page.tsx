@@ -104,27 +104,27 @@ export default async function PackagesPage({
   const faqs = [
     {
       q: 'Do all packages include hardware and installation?',
-      a: 'Yes. All SmartCounter packages include the CCTV AI hardware and professional on-site installation by our technical team.',
+      a: 'Hardware, installation, and service scope are listed in the proposal for your selected package and deployment.',
     },
     {
       q: 'Can I upgrade or downgrade my package later?',
-      a: 'Absolutely. You can change your plan at any time during your subscription. Upgrades and downgrades take effect immediately.',
+      a: 'Package changes are handled according to the current service agreement. The team can review scope and timing with you.',
     },
     {
       q: 'Is there a long-term contract required?',
-      a: 'We offer flexible month-to-month and annual subscription options. Annual plans include a 15% discount.',
+      a: 'Available billing periods, renewal terms, and any commercial incentives are listed in the current proposal.',
     },
     {
       q: 'What if I need more zones than my package allows?',
-      a: 'You can easily add additional zones for a small monthly fee. Contact our sales team for zone add-on pricing.',
+      a: 'Additional zones can be reviewed as a scope change. Contact the sales team for current technical and commercial terms.',
     },
     {
       q: 'Do you offer enterprise custom packages?',
-      a: 'Yes. For organizations with 50+ locations or specialized requirements, we create custom enterprise solutions. Contact us for details.',
+      a: 'Custom deployment options are available for multi-location organizations and specialized technical requirements. Contact us for scoping.',
     },
     {
       q: 'What support is included?',
-      a: 'Basic includes email support (24-48hr response). Add-On and Premium include priority email support and live chat during business hours.',
+      a: 'Support channels, service hours, and response targets depend on the selected package and signed service terms.',
     },
   ]
 

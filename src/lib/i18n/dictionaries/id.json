@@ -9,10 +9,10 @@
     "getDemo": "Coba Demo"
   },
   "hero": {
-    "badge": "#1 Platform People Counting Indonesia",
+    "badge": "People Counting untuk Retail Indonesia",
     "title": "People Counting",
     "titleHighlight": "& Analitik Pengunjung",
-    "subtitle": "Berhenti menebak, mulai gunakan data. SmartCounter mengubah kamera CCTV Anda menjadi sistem penghitung pengunjung berbasis AI — analitik pengunjung real-time, heatmap, dan insight demografis dengan akurasi 99.9%. Tingkatkan penjualan hingga 40% dengan keputusan berbasis data.",
+    "subtitle": "SmartCounter mengubah kamera CCTV yang kompatibel menjadi sistem penghitung pengunjung dengan analitik real-time, heatmap, dan insight demografis agregat untuk mendukung keputusan operasional.",
     "ctaPrimary": "Coba Demo Gratis",
     "ctaSecondary": "Lihat Semua Fitur"
   },
@@ -25,7 +25,9 @@
     "copyright": "© 2026 PT Ritel Data Indonesia. Hak cipta dilindungi.",
     "storesServed": "Toko Terlayani",
     "accuracy": "Akurasi",
-    "analyticsFeatures": "Fitur Analitik"
+    "analyticsFeatures": "Fitur Analitik",
+    "liveAnalytics": "Analitik Pengunjung",
+    "privacyFirst": "Utamakan Privasi"
   },
   "painPoints": {
     "title": "Masih Menghitung Pengunjung Manual?",
@@ -53,12 +55,12 @@
   },
   "cta": {
     "title": "Siap Mentransformasi Insight Retail Anda?",
-    "subtitle": "Bergabung dengan 300+ toko di Indonesia yang sudah menggunakan SmartCounter untuk keputusan berbasis data."
+    "subtitle": "Lihat bagaimana SmartCounter dapat mendukung keputusan traffic dan operasional di lokasi retail Anda."
   },
   "footer": {
     "product": "Produk",
     "resources": "Sumber Daya",
     "contactInfo": "Kontak",
-    "description": "Platform analitik pengunjung #1 Indonesia yang membantu toko fisik meningkatkan pendapatan hingga 40% dengan data yang akurat dan real-time."
+    "description": "Perangkat lunak analitik pengunjung untuk toko fisik, pusat perbelanjaan, dan operasional retail multi-lokasi."
   }
 }

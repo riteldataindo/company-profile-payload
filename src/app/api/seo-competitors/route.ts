@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import path from 'path'
+import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth'
+import { fetchPublicHtml, validatePublicUrl } from '@/lib/safe-fetch'
 
 const CACHE_DIR = path.join(process.cwd(), 'data', 'competitor-cache')
 const CACHE_TTL = 24 * 60 * 60 * 1000
@@ -54,7 +56,7 @@ function extractMeta(html: string, tag: string): string {
 }
 
 function extractText(html: string): string {
-  let text = html
+  const text = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<nav[\s\S]*?<\/nav>/gi, '')
@@ -70,18 +72,10 @@ async function analyzeUrl(url: string): Promise<PageMetrics> {
   const cached = readCache(url)
   if (cached) return cached
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10000)
-
   try {
-    const resp = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SmartCounter SEO Analyzer)' },
-    })
-    const html = await resp.text()
-    clearTimeout(timeout)
+    const { html, finalUrl } = await fetchPublicHtml(url)
 
-    const domain = new URL(url).hostname
+    const domain = finalUrl.hostname
     const title = extractMeta(html, 'og:title') || (html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] || '').trim()
     const description = extractMeta(html, 'og:description') || extractMeta(html, 'description')
     const bodyText = extractText(html)
@@ -106,7 +100,6 @@ async function analyzeUrl(url: string): Promise<PageMetrics> {
     writeCache(url, metrics)
     return metrics
   } catch (err) {
-    clearTimeout(timeout)
     return {
       url, domain: new URL(url).hostname,
       title: '(fetch failed)', titleLength: 0,
@@ -118,18 +111,38 @@ async function analyzeUrl(url: string): Promise<PageMetrics> {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authorization = await authorizeAdminRequest(request, 'read')
+  if (!authorization.ok) return authorization.response
   const { COMPETITORS, TOPIC_MAP } = await import('@/admin/data/competitors')
-  return NextResponse.json({ competitors: COMPETITORS, topics: TOPIC_MAP })
+  return NextResponse.json(
+    { competitors: COMPETITORS, topics: TOPIC_MAP },
+    { headers: privateAdminHeaders() },
+  )
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'read')
+    if (!authorization.ok) return authorization.response
+
     const body = await request.json()
     const { yourUrl, competitorUrls } = body as { yourUrl?: string; competitorUrls: string[] }
 
     if (!competitorUrls || competitorUrls.length === 0) {
       return NextResponse.json({ error: 'No competitor URLs provided' }, { status: 400 })
+    }
+
+    const requestedUrls = [yourUrl, ...competitorUrls.slice(0, 5)].filter(
+      (url): url is string => typeof url === 'string' && url.length > 0,
+    )
+    try {
+      await Promise.all(requestedUrls.map(validatePublicUrl))
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Unsafe or invalid URL', message: error instanceof Error ? error.message : 'Invalid URL' },
+        { status: 400, headers: privateAdminHeaders() },
+      )
     }
 
     const results: PageMetrics[] = []

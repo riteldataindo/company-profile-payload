@@ -15,6 +15,7 @@ import { PricingTiers } from '@/collections/PricingTiers'
 import { FaqItems } from '@/collections/FaqItems'
 import { FormSubmissions } from '@/collections/FormSubmissions'
 import { DeploymentLocations } from '@/collections/DeploymentLocations'
+import { ClientLogos } from '@/collections/ClientLogos'
 import { Media } from '@/collections/Media'
 import { Users } from '@/collections/Users'
 
@@ -46,7 +47,6 @@ export default buildConfig({
         },
       },
     },
-    style: path.resolve(dirname, 'admin/custom.css'),
   },
   collections: [
     BlogPosts,
@@ -57,6 +57,7 @@ export default buildConfig({
     FaqItems,
     FormSubmissions,
     DeploymentLocations,
+    ClientLogos,
     Media,
     Users,
   ],

@@ -4,7 +4,7 @@ import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
-import { organizationSchema, localBusinessSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
+import { organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 
 import { Hero } from '@/components/sections/Hero'
@@ -17,7 +17,16 @@ import { ClientLogos } from '@/components/sections/ClientLogos'
 import { PackagesTeaser } from '@/components/sections/PackagesTeaser'
 import { FaqAccordion } from '@/components/sections/FaqAccordion'
 import { CtaBanner } from '@/components/sections/CtaBanner'
-import { getFeatures, getUseCases, getFaqItems, getPricingTiers, getDeploymentLocations } from '@/lib/data'
+import {
+  getFeatures,
+  getUseCases,
+  getFaqItems,
+  getPricingTiers,
+  getDeploymentLocations,
+  getClientLogos,
+  getSiteSettings,
+  getMediaUrl,
+} from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -27,7 +36,7 @@ export async function generateMetadata({
   const { locale } = await params
   return buildMetadata({
     title: 'People Counting & Visitor Analytics Indonesia | SmartCounter',
-    description: "Indonesia's #1 people counting and visitor analytics platform. Turn CCTV cameras into AI-powered analytics — 99.9% accuracy, real-time heatmaps, demographics, and traffic insights for retail stores, malls, and shopping centers.",
+    description: 'Turn compatible CCTV cameras into visitor analytics for retail stores, malls, and shopping centers, including traffic, heatmap, demographic, and occupancy insights.',
     locale,
     path: '',
   })
@@ -43,18 +52,40 @@ export default async function HomePage({
 
   const dict = await getDictionary(locale as Locale)
 
-  const [features, useCases, faqItems, pricingTiers, deploymentLocations] = await Promise.all([
+  const [features, useCases, faqItems, pricingTiers, deploymentLocations, clientLogoDocs, siteSettings] = await Promise.all([
     getFeatures(locale),
     getUseCases(locale),
     getFaqItems(locale),
     getPricingTiers(locale),
     getDeploymentLocations(),
+    getClientLogos(),
+    getSiteSettings(locale),
   ])
+
+  const clientLogos = clientLogoDocs
+    .flatMap((client, index) => {
+      const url = getMediaUrl(client.logo)
+      if (!url) return []
+
+      const media = typeof client.logo === 'object' ? client.logo : null
+      const versionedUrl = media?.updatedAt
+        ? `${url}${url.includes('?') ? '&' : '?'}v=${encodeURIComponent(media.updatedAt)}`
+        : url
+
+      return [{
+        id: client.id ?? `${client.companyName}-${index}`,
+        companyName: client.companyName,
+        websiteUrl: client.websiteUrl || undefined,
+        logo: {
+          url: versionedUrl,
+          alt: media?.alt || client.companyName,
+        },
+      }]
+    })
 
   return (
     <>
-      <JsonLd data={organizationSchema()} />
-      <JsonLd data={localBusinessSchema()} />
+      <JsonLd data={organizationSchema(siteSettings)} />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={softwareApplicationSchema()} />
       <Hero locale={locale} dict={dict} />
@@ -70,7 +101,7 @@ export default async function HomePage({
               isMajor: loc.isMajor,
             }))}
           />
-          <ClientLogos />
+          <ClientLogos logos={clientLogos} />
         </div>
       </section>
       <FeaturesGrid locale={locale} dict={dict} features={features} />

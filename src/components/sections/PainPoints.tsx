@@ -6,12 +6,18 @@ import type { ComponentType } from 'react'
 
 const icons: ComponentType<{ size?: number }>[] = [AlertCircle, Clock, TrendingDown]
 
+interface PainPoint {
+  icon: ComponentType<{ size?: number }>
+  title: string
+  desc: string
+}
+
 interface PainPointsProps {
   dict: Record<string, any>
 }
 
 export function PainPoints({ dict }: PainPointsProps) {
-  const painPoints = (dict.painPoints.items || []).map((item: any, i: number) => ({
+  const painPoints: PainPoint[] = (dict.painPoints.items || []).map((item: any, i: number) => ({
     icon: icons[i] || AlertCircle,
     ...item,
   }))
@@ -27,7 +33,7 @@ export function PainPoints({ dict }: PainPointsProps) {
           </ScrollReveal>
         </div>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {painPoints.map((item, i) => (
+          {painPoints.map((item: PainPoint, i: number) => (
             <ScrollReveal key={item.title} delay={i * 100} className="flex">
               <div className="flex flex-1 flex-col rounded-2xl border border-white/[0.06] bg-bg-card/60 p-6 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500/10 text-primary-500">

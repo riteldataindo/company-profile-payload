@@ -1,20 +1,23 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { NextResponse } from 'next/server';
+import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth';
 
 // Simple in-memory cache with TTL
 interface CacheEntry {
   data: unknown;
   timestamp: number;
+  ttl: number;
 }
 
 const cache = new Map<string, CacheEntry>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+const FAILURE_CACHE_TTL = 60 * 1000;
 
 function getFromCache(key: string): unknown | null {
   const entry = cache.get(key);
   if (!entry) return null;
 
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
+  if (Date.now() - entry.timestamp > entry.ttl) {
     cache.delete(key);
     return null;
   }
@@ -22,11 +25,47 @@ function getFromCache(key: string): unknown | null {
   return entry.data;
 }
 
-function setCache(key: string, data: unknown): void {
+function setCache(key: string, data: unknown, ttl = CACHE_TTL): void {
   cache.set(key, {
     data,
     timestamp: Date.now(),
+    ttl,
   });
+}
+
+type GoogleApiError = {
+  code?: number | string;
+  message?: string;
+  response?: {
+    data?: {
+      error?: string;
+    };
+    status?: number;
+  };
+  status?: number;
+};
+
+function getAnalyticsErrorReason(error: unknown): {
+  log: Record<string, number | string | undefined>;
+  message: string;
+  reason: 'ga4_authentication_required' | 'ga4_unavailable';
+} {
+  const googleError = error && typeof error === 'object' ? error as GoogleApiError : {};
+  const upstreamError = googleError.response?.data?.error;
+  const isInvalidGrant = googleError.message === 'invalid_grant' || upstreamError === 'invalid_grant';
+
+  return {
+    log: {
+      code: googleError.code,
+      message: googleError.message,
+      status: googleError.status ?? googleError.response?.status,
+      upstreamError,
+    },
+    message: isInvalidGrant
+      ? 'Google Analytics authorization has expired. Reconnect the GA4 credentials.'
+      : 'Google Analytics is temporarily unavailable.',
+    reason: isInvalidGrant ? 'ga4_authentication_required' : 'ga4_unavailable',
+  };
 }
 
 function getPropertyId(): string {
@@ -58,13 +97,16 @@ async function runReport(
   return response;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'read');
+    if (!authorization.ok) return authorization.response;
+
     // Check cache first
     const cacheKey = 'analytics-dashboard';
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
-      return NextResponse.json(cachedData);
+      return NextResponse.json(cachedData, { headers: privateAdminHeaders() });
     }
 
     const client = new BetaAnalyticsDataClient({ fallback: 'rest' });
@@ -215,6 +257,7 @@ export async function GET() {
         : '0';
 
     const analyticsData = {
+      available: true,
       stats,
       weeklyTraffic,
       trafficSources,
@@ -230,16 +273,18 @@ export async function GET() {
     // Cache the result
     setCache(cacheKey, analyticsData);
 
-    return NextResponse.json(analyticsData);
+    return NextResponse.json(analyticsData, { headers: privateAdminHeaders() });
   } catch (error) {
-    console.error('Analytics API Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch analytics data',
-        details: errorMessage,
-      },
-      { status: 500 },
-    );
+    const failure = getAnalyticsErrorReason(error);
+    console.error('Analytics API unavailable:', failure.log);
+
+    const response = {
+      available: false,
+      message: failure.message,
+      reason: failure.reason,
+    };
+    setCache('analytics-dashboard', response, FAILURE_CACHE_TTL);
+
+    return NextResponse.json(response, { headers: privateAdminHeaders() });
   }
 }

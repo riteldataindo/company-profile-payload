@@ -1,6 +1,5 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 const FEATURE_SLUGS_ID: Record<string, string> = {
   'visitor-traffic': 'lalu-lintas-pengunjung',
@@ -38,9 +37,11 @@ const BLOG_SLUGS_ID: Record<string, string> = {
   'conversion-rate-retail': 'tingkat-konversi-retail',
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
     const results = { features: 0, useCases: 0, blogPosts: 0, errors: [] as string[] }
 
     // Seed feature slugs for ID locale

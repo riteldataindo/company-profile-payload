@@ -6,7 +6,7 @@ export function ComparisonTable({ slug }: { slug: string }) {
       title: 'People Counting Technology Comparison',
       headers: ['Feature', 'Infrared Beam', 'Thermal Sensor', 'CCTV AI (SmartCounter)'],
       rows: [
-        ['Accuracy', '85-90%', '92-95%', '99.9%'],
+        ['Validation', 'Simple directional test', 'Environment-dependent test', 'Scene-specific calibration and sample validation'],
         ['Bidirectional Counting', 'No', 'Limited', 'Yes'],
         ['Demographics', 'No', 'No', 'Yes (age, gender)'],
         ['Heatmap', 'No', 'No', 'Yes'],
@@ -20,32 +20,32 @@ export function ComparisonTable({ slug }: { slug: string }) {
       title: 'AI Processing Pipeline — 4 Stages',
       headers: ['Stage', 'Technology', 'Function', 'Output'],
       rows: [
-        ['1. Detection', 'YOLO v8', 'Identify humans in frame', 'Bounding boxes + confidence'],
-        ['2. Tracking', 'DeepSORT', 'Assign unique ID per person', 'Trajectory per individual'],
+        ['1. Detection', 'Object detection', 'Identify people in frame', 'Detections + confidence'],
+        ['2. Tracking', 'Multi-object tracking', 'Maintain temporary track IDs', 'Movement trajectory'],
         ['3. Counting', 'Virtual Line', 'Determine entry/exit direction', 'IN/OUT count per entrance'],
-        ['4. Analytics', 'Custom ML', 'Demographics, dwell, heatmap', 'Business insights dashboard'],
+        ['4. Analytics', 'Aggregation rules', 'Dwell, heatmap, and traffic metrics', 'Operational dashboard'],
       ],
     },
     'manfaat-visitor-counter-toko-retail': {
       title: 'Visitor Counter Impact — Before vs After',
       headers: ['Metric', 'Without Counter', 'With SmartCounter', 'Improvement'],
       rows: [
-        ['Conversion Rate', 'Unknown', 'Measured (avg 5-12%)', 'Visible + actionable'],
-        ['Staff Scheduling', 'Intuition-based', 'Data-driven per hour', '15-20% cost savings'],
-        ['Promo ROI', '"Seemed busy"', '34% traffic lift measured', '3.2x ROI proven'],
-        ['Layout Decisions', 'Gut feeling', 'Heatmap-based', '15-20% category uplift'],
-        ['Branch Comparison', 'Sales only', 'Traffic + conversion', 'Fair benchmarking'],
-        ['Overall Sales', 'Baseline', '+25-40% year 1', 'Data-driven growth'],
+        ['Conversion Rate', 'Visitor volume unknown', 'Visitors compared with transactions', 'Measurable trend'],
+        ['Staff Scheduling', 'Intuition-based', 'Traffic reviewed by hour', 'Evidence for scheduling'],
+        ['Promotion Review', 'Anecdotal observation', 'Traffic before and after campaign', 'Comparable periods'],
+        ['Layout Decisions', 'Observation only', 'Heatmap and dwell-time review', 'Zone-level evidence'],
+        ['Branch Comparison', 'Sales only', 'Traffic plus conversion context', 'More complete benchmark'],
+        ['Operational Review', 'Limited baseline', 'Repeatable traffic metrics', 'Trackable changes'],
       ],
     },
     'cctv-ai-people-counting-visitor-analytics': {
       title: 'SmartCounter Feature Overview',
       headers: ['Feature', 'What It Does', 'Business Impact'],
       rows: [
-        ['People Counting', '99.9% accurate entry/exit counting', 'Conversion rate measurement'],
-        ['Heatmap', 'Visualize movement patterns by zone', '15-20% layout optimization uplift'],
+        ['People Counting', 'Entry and exit counting after deployment calibration', 'Conversion rate measurement'],
+        ['Heatmap', 'Visualize aggregate movement patterns by zone', 'Layout review'],
         ['Demographics', 'Age & gender estimation (no face data)', 'Targeted merchandising'],
-        ['Queue Detection', 'Real-time queue length + wait time', '30-40% wait time reduction'],
+        ['Queue Detection', 'Queue length and wait-time monitoring', 'Service review'],
         ['Dwell Time', 'Time spent per zone', 'Engagement measurement'],
         ['Occupancy', 'Real-time capacity monitoring', 'Safety compliance'],
       ],
@@ -106,7 +106,7 @@ export function VideoEmbed() {
 export function InlineImage({ slug, position }: { slug: string; position: 'mid' | 'end' }) {
   const images: Record<string, { mid: { src: string; alt: string }; end: { src: string; alt: string } }> = {
     'apa-itu-people-counting-system': {
-      mid: { src: '/og/generated/blog-apa-itu-people-counting.png', alt: 'People counting system entrance visualization — showing IN/OUT counters with 99.9% accuracy badge' },
+      mid: { src: '/og/generated/blog-apa-itu-people-counting.png', alt: 'People counting system entrance visualization showing IN and OUT counters' },
       end: { src: '/media/visitor-traffic.png', alt: 'SmartCounter visitor traffic dashboard showing real-time hourly analytics' },
     },
     'cara-kerja-people-counting-cctv-ai': {

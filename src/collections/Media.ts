@@ -1,9 +1,15 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, publicRead } from '@/access/admin'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Media', plural: 'Media' },
-  access: { read: () => true },
+  access: {
+    read: publicRead,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   admin: { group: 'System' },
   upload: {
     staticDir: 'public/media',

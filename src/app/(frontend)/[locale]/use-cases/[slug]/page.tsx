@@ -15,12 +15,11 @@ import {
   ShoppingCart,
   Crown,
   ArrowRight,
-  TrendingUp,
-  Clock,
-  Users,
 } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import type { ComponentType } from 'react'
+import { extractText } from '@/lib/richtext'
+import { getMediaUrl, getUseCase, getUseCases } from '@/lib/data'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   'shopping-bag': ShoppingBag,
@@ -39,14 +38,8 @@ const useCasesData: Record<
     title: string
     subtitle: string
     description: string
-    stats: Array<{
-      metric: string
-      value: string
-      icon: string
-    }>
     challenges: string[]
     solutions: string[]
-    results: string[]
     features: string[]
     relatedUseCases: string[]
   }
@@ -57,12 +50,7 @@ const useCasesData: Record<
     title: 'People Counting for Independent & Chain Retail Stores',
     subtitle: 'Optimize every store location with visitor analytics',
     description:
-      'Whether you run a single boutique or a chain of 50+ stores, SmartCounter provides real-time foot traffic data for each location. Track conversion rates, occupancy, and staffing efficiency — all from your mobile dashboard.',
-    stats: [
-      { metric: 'Average Conversion Improvement', value: '+23%', icon: 'trending-up' },
-      { metric: 'Labor Cost Reduction', value: '-18%', icon: 'clock' },
-      { metric: 'Customer Satisfaction', value: '+34%', icon: 'users' },
-    ],
+      'Whether you run a single boutique or a multi-location chain, SmartCounter provides foot traffic data for each location. Review conversion inputs, occupancy, and staffing patterns from one dashboard.',
     challenges: [
       'No visibility into actual foot traffic vs. sales',
       'Difficult to benchmark performance across multiple stores',
@@ -70,16 +58,10 @@ const useCasesData: Record<
       'Unable to measure ROI of marketing campaigns',
     ],
     solutions: [
-      '99.9% accurate people counting for all entrances',
+      'Entry and exit counting across configured entrances',
       'Real-time conversion rate tracking (visitors vs. sales)',
       'AI-powered staffing recommendations by hour',
       'Campaign impact measurement on foot traffic',
-    ],
-    results: [
-      'Increase conversion rate by 15-30% with data-driven layout optimization',
-      'Reduce labor costs by 15-25% while improving service levels',
-      'Identify and fix store performance outliers within weeks',
-      'Prove marketing campaign ROI with traffic lift data',
     ],
     features: ['people-counting', 'conversion-rate', 'staff-optimization', 'heatmap', 'zone-analytics'],
     relatedUseCases: ['mall', 'fashion'],
@@ -91,11 +73,6 @@ const useCasesData: Record<
     subtitle: 'Track foot traffic across multiple floors and tenants',
     description:
       'Shopping malls need visibility into floor-level traffic, tenant benchmarking, and overall occupancy. SmartCounter enables malls to track traffic per tenant, identify underperforming zones, and make data-driven decisions about tenant mix.',
-    stats: [
-      { metric: 'Tenant Satisfaction', value: '+41%', icon: 'users' },
-      { metric: 'Occupancy Compliance', value: '100%', icon: 'trending-up' },
-      { metric: 'Revenue per SqM', value: '+28%', icon: 'clock' },
-    ],
     challenges: [
       'No visibility into tenant-level foot traffic performance',
       'Difficulty managing occupancy capacity limits',
@@ -108,12 +85,6 @@ const useCasesData: Record<
       'Heatmap visualization of high-traffic zones',
       'Transparent traffic reports for all tenants',
     ],
-    results: [
-      'Resolve tenant disputes with transparent traffic data',
-      'Optimize tenant mix based on foot traffic correlation',
-      'Reduce occupancy violations to zero',
-      'Increase mall occupancy by 12-20% through data-driven planning',
-    ],
     features: ['people-counting', 'zone-analytics', 'occupancy', 'heatmap', 'demographic'],
     relatedUseCases: ['retail', 'fashion'],
   },
@@ -124,11 +95,6 @@ const useCasesData: Record<
     subtitle: 'Track customer engagement by zone and collection',
     description:
       'Fashion retailers need to understand which zones generate engagement (fittingroom conversion, dwell time), track collection-level traffic, and measure campaign impact. SmartCounter provides collection-level analytics and fitting room conversion insights.',
-    stats: [
-      { metric: 'Fitting Room Conversion', value: '+31%', icon: 'trending-up' },
-      { metric: 'Dwell Time Increase', value: '+22 min', icon: 'clock' },
-      { metric: 'Campaign ROI Clarity', value: '+100%', icon: 'users' },
-    ],
     challenges: [
       'No data on fitting room utilization and conversion',
       'Unclear which collections drive engagement',
@@ -141,12 +107,6 @@ const useCasesData: Record<
       'Demographic-based engagement insights',
       'Campaign A/B testing with traffic impact data',
     ],
-    results: [
-      'Increase fitting room conversion by 20-35% with targeted flow design',
-      'Boost dwell time in low-engagement zones by 15+ minutes',
-      'Prove seasonal campaign impact with foot traffic metrics',
-      'Optimize collection placement based on demographic engagement',
-    ],
     features: ['dwelling-time', 'zone-analytics', 'demographic', 'conversion-rate', 'heatmap'],
     relatedUseCases: ['retail', 'luxury'],
   },
@@ -157,11 +117,6 @@ const useCasesData: Record<
     subtitle: 'Optimize pharmacist scheduling and counter flow',
     description:
       'Pharmacies operate with tight schedules and regulatory requirements. SmartCounter tracks prescription counter queue depth, consultation area utilization, and helps optimize pharmacist scheduling based on actual traffic patterns.',
-    stats: [
-      { metric: 'Queue Wait Time', value: '-65%', icon: 'clock' },
-      { metric: 'Pharmacist Utilization', value: '+34%', icon: 'users' },
-      { metric: 'Customer Satisfaction', value: '+42%', icon: 'trending-up' },
-    ],
     challenges: [
       'Long prescription counter queues during peak hours',
       'Over or understaffing during different times',
@@ -174,12 +129,6 @@ const useCasesData: Record<
       'Consultation area occupancy and dwell time tracking',
       'Aisle-level medication category traffic analysis',
     ],
-    results: [
-      'Reduce prescription counter wait times from 15+ min to under 5 min',
-      'Optimize pharmacist scheduling to reduce labor costs by 12-18%',
-      'Improve customer satisfaction scores by 30-45%',
-      'Identify medication aisle layout improvements for faster shopping',
-    ],
     features: ['queue-management', 'zone-analytics', 'staff-optimization', 'occupancy', 'dwelling-time'],
     relatedUseCases: ['supermarket', 'retail'],
   },
@@ -190,11 +139,6 @@ const useCasesData: Record<
     subtitle: 'Track traffic across aisles and optimize checkout',
     description:
       'Supermarkets need aisle-level traffic data, checkout queue management, and staff scheduling optimization. SmartCounter provides detailed zone analytics for aisles, real-time queue monitoring, and checkout performance metrics.',
-    stats: [
-      { metric: 'Checkout Efficiency', value: '+38%', icon: 'trending-up' },
-      { metric: 'Self-Checkout Adoption', value: '+56%', icon: 'users' },
-      { metric: 'Customer Basket Size', value: '+19%', icon: 'clock' },
-    ],
     challenges: [
       'Checkout bottlenecks during peak hours',
       'Aisle layout not optimized for customer flow',
@@ -207,12 +151,6 @@ const useCasesData: Record<
       'Self-checkout vs. traditional checkout performance comparison',
       'Zone occupancy alerts for stockout prevention',
     ],
-    results: [
-      'Reduce checkout wait times by 30-50% with smart lane staffing',
-      'Increase self-checkout adoption by 25-40%',
-      'Boost basket size by 15-25% with aisle flow optimization',
-      'Reduce stockout-driven lost sales by up to 20%',
-    ],
     features: ['queue-management', 'zone-analytics', 'staff-optimization', 'heatmap', 'traffic-flow'],
     relatedUseCases: ['pharmacy', 'retail'],
   },
@@ -223,28 +161,17 @@ const useCasesData: Record<
     subtitle: 'High-touch analytics for premium retail',
     description:
       'Luxury retail requires privacy-first demographic insights and VIP traffic pattern analysis. SmartCounter provides privacy-compliant demographic data, luxury segment identification, and high-touch clienteling insights.',
-    stats: [
-      { metric: 'VIP Spend per Visit', value: '+47%', icon: 'trending-up' },
-      { metric: 'Loyalty Program Enrollment', value: '+68%', icon: 'users' },
-      { metric: 'Privacy Compliance', value: '100%', icon: 'clock' },
-    ],
     challenges: [
-      'Identifying high-value VIP customers in-store',
+      'Understanding premium-service demand without identifying individuals',
       'Privacy concerns with customer behavior tracking',
       'Unclear luxury segment traffic patterns',
       'Staff allocation for premium service delivery',
     ],
     solutions: [
       'Privacy-compliant demographic analysis (no PII collected)',
-      'Premium segment identification via traffic patterns',
+      'Aggregate traffic and dwell-time analysis by service zone',
       'Dwell time per zone to identify buyer intent',
       'Staff scheduling optimized for VIP traffic hours',
-    ],
-    results: [
-      'Increase VIP spend per visit by 30-50% with tailored experiences',
-      'Boost loyalty program enrollment by 50-70%',
-      'Ensure 100% privacy compliance with zero PII storage',
-      'Improve staff training with demographic and behavior insights',
     ],
     features: ['demographic', 'dwelling-time', 'zone-analytics', 'staff-optimization', 'heatmap'],
     relatedUseCases: ['fashion', 'retail'],
@@ -252,21 +179,30 @@ const useCasesData: Record<
 }
 
 export async function generateStaticParams() {
-  return Object.keys(useCasesData).map((slug) => ({
-    slug,
-  }))
+  const cmsUseCases = await getUseCases('en')
+  const slugs = new Set([
+    ...Object.keys(useCasesData),
+    ...cmsUseCases.map((useCase) => useCase.slug).filter(Boolean),
+  ])
+  return Array.from(slugs, (slug) => ({ slug }))
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
 ): Promise<Metadata> {
   const { slug, locale } = await params
-  const useCase = useCasesData[slug]
+  const payloadUseCase = await getUseCase(slug, locale)
+  const fallbackUseCase = useCasesData[slug]
+  const meta = payloadUseCase?.meta
+  const name = payloadUseCase?.industryName || fallbackUseCase?.name || 'Use Case'
+  const description = payloadUseCase?.shortDescription || fallbackUseCase?.subtitle || 'Learn how SmartCounter helps retailers'
+
   return buildMetadata({
-    title: `${useCase?.name || 'Use Case'} — SmartCounter CCTV Analytics`,
-    description: useCase?.subtitle || 'Learn how SmartCounter helps retailers',
+    title: meta?.title || `${name} — SmartCounter CCTV Analytics`,
+    description: meta?.description || description,
     locale,
     path: `/use-cases/${slug}`,
+    ogImage: getMediaUrl(meta?.image) || getMediaUrl(payloadUseCase?.image),
   })
 }
 
@@ -278,17 +214,25 @@ export default async function UseCaseDetailPage({
   const { slug, locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const useCase = useCasesData[slug]
-  if (!useCase) notFound()
+  const payloadUseCase = await getUseCase(slug, locale)
+  const fallbackUseCase = useCasesData[slug]
+  if (!payloadUseCase && !fallbackUseCase) notFound()
+
+  const useCase = {
+    ...fallbackUseCase,
+    icon: payloadUseCase?.icon || fallbackUseCase?.icon || 'shopping-bag',
+    name: payloadUseCase?.industryName || fallbackUseCase?.name || 'Retail',
+    title: payloadUseCase?.industryName || fallbackUseCase?.title || 'Retail Analytics',
+    subtitle: payloadUseCase?.shortDescription || fallbackUseCase?.subtitle || '',
+    description: extractText(payloadUseCase?.longDescription) || fallbackUseCase?.description || '',
+    challenges: fallbackUseCase?.challenges || [],
+    solutions: fallbackUseCase?.solutions || [],
+    features: fallbackUseCase?.features || [],
+    relatedUseCases: fallbackUseCase?.relatedUseCases || [],
+  }
 
   const dict = await getDictionary(locale as Locale)
   const Icon = iconMap[useCase.icon] || ShoppingBag
-
-  const iconComponentMap: Record<string, ComponentType<{ size?: number }>> = {
-    'trending-up': TrendingUp,
-    clock: Clock,
-    users: Users,
-  }
 
   return (
     <>
@@ -322,31 +266,13 @@ export default async function UseCaseDetailPage({
       {/* Content Section */}
       <section className="px-4 py-12">
         <div className="mx-auto max-w-4xl">
-          {/* Stats */}
-          <div className="mb-16 grid gap-4 sm:grid-cols-3">
-            {useCase.stats.map((stat, i) => {
-              const StatIcon = iconComponentMap[stat.icon] || TrendingUp
-              return (
-                <ScrollReveal key={i} delay={i * 50}>
-                  <div className="rounded-xl border border-white/[0.06] bg-bg-card/60 p-6 text-center backdrop-blur-xl">
-                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
-                      <StatIcon size={20} />
-                    </div>
-                    <div className="mb-2 text-3xl font-bold text-primary-500">{stat.value}</div>
-                    <div className="text-sm text-text-secondary">{stat.metric}</div>
-                  </div>
-                </ScrollReveal>
-              )
-            })}
-          </div>
-
           {/* Overview */}
           <ScrollReveal>
             <p className="mb-12 text-lg leading-relaxed text-text-secondary">{useCase.description}</p>
           </ScrollReveal>
 
           {/* Challenges */}
-          <div className="mb-16">
+          {useCase.challenges.length > 0 && <div className="mb-16">
             <ScrollReveal>
               <h2 className="mb-8 text-2xl font-bold">The Challenge</h2>
             </ScrollReveal>
@@ -360,10 +286,10 @@ export default async function UseCaseDetailPage({
                 </ScrollReveal>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Solutions */}
-          <div className="mb-16">
+          {useCase.solutions.length > 0 && <div className="mb-16">
             <ScrollReveal>
               <h2 className="mb-8 text-2xl font-bold">The SmartCounter Solution</h2>
             </ScrollReveal>
@@ -377,23 +303,7 @@ export default async function UseCaseDetailPage({
                 </ScrollReveal>
               ))}
             </div>
-          </div>
-
-          {/* Results */}
-          <div className="mb-16">
-            <ScrollReveal>
-              <h2 className="mb-8 text-2xl font-bold">Results You Can Expect</h2>
-            </ScrollReveal>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {useCase.results.map((result, i) => (
-                <ScrollReveal key={i} delay={i * 50}>
-                  <div className="rounded-lg border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl">
-                    <p className="text-sm leading-relaxed">{result}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
+          </div>}
 
           {/* Related Use Cases */}
           {useCase.relatedUseCases.length > 0 && (

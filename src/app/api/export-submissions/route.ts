@@ -1,10 +1,11 @@
-import { getPayload } from 'payload'
-import config from '@payload-config'
 import { NextResponse } from 'next/server'
+import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const payload = await getPayload({ config })
+    const authorization = await authorizeAdminRequest(request, 'read')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
 
     const { docs } = await payload.find({
       collection: 'form-submissions',
@@ -30,6 +31,7 @@ export async function GET() {
 
     return new NextResponse(csv, {
       headers: {
+        ...privateAdminHeaders(),
         'Content-Type': 'text/csv',
         'Content-Disposition': `attachment; filename="submissions-${new Date().toISOString().split('T')[0]}.csv"`,
       },

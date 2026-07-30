@@ -10,11 +10,18 @@ interface Stats {
 }
 
 interface AnalyticsData {
+  available?: true
   stats: { sessions: number; pageViews: number; activeUsers: number; avgSessionDuration: number }
   weeklyTraffic: { date: string; pageViews: number; uniqueUsers: number }[]
   trafficSources: { source: string; sessions: number; percentage: number }[]
   topPages: { pagePath: string; pageTitle: string; views: number; changePercent: number }[]
   monthlyComparison: { thisMonth: number; lastMonth: number; changePercent: number }
+}
+
+interface AnalyticsUnavailable {
+  available: false
+  message: string
+  reason: 'ga4_authentication_required' | 'ga4_unavailable'
 }
 
 interface SeoItem {
@@ -255,6 +262,7 @@ export default function DashboardOverview() {
   const [posts, setPosts] = useState<Post[]>([])
   const [subs, setSubs] = useState<Sub[]>([])
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsMessage, setAnalyticsMessage] = useState('Analytics not available')
   const [seoItems, setSeoItems] = useState<SeoItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -279,7 +287,11 @@ export default function DashboardOverview() {
       })
       setPosts((p.docs || []).map((x: any) => ({ id: x.id, title: x.title, status: x.status, updatedAt: x.updatedAt })))
       setSubs((sub.docs || []).map((x: any) => ({ id: x.id, email: x.email, formType: x.formType, status: x.status, createdAt: x.createdAt })))
-      if (analyticsRes && !analyticsRes.error) setAnalytics(analyticsRes)
+      if (analyticsRes?.available !== false && analyticsRes && !analyticsRes.error) {
+        setAnalytics(analyticsRes as AnalyticsData)
+      } else if (analyticsRes?.available === false) {
+        setAnalyticsMessage((analyticsRes as AnalyticsUnavailable).message)
+      }
       if (seoRes && !seoRes.error) setSeoItems(seoRes.items || [])
     }).catch(() => {}).finally(() => setLoading(false))
   }, [])
@@ -364,7 +376,7 @@ export default function DashboardOverview() {
         </>
       ) : (
         <div style={{ ...panelStyle, padding: '40px 24px', textAlign: 'center', marginBottom: 14 }}>
-          <div style={{ color: 'var(--sc-text-muted)', fontSize: 14 }}>Analytics not available — check GA4 connection</div>
+          <div style={{ color: 'var(--sc-text-muted)', fontSize: 14 }}>{analyticsMessage}</div>
         </div>
       )}
 

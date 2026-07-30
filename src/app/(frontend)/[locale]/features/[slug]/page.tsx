@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import { FeatureMockup } from '@/components/sections/FeatureMockup'
-import { getFeature, getFeatures } from '@/lib/data'
+import { getFeature, getFeatures, getMediaUrl } from '@/lib/data'
 import type { ComponentType } from 'react'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
@@ -38,12 +38,12 @@ const fallbackFeaturesData: Record<string, {
   'visitor-traffic': {
     icon: 'users',
     name: 'Visitor Traffic',
-    title: 'Monitor Visitor Count in Real-Time with 99.9% Accuracy',
+    title: 'Monitor Visitor Counts in Real Time',
     subtitle: 'Track every visitor entering and leaving your store with AI-powered CCTV analytics',
     description: 'SmartCounter uses advanced AI computer vision to detect and track visitors in real-time. Data flows directly to your dashboard without delay — monitor entries, exits, and net foot traffic across all entrances. Perfect for retail stores, malls, pharmacies, and any physical business.',
     benefits: [
       'Real-time visitor entry and exit counting',
-      '99.9% counting accuracy across all entrances',
+      'Consistent entry and exit counting across configured entrances',
       'Hourly, daily, weekly, and monthly trend reports',
       'Peak hour identification for staffing decisions',
       'Multi-entrance tracking and aggregation',
@@ -172,12 +172,12 @@ const fallbackFeaturesData: Record<string, {
     name: 'Demographic',
     title: 'Complete Age and Gender Visitor Profiles',
     subtitle: 'Privacy-compliant AI analysis without personal data collection',
-    description: 'SmartCounter uses AI computer vision to estimate age groups and gender distribution of your visitors — all without storing personally identifiable information. 100% compliant with data privacy regulations. Use demographic insights for targeted marketing, product assortment, and staffing decisions.',
+    description: 'SmartCounter uses AI computer vision to estimate aggregate age groups and gender distribution without storing personally identifiable information. Use these aggregate insights to inform product assortment, campaigns, and staffing decisions after a privacy review for your deployment.',
     benefits: [
       'Age group segmentation (6 groups)',
       'Gender distribution analysis (Male/Female)',
       'No personal data collection or storage',
-      '100% privacy regulation compliant',
+      'Designed for privacy-conscious deployments',
       'Demographic trends by time of day',
       'Cross-location demographic comparison',
     ],
@@ -323,7 +323,7 @@ export async function generateMetadata(
     description: meta.description || feature?.subtitle || feature?.shortDescription || 'SmartCounter AI-powered visitor analytics feature',
     locale,
     path: `/features/${slug}`,
-    ogImage: meta.image?.url || undefined,
+    ogImage: getMediaUrl(meta.image) || getMediaUrl(feature?.image),
   })
 }
 

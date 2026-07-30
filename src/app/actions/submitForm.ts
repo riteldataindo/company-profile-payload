@@ -33,8 +33,8 @@ const formSchema = z.discriminatedUnion('formType', [contactFormSchema, demoForm
 
 type FormData = z.infer<typeof formSchema>
 
-function getClientIP(): string {
-  const headersList = headers()
+async function getClientIP(): Promise<string> {
+  const headersList = await headers()
   return (
     headersList.get('x-forwarded-for')?.split(',')[0].trim() ||
     headersList.get('x-real-ip') ||
@@ -74,7 +74,7 @@ function checkRateLimit(ip: string): boolean {
 export async function submitForm(data: Record<string, unknown>) {
   try {
     // Rate limiting
-    const ip = getClientIP()
+    const ip = await getClientIP()
     if (!checkRateLimit(ip)) {
       return {
         success: false,
@@ -110,7 +110,7 @@ export async function submitForm(data: Record<string, unknown>) {
     return { success: true }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const fieldError = error.errors[0]
+      const fieldError = error.issues[0]
       return {
         success: false,
         error: fieldError.message || 'Validation error',

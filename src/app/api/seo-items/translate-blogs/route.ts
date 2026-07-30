@@ -1,6 +1,5 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 function lexical(paragraphs: string[]) {
   return {
@@ -11,8 +10,8 @@ function lexical(paragraphs: string[]) {
         children: [{ type: 'text', text: p, version: 1 }],
         version: 1,
       })),
-      direction: 'ltr',
-      format: '',
+      direction: 'ltr' as const,
+      format: '' as const,
       indent: 0,
       version: 1,
     },
@@ -227,9 +226,11 @@ const EN_BLOGS_ID_TRANSLATIONS: Record<number, { title: string; excerpt: string;
   },
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
     const results = { enTranslated: 0, idTranslated: 0, errors: [] as string[] }
 
     // Add EN translations to the 4 Indonesian blog posts

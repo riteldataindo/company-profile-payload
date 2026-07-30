@@ -1,8 +1,7 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
 import path from 'path'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 const OG_DIR = path.join(process.cwd(), 'public', 'og', 'generated')
 
@@ -51,9 +50,11 @@ async function uploadAndGetId(payload: any, filename: string, alt: string): Prom
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
     const results = { uploaded: 0, assigned: 0, errors: [] as string[] }
 
     // Upload and assign blog post OG images

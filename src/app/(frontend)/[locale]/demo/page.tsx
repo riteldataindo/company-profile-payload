@@ -77,7 +77,7 @@ export default function DemoPage() {
           <ScrollReveal delay={100}><p className="text-text-secondary text-lg mb-6">Get a personalized demo of SmartCounter&apos;s CCTV AI analytics — takes only 30 minutes.</p></ScrollReveal>
           <ScrollReveal delay={150}>
             <ul className="flex flex-wrap justify-center gap-6 text-sm text-text-secondary">
-              {['No credit card required', 'Setup in minutes', 'Free support included'].map(t => (
+              {['Tailored to your store format', 'Product walkthrough', 'Questions answered live'].map(t => (
                 <li key={t} className="flex items-center gap-1.5"><Check size={16} className="text-primary-500" />{t}</li>
               ))}
             </ul>
@@ -99,10 +99,10 @@ export default function DemoPage() {
                 ))}
               </ul>
               <div className="rounded-xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-5">
-                <div className="font-mono text-2xl font-bold text-primary-400 mb-1">300+</div>
-                <div className="text-xs text-text-muted mb-4">stores already using SmartCounter</div>
-                <p className="text-sm italic text-text-secondary mb-2">&quot;SmartCounter transformed how we understand our store traffic. The heatmap data alone paid for the entire subscription in the first month.&quot;</p>
-                <p className="text-xs text-text-muted">— Head of Retail Operations, BeautyHaul</p>
+                <div className="text-base font-semibold text-text-primary mb-2">Built around your operation</div>
+                <p className="text-sm text-text-secondary">
+                  We will map the walkthrough to your entrances, store zones, reporting needs, and existing camera setup.
+                </p>
               </div>
             </div>
           </ScrollReveal>

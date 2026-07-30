@@ -1,67 +1,65 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
+import type { SiteSetting } from '@/payload-types'
+import { getMediaUrl } from '@/lib/data'
 
-export function organizationSchema() {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
+const ORGANIZATION_ID = `${SITE_URL}/#organization`
+const WEBSITE_ID = `${SITE_URL}/#website`
+
+function absoluteUrl(value: string): string {
+  return new URL(value, SITE_URL).toString()
+}
+
+function isUsablePhone(value?: string | null): value is string {
+  if (!value) return false
+  const digits = value.replace(/\D/g, '')
+  return digits.length >= 8 && !digits.includes('1234567890')
+}
+
+function socialProfiles(settings?: SiteSetting | null): string[] {
+  if (!settings?.socialLinks) return []
+  return Object.values(settings.socialLinks).filter((value): value is string => {
+    if (!value) return false
+    try {
+      return ['http:', 'https:'].includes(new URL(value).protocol)
+    } catch {
+      return false
+    }
+  })
+}
+
+export function organizationSchema(settings?: SiteSetting | null) {
+  const logo = getMediaUrl(settings?.logo)
+  const email = settings?.contactEmail || undefined
+  const phone = isUsablePhone(settings?.contactPhone) ? settings.contactPhone : undefined
+  const address = settings?.contactAddress?.trim() || undefined
+  const sameAs = socialProfiles(settings)
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'SmartCounter',
+    '@id': ORGANIZATION_ID,
+    name: settings?.siteName || 'SmartCounter',
+    legalName: 'PT Ritel Data Indonesia',
     url: SITE_URL,
-    logo: `${SITE_URL}/images/logo.png`,
-    description: "Indonesia's #1 AI-powered people counting and visitor analytics platform.",
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: 'info@riteldata.id',
-      telephone: '+62-882-1001-9165',
-      contactType: 'sales',
-      availableLanguage: ['English', 'Indonesian'],
-    },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Sunter Agung',
-      addressLocality: 'Jakarta Utara',
-      addressCountry: 'ID',
-    },
-    sameAs: [
-      'https://www.linkedin.com/company/smartcounter',
-      'https://www.instagram.com/smartcounter.id',
-    ],
-  }
-}
-
-export function localBusinessSchema() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': `${SITE_URL}/#localbusiness`,
-    name: 'SmartCounter by PT Ritel Data Indonesia',
-    url: SITE_URL,
-    logo: `${SITE_URL}/images/logo.png`,
-    image: `${SITE_URL}/images/logo.png`,
-    description: 'AI-powered people counting and visitor analytics platform. Transform existing CCTV cameras into smart visitor sensors with 99.9% accuracy.',
-    telephone: '+62-882-1001-9165',
-    email: 'info@riteldata.id',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Sunter Agung',
-      addressLocality: 'Jakarta Utara',
-      addressRegion: 'DKI Jakarta',
-      postalCode: '14350',
-      addressCountry: 'ID',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: -6.1384,
-      longitude: 106.8629,
-    },
-    areaServed: {
-      '@type': 'Country',
-      name: 'Indonesia',
-    },
-    priceRange: '$$',
-    sameAs: [
-      'https://www.linkedin.com/company/smartcounter',
-      'https://www.instagram.com/smartcounter.id',
-    ],
+    description: settings?.siteDescription || 'People counting and visitor analytics for retail stores, malls, and shopping centers.',
+    ...(logo && { logo: { '@type': 'ImageObject', url: absoluteUrl(logo) } }),
+    ...((email || phone) && {
+      contactPoint: {
+        '@type': 'ContactPoint',
+        ...(email && { email }),
+        ...(phone && { telephone: phone }),
+        contactType: 'sales',
+        availableLanguage: ['English', 'Indonesian'],
+      },
+    }),
+    ...(address && {
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: address,
+        addressCountry: 'ID',
+      },
+    }),
+    ...(sameAs.length > 0 && { sameAs }),
   }
 }
 
@@ -69,13 +67,11 @@ export function websiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': WEBSITE_ID,
     name: 'SmartCounter',
     url: SITE_URL,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${SITE_URL}/en/blog?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
+    publisher: { '@id': ORGANIZATION_ID },
+    inLanguage: ['en', 'id'],
   }
 }
 
@@ -83,21 +79,13 @@ export function softwareApplicationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
+    '@id': `${SITE_URL}/#software`,
     name: 'SmartCounter',
+    url: SITE_URL,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
-    description: 'AI-powered people counting and visitor analytics platform for retail stores, malls, and shopping centers.',
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'IDR',
-      price: '0',
-      description: 'Contact for pricing',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '300',
-    },
+    description: 'People counting and visitor analytics software for retail stores, malls, and shopping centers.',
+    provider: { '@id': ORGANIZATION_ID },
   }
 }
 
@@ -105,11 +93,11 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, i) => ({
+    itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
-      position: i + 1,
+      position: index + 1,
       name: item.name,
-      item: `${SITE_URL}${item.url}`,
+      item: absoluteUrl(item.url),
     })),
   }
 }
@@ -145,19 +133,15 @@ export function blogPostingSchema(post: {
     headline: post.title,
     description: post.excerpt,
     url: `${SITE_URL}/${post.locale}/blog/${post.slug}`,
+    mainEntityOfPage: `${SITE_URL}/${post.locale}/blog/${post.slug}`,
     datePublished: post.datePublished,
     dateModified: post.dateModified || post.datePublished,
-    author: {
-      '@type': 'Person',
-      name: post.author,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'SmartCounter',
-      logo: { '@type': 'ImageObject', url: `${SITE_URL}/images/logo.png` },
-    },
+    author: post.author
+      ? { '@type': 'Person', name: post.author }
+      : { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
     ...(post.image && {
-      image: { '@type': 'ImageObject', url: post.image },
+      image: { '@type': 'ImageObject', url: absoluteUrl(post.image) },
     }),
     inLanguage: post.locale,
   }
@@ -173,12 +157,8 @@ export function authorSchema(author: {
     '@type': 'Person',
     name: author.name,
     jobTitle: author.jobTitle || 'Product & Analytics Team',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'PT Ritel Data Indonesia',
-      url: 'https://smartcounter.id',
-    },
-    ...(author.url && { url: author.url }),
+    worksFor: { '@id': ORGANIZATION_ID },
+    ...(author.url && { url: absoluteUrl(author.url) }),
   }
 }
 
@@ -194,10 +174,7 @@ export function serviceSchema(service: {
     name: service.name,
     description: service.description,
     url: `${SITE_URL}/${service.locale}/features/${service.slug}`,
-    provider: {
-      '@type': 'Organization',
-      name: 'SmartCounter',
-    },
+    provider: { '@id': ORGANIZATION_ID },
     areaServed: { '@type': 'Country', name: 'Indonesia' },
   }
 }

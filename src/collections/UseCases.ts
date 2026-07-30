@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
 
 export const UseCases: CollectionConfig = {
   slug: 'use-cases',
+  access: {
+    read: visibleOrAuthenticated,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Use Case', plural: 'Use Cases' },
   admin: {
     useAsTitle: 'industryName',
@@ -12,7 +19,7 @@ export const UseCases: CollectionConfig = {
   },
   fields: [
     { name: 'industryName', type: 'text', required: true, localized: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
+    { name: 'slug', type: 'text', required: true, unique: true, localized: true },
     { name: 'icon', type: 'text', admin: { description: 'Lucide icon name' } },
     { name: 'shortDescription', type: 'textarea', required: true, localized: true },
     { name: 'longDescription', type: 'richText', localized: true },

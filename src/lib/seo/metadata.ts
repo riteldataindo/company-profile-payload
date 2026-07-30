@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
-import { locales, defaultLocale } from '@/lib/i18n/config'
+import {
+  defaultLocale,
+  indexableLocales,
+  isIndexableLocale,
+  type IndexableLocale,
+} from '@/lib/i18n/config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
 const SITE_NAME = 'SmartCounter'
@@ -15,6 +20,7 @@ interface MetadataOptions {
   modifiedTime?: string
   authors?: string[]
   noIndex?: boolean
+  alternatePaths?: Partial<Record<IndexableLocale, string>>
 }
 
 export function buildMetadata({
@@ -28,16 +34,20 @@ export function buildMetadata({
   modifiedTime,
   authors,
   noIndex = false,
+  alternatePaths,
 }: MetadataOptions): Metadata {
   const canonicalPath = path === '' ? `/${locale}` : `/${locale}${path}`
   const canonicalUrl = `${SITE_URL}${canonicalPath}`
 
   const languages: Record<string, string> = {}
-  for (const loc of locales) {
-    const locPath = path === '' ? `/${loc}` : `/${loc}${path}`
+  for (const loc of indexableLocales) {
+    const localizedPath = alternatePaths?.[loc] ?? path
+    const locPath = localizedPath === '' ? `/${loc}` : `/${loc}${localizedPath}`
     languages[loc] = `${SITE_URL}${locPath}`
   }
-  languages['x-default'] = `${SITE_URL}/${defaultLocale}${path}`
+  const defaultPath = alternatePaths?.en ?? path
+  languages['x-default'] = `${SITE_URL}/${defaultLocale}${defaultPath}`
+  const shouldNoIndex = noIndex || !isIndexableLocale(locale)
 
   return {
     title,
@@ -64,6 +74,12 @@ export function buildMetadata({
       description,
       ...(ogImage && { images: [ogImage] }),
     },
-    ...(noIndex && { robots: { index: false, follow: false } }),
+    ...(shouldNoIndex && {
+      robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
+      },
+    }),
   }
 }
