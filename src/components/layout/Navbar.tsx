@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import { SmartCounterLogo } from '@/components/brand/SmartCounterLogo'
 import { ThemeToggle } from './ThemeToggle'
 import { LocaleSwitcher } from './LocaleSwitcher'
 
@@ -41,11 +42,13 @@ export function Navbar({ locale, dict }: NavbarProps) {
       aria-label="Main navigation"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-8">
-        <Link href={`/${locale}`} className="flex items-center gap-2" aria-label="SmartCounter Home">
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-logo-red" style={{ fontVariant: 'small-caps' }}>SMART</span>
-            <span className="text-text-primary">Counter</span>
-          </span>
+        <Link href={`/${locale}`} className="shrink-0" aria-label="SmartCounter Home">
+          <SmartCounterLogo
+            alt=""
+            className="h-auto w-[132px] sm:w-[160px]"
+            priority
+            sizes="(min-width: 640px) 160px, 132px"
+          />
         </Link>
 
         <ul className="hidden gap-7 md:flex">
