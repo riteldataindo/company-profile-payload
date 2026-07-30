@@ -3,14 +3,10 @@
 function DashboardFrame({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-card shadow-[0_0_40px_rgba(239,68,68,0.2)]">
-      <div className="flex items-center justify-between border-b border-border-subtle bg-bg-base/80 px-4 py-2.5">
+      <div className="flex items-center border-b border-border-subtle bg-bg-base/80 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-primary-500" />
-          <span className="text-xs font-semibold text-text-secondary">{title}</span>
-        </div>
-        <div className="flex items-center gap-3 text-[10px] text-text-muted">
-          <span className="rounded bg-bg-card px-2 py-0.5">Today</span>
-          <span>08:00 — 22:00</span>
+          <span className="text-sm font-semibold text-text-secondary">{title}</span>
         </div>
       </div>
       <div className="relative aspect-[3/2] bg-[#1a1a1f] p-4">{children}</div>
@@ -21,8 +17,8 @@ function DashboardFrame({ title, children }: { title: string; children: React.Re
 function Stat({ value, label, color = 'text-primary-400' }: { value: string; label: string; color?: string }) {
   return (
     <div className="rounded-md bg-bg-base/80 px-2.5 py-1.5 backdrop-blur-sm">
-      <div className={`font-mono text-sm font-bold ${color}`}>{value}</div>
-      <div className="text-[9px] text-text-muted">{label}</div>
+      <div className={`font-mono text-base font-bold ${color}`}>{value}</div>
+      <div className="text-[11px] text-text-muted">{label}</div>
     </div>
   )
 }
@@ -334,8 +330,8 @@ function ServiceEfficiencyMockup() {
         <Stat value="94%" label="Efficiency Score" color="text-green-400" />
       </div>
       <div className="absolute bottom-3 right-3 flex gap-3 rounded-md bg-bg-base/80 px-2.5 py-1.5 backdrop-blur-sm">
-        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500 opacity-60" /><span className="text-[9px] text-text-muted">Visitors</span></div>
-        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /><span className="text-[9px] text-text-muted">Staff</span></div>
+        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500 opacity-60" /><span className="text-[11px] text-text-muted">Visitors</span></div>
+        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /><span className="text-[11px] text-text-muted">Staff</span></div>
       </div>
     </DashboardFrame>
   )
@@ -376,9 +372,9 @@ function HeatmapMockup() {
         <Stat value="6" label="Active Zones" color="text-amber-400" />
       </div>
       <div className="absolute bottom-3 right-3 flex items-center gap-3 rounded-md bg-bg-base/80 px-2.5 py-1.5 backdrop-blur-sm">
-        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /><span className="text-[9px] text-text-muted">High</span></div>
-        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" /><span className="text-[9px] text-text-muted">Medium</span></div>
-        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-500" /><span className="text-[9px] text-text-muted">Low</span></div>
+        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /><span className="text-[11px] text-text-muted">High</span></div>
+        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" /><span className="text-[11px] text-text-muted">Medium</span></div>
+        <div className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-500" /><span className="text-[11px] text-text-muted">Low</span></div>
       </div>
     </DashboardFrame>
   )

@@ -1,6 +1,5 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 function lexical(paragraphs: string[]) {
   return {
@@ -11,8 +10,8 @@ function lexical(paragraphs: string[]) {
         children: [{ type: 'text', text: p, version: 1 }],
         version: 1,
       })),
-      direction: 'ltr',
-      format: '',
+      direction: 'ltr' as const,
+      format: '' as const,
       indent: 0,
       version: 1,
     },
@@ -232,18 +231,18 @@ const BLOG_POSTS: BlogPostData[] = [
   },
 ]
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config: configPromise })
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+    const { payload } = authorization
     const results = { created: 0, updated: 0, errors: [] as string[] }
     const readingTime = (content: string[]) => Math.ceil(content.join(' ').split(/\s+/).length / 200)
 
     for (const post of BLOG_POSTS) {
       try {
-        // Resolve EN and ID content — new format has .en/.id, old format has flat fields
-        const hasNewFormat = 'en' in post && 'id' in post
-        const enData = hasNewFormat ? (post as any).en : { title: post.title, excerpt: post.excerpt, content: post.content, metaTitle: post.metaTitle, metaDesc: post.metaDesc }
-        const idData = hasNewFormat ? (post as any).id : { title: post.title, excerpt: post.excerpt, content: post.content, metaTitle: post.metaTitle, metaDesc: post.metaDesc }
+        const enData = post.en
+        const idData = post.id
 
         const existing = await payload.find({
           collection: 'blog-posts', where: { slug: { equals: post.enSlug } }, locale: 'en', limit: 1,

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { locales, defaultLocale } from '@/lib/i18n/config'
+import { locales, defaultLocale, isIndexableLocale } from '@/lib/i18n/config'
 
 const PUBLIC_FILE = /\.(.*)$/
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (
@@ -17,11 +17,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const pathnameHasLocale = locales.some(
+  const pathnameLocale = locales.find(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   )
 
-  if (pathnameHasLocale) return NextResponse.next()
+  if (pathnameLocale) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-site-locale', pathnameLocale)
+    const response = NextResponse.next({ request: { headers: requestHeaders } })
+    if (!isIndexableLocale(pathnameLocale)) {
+      response.headers.set('X-Robots-Tag', 'noindex, follow')
+    }
+    return response
+  }
 
   const cookieLocale = request.cookies.get('preferred-locale')?.value
   const detected = locales.find((l) => l === cookieLocale) || defaultLocale

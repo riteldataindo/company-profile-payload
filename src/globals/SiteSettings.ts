@@ -1,7 +1,12 @@
 import type { GlobalConfig } from 'payload'
+import { canManageContent, publicRead } from '@/access/admin'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
+  access: {
+    read: publicRead,
+    update: canManageContent,
+  },
   label: 'Site Settings',
   admin: { group: 'System', hideAPIURL: true },
   fields: [

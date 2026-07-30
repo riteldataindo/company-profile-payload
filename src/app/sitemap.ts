@@ -1,82 +1,161 @@
 import type { MetadataRoute } from 'next'
 import { getFeatures, getUseCases, getBlogPosts } from '@/lib/data'
+import { indexableLocales, type IndexableLocale } from '@/lib/i18n/config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
-const locales = ['en', 'id', 'ko', 'ja', 'zh']
+
+const staticPaths = [
+  '',
+  '/features',
+  '/use-cases',
+  '/packages',
+  '/faq',
+  '/blog',
+  '/contact',
+  '/demo',
+] as const
+
+const fallbackFeatureSlugs = [
+  'visitor-traffic',
+  'in-out-traffic',
+  'dwell-time',
+  'passers-by',
+  'entering-rate',
+  'group-rate',
+  'demographic',
+  'occupancy',
+  'service-efficiency',
+  'heatmap',
+  'queuing',
+  'in-store-routes',
+]
+
+const fallbackUseCaseSlugs = [
+  'retail',
+  'mall',
+  'fashion',
+  'pharmacy',
+  'supermarket',
+  'luxury',
+]
+
+type SitemapDocument = {
+  id: number | string
+  slug: string
+  updatedAt?: string | null
+}
+
+function absoluteUrl(locale: string, path: string): string {
+  return `${SITE_URL}/${locale}${path}`
+}
+
+function localizedAlternates(pathByLocale: Partial<Record<IndexableLocale, string>>) {
+  const languages = Object.fromEntries(
+    indexableLocales
+      .filter((locale) => pathByLocale[locale] !== undefined)
+      .map((locale) => [locale, absoluteUrl(locale, pathByLocale[locale] || '')]),
+  )
+
+  const defaultPath = pathByLocale.en
+  if (defaultPath !== undefined) {
+    languages['x-default'] = absoluteUrl('en', defaultPath)
+  }
+
+  return Object.keys(languages).length > 0 ? { languages } : undefined
+}
+
+function newestValidDate(value?: string | null): Date | undefined {
+  if (!value) return undefined
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+function addLocalizedDocuments(
+  entries: MetadataRoute.Sitemap,
+  documentsByLocale: Record<IndexableLocale, SitemapDocument[]>,
+  section: 'features' | 'use-cases' | 'blog',
+) {
+  const records = new Map<string, Partial<Record<IndexableLocale, SitemapDocument>>>()
+
+  for (const locale of indexableLocales) {
+    for (const document of documentsByLocale[locale]) {
+      if (!document.slug) continue
+      const key = String(document.id)
+      records.set(key, { ...records.get(key), [locale]: document })
+    }
+  }
+
+  for (const localized of records.values()) {
+    const pathByLocale: Partial<Record<IndexableLocale, string>> = {}
+    for (const locale of indexableLocales) {
+      const document = localized[locale]
+      if (document) pathByLocale[locale] = `/${section}/${document.slug}`
+    }
+
+    const alternates = localizedAlternates(pathByLocale)
+    for (const locale of indexableLocales) {
+      const document = localized[locale]
+      const path = pathByLocale[locale]
+      if (!document || !path) continue
+
+      entries.push({
+        url: absoluteUrl(locale, path),
+        ...(newestValidDate(document.updatedAt) && {
+          lastModified: newestValidDate(document.updatedAt),
+        }),
+        ...(alternates && { alternates }),
+      })
+    }
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = []
 
-  const staticPages = [
-    { path: '', priority: 1.0, changeFrequency: 'weekly' as const },
-    { path: '/features', priority: 0.9, changeFrequency: 'weekly' as const },
-    { path: '/use-cases', priority: 0.9, changeFrequency: 'weekly' as const },
-    { path: '/packages', priority: 0.8, changeFrequency: 'monthly' as const },
-    { path: '/faq', priority: 0.7, changeFrequency: 'monthly' as const },
-    { path: '/blog', priority: 0.8, changeFrequency: 'daily' as const },
-    { path: '/contact', priority: 0.6, changeFrequency: 'monthly' as const },
-    { path: '/demo', priority: 0.8, changeFrequency: 'monthly' as const },
-  ]
+  for (const path of staticPaths) {
+    const pathByLocale = Object.fromEntries(
+      indexableLocales.map((locale) => [locale, path]),
+    ) as Record<IndexableLocale, string>
+    const alternates = localizedAlternates(pathByLocale)
 
-  for (const page of staticPages) {
-    for (const locale of locales) {
+    for (const locale of indexableLocales) {
       entries.push({
-        url: `${SITE_URL}/${locale}${page.path}`,
-        lastModified: new Date(),
-        changeFrequency: page.changeFrequency,
-        priority: page.priority,
-        alternates: {
-          languages: {
-            ...Object.fromEntries(
-              locales.map((l) => [l, `${SITE_URL}/${l}${page.path}`])
-            ),
-            'x-default': `${SITE_URL}/en${page.path}`,
-          },
-        },
+        url: absoluteUrl(locale, path),
+        ...(alternates && { alternates }),
       })
     }
   }
 
-  for (const locale of locales) {
-    const [localeFeatures, localeUseCases, localeBlogResult] = await Promise.all([
-      getFeatures(locale),
-      getUseCases(locale),
-      getBlogPosts({ limit: 100, locale }),
-    ])
+  const localeContent = await Promise.all(
+    indexableLocales.map(async (locale) => {
+      const [features, useCases, blog] = await Promise.all([
+        getFeatures(locale),
+        getUseCases(locale),
+        getBlogPosts({ locale, limit: 100 }),
+      ])
+      return { locale, features, useCases, blog: blog.docs }
+    }),
+  )
 
-    for (const feature of localeFeatures) {
-      const slug = (feature as any).slug
-      if (!slug) continue
-      entries.push({
-        url: `${SITE_URL}/${locale}/features/${slug}`,
-        lastModified: (feature as any).updatedAt ? new Date((feature as any).updatedAt) : new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.7,
-      })
-    }
+  const featuresByLocale = { en: [], id: [] } as Record<IndexableLocale, SitemapDocument[]>
+  const useCasesByLocale = { en: [], id: [] } as Record<IndexableLocale, SitemapDocument[]>
+  const blogByLocale = { en: [], id: [] } as Record<IndexableLocale, SitemapDocument[]>
 
-    for (const useCase of localeUseCases) {
-      const slug = (useCase as any).slug
-      if (!slug) continue
-      entries.push({
-        url: `${SITE_URL}/${locale}/use-cases/${slug}`,
-        lastModified: (useCase as any).updatedAt ? new Date((useCase as any).updatedAt) : new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.7,
-      })
-    }
-
-    for (const post of localeBlogResult.docs) {
-      const slug = (post as any).slug
-      if (!slug) continue
-      entries.push({
-        url: `${SITE_URL}/${locale}/blog/${slug}`,
-        lastModified: (post as any).updatedAt ? new Date((post as any).updatedAt) : new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.6,
-      })
-    }
+  for (const content of localeContent) {
+    featuresByLocale[content.locale] = content.features as SitemapDocument[]
+    useCasesByLocale[content.locale] = content.useCases as SitemapDocument[]
+    blogByLocale[content.locale] = content.blog as SitemapDocument[]
   }
+
+  if (featuresByLocale.en.length === 0 && featuresByLocale.id.length === 0) {
+    featuresByLocale.en = fallbackFeatureSlugs.map((slug) => ({ id: slug, slug }))
+  }
+  if (useCasesByLocale.en.length === 0 && useCasesByLocale.id.length === 0) {
+    useCasesByLocale.en = fallbackUseCaseSlugs.map((slug) => ({ id: slug, slug }))
+  }
+  addLocalizedDocuments(entries, featuresByLocale, 'features')
+  addLocalizedDocuments(entries, useCasesByLocale, 'use-cases')
+  addLocalizedDocuments(entries, blogByLocale, 'blog')
 
   return entries
 }

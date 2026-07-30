@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
 
 export const DeploymentLocations: CollectionConfig = {
   slug: 'deployment-locations',
+  access: {
+    read: visibleOrAuthenticated,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Location', plural: 'Locations' },
   admin: {
     useAsTitle: 'cityName',

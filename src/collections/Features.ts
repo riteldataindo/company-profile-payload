@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
 
 export const Features: CollectionConfig = {
   slug: 'features',
+  access: {
+    read: visibleOrAuthenticated,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Feature', plural: 'Features' },
   admin: {
     useAsTitle: 'name',
@@ -12,7 +19,7 @@ export const Features: CollectionConfig = {
   },
   fields: [
     { name: 'name', type: 'text', required: true, localized: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
+    { name: 'slug', type: 'text', required: true, unique: true, localized: true },
     { name: 'icon', type: 'text', admin: { description: 'Lucide icon name (e.g. "users", "flame")' } },
     { name: 'shortDescription', type: 'textarea', required: true, localized: true },
     { name: 'longDescription', type: 'richText', localized: true },

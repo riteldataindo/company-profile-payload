@@ -20,16 +20,16 @@ const fallbackFaqData = [
         a: 'SmartCounter is an AI-powered people counting system that uses CCTV cameras to provide real-time visitor analytics, heatmaps, demographics, and conversion rate tracking for retail stores, shopping malls, and other retail environments.',
       },
       {
-        q: 'How does the 99.9% accuracy work?',
-        a: 'Our computer vision AI model is trained on millions of hours of CCTV footage. It uses advanced object detection to count people entering and exiting, with validation against ground truth data from multiple retail environments.',
+        q: 'How is counting performance evaluated?',
+        a: 'Counting performance depends on camera position, lighting, entrance layout, and scene conditions. The deployment team reviews these conditions and should validate results against a representative manual sample.',
       },
       {
         q: 'Do you collect personal data (PII)?',
-        a: 'No. SmartCounter uses computer vision to count people and estimate demographics (age, gender) without storing any personally identifiable information. Fully GDPR and Indonesia privacy law compliant.',
+        a: 'SmartCounter is designed to produce aggregate visitor analytics. Data handling and retention requirements should be confirmed for each deployment and documented in the applicable agreement.',
       },
       {
         q: 'How many locations can I track with SmartCounter?',
-        a: 'With SmartCounter, you can track unlimited locations. The dashboard scales from single-store boutiques to 500+ location chains.',
+        a: 'SmartCounter supports both single-location and multi-location reporting. The practical scope depends on the selected package and deployment architecture.',
       },
     ],
   },
@@ -38,19 +38,19 @@ const fallbackFaqData = [
     items: [
       {
         q: 'What hardware do I need?',
-        a: 'SmartCounter works with any existing CCTV camera (IP cameras, analog cameras via converters, etc.). We also offer compatible hardware packages. Our team will assess your existing setup.',
+        a: 'Compatibility depends on the camera stream, resolution, placement, network, and required analytics. The team assesses the existing setup before confirming a deployment design.',
       },
       {
         q: 'How long does installation take?',
-        a: 'Installation typically takes 4-8 hours per location depending on your store size and layout. Our technicians handle everything, including camera positioning, network setup, and dashboard training.',
+        a: 'Installation time depends on store size, entrance count, camera readiness, network access, and calibration requirements. A timeline is provided after assessment.',
       },
       {
         q: 'Do I need internet for SmartCounter?',
-        a: 'Yes, an internet connection is required for real-time dashboards and cloud analytics. We support connections as low as 2 Mbps. On-premise analytics are available for enterprise customers.',
+        a: 'Network requirements depend on the agreed deployment architecture and dashboard access requirements. They are reviewed during the technical assessment.',
       },
       {
         q: 'What if I have an older CCTV system?',
-        a: 'Most CCTV systems from the last 10 years are compatible. We assess your cameras free during consultation. If upgrades are needed, we offer affordable options.',
+        a: 'Older systems may still be usable if they provide a compatible, stable video stream. Camera and recorder compatibility must be checked before deployment.',
       },
     ],
   },
@@ -59,15 +59,15 @@ const fallbackFaqData = [
     items: [
       {
         q: 'How real-time is the data?',
-        a: 'People counting data updates every 1-5 seconds. All other analytics (heatmaps, demographics, conversion rates) update in real-time on your dashboard.',
+        a: 'Update frequency depends on the analytic, processing architecture, and network conditions. The expected interval is documented for the selected deployment.',
       },
       {
         q: 'How far back is historical data available?',
-        a: 'All SmartCounter packages include 24 months of historical data. Enterprise customers can extend to unlimited history.',
+        a: 'Historical retention depends on the package and the data-retention terms agreed for the deployment.',
       },
       {
         q: 'Can I export data?',
-        a: 'Yes. All packages allow CSV, PDF, and PNG exports. Premium includes scheduled automated reports. Enterprise includes API access for custom integrations.',
+        a: 'Export, scheduled reporting, and integration options depend on the selected package. Confirm the required format during the demo.',
       },
       {
         q: 'How do you calculate conversion rate?',
@@ -80,19 +80,19 @@ const fallbackFaqData = [
     items: [
       {
         q: 'What is the cost of SmartCounter?',
-        a: 'Pricing depends on your package (Basic, Add-On, Premium) and number of locations. Contact us for a custom quote. All packages include hardware and installation.',
+        a: 'Pricing depends on the package, analytics scope, camera requirements, and number of locations. Contact the team for a deployment-specific quote.',
       },
       {
         q: 'Are there setup fees?',
-        a: 'No hidden fees. Our pricing is transparent: monthly/annual subscription + hardware (one-time). Enterprise customers may have custom terms.',
+        a: 'Setup, hardware, subscription, and support terms are listed in the commercial proposal for the deployment.',
       },
       {
         q: 'Can I pay monthly or annually?',
-        a: 'Both options available. Annual subscriptions include a 15% discount.',
+        a: 'Available billing terms are provided in the current commercial proposal.',
       },
       {
         q: 'What if I want to cancel?',
-        a: 'Month-to-month subscriptions can be cancelled anytime with 30 days notice. Annual plans include early cancellation options.',
+        a: 'Cancellation and renewal terms follow the signed service agreement.',
       },
     ],
   },
@@ -101,19 +101,19 @@ const fallbackFaqData = [
     items: [
       {
         q: 'What if my store has poor lighting?',
-        a: 'SmartCounter works in all lighting conditions, including dim environments. Our AI is trained on diverse lighting scenarios. Very dark environments (less than 20 lux) may reduce accuracy slightly.',
+        a: 'Poor or changing lighting can affect computer-vision performance. Camera placement, exposure, and scene lighting are reviewed during assessment and calibration.',
       },
       {
         q: 'How many entrances can I monitor?',
-        a: 'Unlimited. You can set up separate counters for each entrance and the system will automatically sum them into total traffic.',
+        a: 'Multiple entrances can be configured and aggregated. The supported scope depends on the deployment design and package.',
       },
       {
         q: 'What happens if my internet goes down?',
-        a: 'The camera continues counting locally. Data syncs to the cloud automatically when connection is restored. No data is lost.',
+        a: 'Offline behavior depends on whether processing is local, cloud-based, or hybrid. Recovery and synchronization behavior is documented for the selected architecture.',
       },
       {
         q: 'How secure is my data?',
-        a: 'We use enterprise-grade encryption (AES-256), secure cloud infrastructure (AWS), and regular security audits. Compliance: SOC 2, GDPR, Indonesia DPA.',
+        a: 'Security controls, hosting, access, retention, and deletion requirements should be reviewed during technical scoping and recorded in the applicable agreement.',
       },
     ],
   },

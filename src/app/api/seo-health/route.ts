@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth'
 
 interface CacheEntry {
   data: SeoHealthResponse
@@ -59,14 +60,14 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
 
   const missingDescriptionsList = [
     ...missingDescriptions.blogPosts.map(doc => `Blog: ${doc.title}`),
-    ...missingDescriptions.features.map(doc => `Feature: ${doc.title}`),
-    ...missingDescriptions.useCases.map(doc => `Use Case: ${doc.title}`),
+    ...missingDescriptions.features.map(doc => `Feature: ${doc.name}`),
+    ...missingDescriptions.useCases.map(doc => `Use Case: ${doc.industryName}`),
   ].slice(0, 5)
 
   items.push({
     label: 'Missing Meta Descriptions',
     value: totalMissingDescriptions,
-    status: totalMissingDescriptions === 0 ? 'green' : totalMissingDescriptions <= 2 ? 'amber' : 'red',
+    status: totalMissingDescriptions === 0 ? 'green' : 'amber',
     detail:
       totalMissingDescriptions === 0
         ? 'All pages have meta descriptions'
@@ -91,14 +92,14 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
 
   const missingImagesList = [
     ...missingImages.blogPosts.map(doc => `Blog: ${doc.title}`),
-    ...missingImages.features.map(doc => `Feature: ${doc.title}`),
-    ...missingImages.useCases.map(doc => `Use Case: ${doc.title}`),
+    ...missingImages.features.map(doc => `Feature: ${doc.name}`),
+    ...missingImages.useCases.map(doc => `Use Case: ${doc.industryName}`),
   ].slice(0, 5)
 
   items.push({
     label: 'Missing OG Images',
     value: totalMissingImages,
-    status: totalMissingImages === 0 ? 'green' : totalMissingImages <= 2 ? 'amber' : 'red',
+    status: totalMissingImages === 0 ? 'green' : 'amber',
     detail:
       totalMissingImages === 0
         ? 'All pages have OG images'
@@ -151,13 +152,21 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
     const response = await fetch(homepageUrl)
     if (response.ok) {
       const html = await response.text()
-      // Look for JSON-LD blocks
       const jsonLdPattern = /<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/g
-      const matches = html.match(jsonLdPattern)
+      const matches = Array.from(html.matchAll(jsonLdPattern))
 
-      if (matches && matches.length > 0) {
-        validCount = matches.length
-        structuredDataStatus = `Valid (${validCount} found)`
+      if (matches.length > 0) {
+        for (const match of matches) {
+          try {
+            JSON.parse(match[1])
+            validCount++
+          } catch {
+            errorCount++
+          }
+        }
+        structuredDataStatus = errorCount === 0
+          ? `Valid (${validCount} found)`
+          : `${errorCount} invalid, ${validCount} valid`
       } else {
         errorCount = 1
         structuredDataStatus = 'Not found'
@@ -171,8 +180,10 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
   items.push({
     label: 'Structured Data (JSON-LD)',
     value: structuredDataStatus,
-    status: validCount > 0 ? 'green' : errorCount > 0 ? 'red' : 'amber',
-    detail: validCount > 0 ? `Found ${validCount} JSON-LD schema(s)` : 'No JSON-LD schemas detected on homepage',
+    status: validCount > 0 && errorCount === 0 ? 'green' : 'red',
+    detail: errorCount > 0
+      ? `${errorCount} invalid JSON-LD block(s); ${validCount} valid`
+      : `Parsed ${validCount} valid JSON-LD schema(s)`,
   })
 
   // 5. Broken internal links
@@ -188,13 +199,13 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
     (blogPosts.docs?.length || 0) +
     (features.docs?.length || 0) +
     (useCases.docs?.length || 0) +
-    5 // homepage, faq, packages, contact, demo
+    8 // homepage, features, use cases, packages, FAQ, blog, contact, demo
 
   items.push({
     label: 'Total Public Pages',
     value: totalPages,
-    status: totalPages >= 10 ? 'green' : 'amber',
-    detail: `${blogPosts.docs?.length || 0} blog posts, ${features.docs?.length || 0} features, ${useCases.docs?.length || 0} use cases, + 5 static pages`,
+    status: 'green',
+    detail: `${blogPosts.docs?.length || 0} blog posts, ${features.docs?.length || 0} features, ${useCases.docs?.length || 0} use cases, + 8 static pages`,
   })
 
   // 7. Core Web Vitals
@@ -229,12 +240,15 @@ async function getCachedOrCompute(): Promise<SeoHealthResponse> {
 
 export async function GET(request: Request) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'read')
+    if (!authorization.ok) return authorization.response
+
     const url = new URL(request.url)
     if (url.searchParams.get('refresh') === 'true') {
       cache.delete('seo-health')
     }
     const data = await getCachedOrCompute()
-    return Response.json(data)
+    return Response.json(data, { headers: privateAdminHeaders() })
   } catch (error) {
     console.error('SEO Health Error:', error)
     return Response.json(

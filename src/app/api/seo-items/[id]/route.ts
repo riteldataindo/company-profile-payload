@@ -1,6 +1,13 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth'
+import { isValidLocale, type Locale } from '@/lib/i18n/config'
+import type { BlogPost, Feature, Media, UseCase } from '@/payload-types'
+
+type SeoCollection = 'blog-posts' | 'features' | 'use-cases'
+
+function getLocale(value?: string): Locale {
+  return value && isValidLocale(value) ? value : 'en'
+}
 
 interface UpdateSeoItemRequest {
   collection: string
@@ -26,11 +33,20 @@ interface UpdatedSeoItem {
   updatedAt: string
 }
 
+interface SeoMeta {
+  title?: string | null
+  description?: string | null
+  image?: number | Media | null
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+
     const body = (await request.json()) as UpdateSeoItemRequest
     const { id: itemId } = await params
 
@@ -42,23 +58,27 @@ export async function PATCH(
     }
 
     // Validate collection
-    const validCollections = ['blog-posts', 'features', 'use-cases']
-    if (!validCollections.includes(body.collection)) {
+    const validCollections: SeoCollection[] = ['blog-posts', 'features', 'use-cases']
+    if (!validCollections.includes(body.collection as SeoCollection)) {
       return NextResponse.json(
         { error: `Invalid collection: ${body.collection}` },
         { status: 400 }
       )
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const { payload } = authorization
 
-    const locale = body.locale || 'en'
+    const locale = getLocale(body.locale)
+    const collection = body.collection as SeoCollection
 
-    const currentDoc = await payload.findByID({
-      collection: body.collection as 'blog-posts' | 'features' | 'use-cases',
-      id: itemId,
-      locale,
-    })
+    let currentDoc: BlogPost | Feature | UseCase
+    if (collection === 'blog-posts') {
+      currentDoc = await payload.findByID({ collection, id: itemId, locale })
+    } else if (collection === 'features') {
+      currentDoc = await payload.findByID({ collection, id: itemId, locale })
+    } else {
+      currentDoc = await payload.findByID({ collection, id: itemId, locale })
+    }
 
     if (!currentDoc) {
       return NextResponse.json(
@@ -67,62 +87,67 @@ export async function PATCH(
       )
     }
 
-    const updateData: Record<string, unknown> = {}
-
-    if (body.meta) {
-      const updatedMeta = { ...currentDoc.meta }
-      if (body.meta.title !== undefined) updatedMeta.title = body.meta.title || null
-      if (body.meta.description !== undefined) updatedMeta.description = body.meta.description || null
-      if (body.meta.image !== undefined) {
-        updatedMeta.image = body.meta.image === null ? null : body.meta.image ? parseInt(body.meta.image, 10) : null
+    const updatedMeta: SeoMeta = {
+      ...((currentDoc.meta as SeoMeta | undefined) ?? {}),
+    }
+    if (body.meta?.title !== undefined) updatedMeta.title = body.meta.title || null
+    if (body.meta?.description !== undefined) updatedMeta.description = body.meta.description || null
+    if (body.meta?.image !== undefined) {
+      const parsedImageId = body.meta.image ? Number.parseInt(body.meta.image, 10) : null
+      if (body.meta.image && Number.isNaN(parsedImageId)) {
+        return NextResponse.json({ error: 'Invalid image ID' }, { status: 400 })
       }
-      updateData.meta = updatedMeta
+      updatedMeta.image = body.meta.image === null ? null : parsedImageId
     }
 
-    if (body.slug) {
-      updateData.slug = body.slug
+    const updateData = {
+      ...(body.meta && { meta: updatedMeta }),
+      ...(body.slug && { slug: body.slug }),
     }
 
-    const updated = await payload.update({
-      collection: body.collection as 'blog-posts' | 'features' | 'use-cases',
-      id: itemId,
-      locale,
-      data: updateData,
-    })
+    let updated: BlogPost | Feature | UseCase
+    if (collection === 'blog-posts') {
+      updated = await payload.update({ collection, id: itemId, locale, data: updateData })
+    } else if (collection === 'features') {
+      updated = await payload.update({ collection, id: itemId, locale, data: updateData })
+    } else {
+      updated = await payload.update({ collection, id: itemId, locale, data: updateData })
+    }
 
     // Get title based on collection type
     let title = ''
-    if (body.collection === 'blog-posts') {
+    if (collection === 'blog-posts' && 'title' in updated) {
       title = updated.title || ''
-    } else if (body.collection === 'features') {
+    } else if (collection === 'features' && 'name' in updated) {
       title = updated.name || ''
-    } else if (body.collection === 'use-cases') {
+    } else if (collection === 'use-cases' && 'industryName' in updated) {
       title = updated.industryName || ''
     }
 
     const slug = updated.slug || ''
 
     // Format image ID
-    const imageId = updated.meta?.image
-      ? typeof updated.meta.image === 'object'
-        ? updated.meta.image.id?.toString() || null
-        : updated.meta.image?.toString() || null
+    const responseMeta = updated.meta as SeoMeta | undefined
+    const imageId = responseMeta?.image
+      ? typeof responseMeta.image === 'object'
+        ? responseMeta.image.id?.toString() || null
+        : responseMeta.image.toString() || null
       : null
 
     const response: UpdatedSeoItem = {
-      id: updated.id,
+      id: String(updated.id),
       title,
       slug,
       collection: body.collection,
       meta: {
-        title: updated.meta?.title || null,
-        description: updated.meta?.description || null,
+        title: responseMeta?.title || null,
+        description: responseMeta?.description || null,
         imageId,
       },
       updatedAt: updated.updatedAt || new Date().toISOString(),
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json(response, { headers: privateAdminHeaders() })
   } catch (error) {
     console.error('SEO Item PATCH Error:', error)
 

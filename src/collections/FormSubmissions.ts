@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { authenticatedRead, canManageContent } from '@/access/admin'
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form-submissions',
@@ -41,9 +42,9 @@ export const FormSubmissions: CollectionConfig = {
     },
   ],
   access: {
-    read: () => true,
-    create: ({ req }) => !req?.user,
-    update: () => true,
-    delete: () => true,
+    read: authenticatedRead,
+    create: () => false,
+    update: canManageContent,
+    delete: canManageContent,
   },
 }

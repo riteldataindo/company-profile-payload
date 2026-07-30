@@ -78,16 +78,16 @@ export function Hero({ locale, dict }: HeroProps) {
         </div>
         <div className="mx-auto grid max-w-xl grid-cols-3 gap-8 rounded-2xl border border-white/[0.06] bg-bg-card/60 p-6 backdrop-blur-xl">
           <div className="text-center">
-            <CountUp target={99.9} suffix="%" decimal />
-            <div className="mt-1 text-xs text-text-muted">{dict.common.accuracy}</div>
+            <span className="font-mono text-3xl font-bold text-text-primary md:text-4xl">Live</span>
+            <div className="mt-1 text-xs text-text-muted">{dict.common.liveAnalytics}</div>
           </div>
           <div className="text-center">
             <CountUp target={12} suffix="+" />
             <div className="mt-1 text-xs text-text-muted">{dict.common.analyticsFeatures}</div>
           </div>
           <div className="text-center">
-            <CountUp target={300} suffix="+" />
-            <div className="mt-1 text-xs text-text-muted">{dict.common.storesServed}</div>
+            <span className="font-mono text-3xl font-bold text-text-primary md:text-4xl">Built-in</span>
+            <div className="mt-1 text-xs text-text-muted">{dict.common.privacyFirst}</div>
           </div>
         </div>
       </div>

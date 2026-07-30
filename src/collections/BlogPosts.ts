@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, publishedOrAuthenticated } from '@/access/admin'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
+  access: {
+    read: publishedOrAuthenticated,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Blog Post', plural: 'Blog Posts' },
   admin: {
     useAsTitle: 'title',
@@ -12,7 +19,7 @@ export const BlogPosts: CollectionConfig = {
   },
   fields: [
     { name: 'title', type: 'text', required: true, localized: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
+    { name: 'slug', type: 'text', required: true, unique: true, localized: true },
     { name: 'content', type: 'richText', required: true, localized: true },
     { name: 'excerpt', type: 'textarea', localized: true },
     { name: 'featuredImage', type: 'upload', relationTo: 'media' },

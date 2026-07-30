@@ -1,9 +1,11 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'write')
+    if (!authorization.ok) return authorization.response
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const alt = (formData.get('alt') as string) || 'OG Image'
@@ -12,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const { payload } = authorization
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)

@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, publicRead } from '@/access/admin'
 
 export const BlogCategories: CollectionConfig = {
   slug: 'blog-categories',
+  access: {
+    read: publicRead,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Category', plural: 'Categories' },
   admin: {
     useAsTitle: 'name',

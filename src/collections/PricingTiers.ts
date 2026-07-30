@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, publicRead } from '@/access/admin'
 
 export const PricingTiers: CollectionConfig = {
   slug: 'pricing-tiers',
+  access: {
+    read: publicRead,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'Package', plural: 'Packages' },
   admin: {
     useAsTitle: 'name',

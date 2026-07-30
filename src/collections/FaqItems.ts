@@ -1,7 +1,14 @@
 import type { CollectionConfig } from 'payload'
+import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
 
 export const FaqItems: CollectionConfig = {
   slug: 'faq-items',
+  access: {
+    read: visibleOrAuthenticated,
+    create: canManageContent,
+    update: canManageContent,
+    delete: canManageContent,
+  },
   labels: { singular: 'FAQ', plural: 'FAQs' },
   admin: {
     useAsTitle: 'question',

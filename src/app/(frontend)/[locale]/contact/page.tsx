@@ -29,7 +29,11 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     phone: siteSettings?.contactPhone || '+62 882-1001-9165',
     whatsapp: siteSettings?.whatsappNumber || '6288210019165',
     address: siteSettings?.contactAddress || 'Komplek Griya Inti Sentosa\nJl. Griya Agung No.3 Blok M\nSunter Agung, Jakarta Utara 14350',
-    socialLinks: siteSettings?.socialLinks || {},
+    socialLinks: Object.fromEntries(
+      Object.entries(siteSettings?.socialLinks || {}).filter(
+        (entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].length > 0,
+      ),
+    ),
   }
 
   return (

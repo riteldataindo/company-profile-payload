@@ -1,17 +1,19 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { generateSeoSuggestion, extractRichText } from '@/lib/seo/suggest'
+import { authorizeAdminRequest } from '@/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await authorizeAdminRequest(request, 'read')
+    if (!authorization.ok) return authorization.response
+
     const { id, collection, locale = 'en' } = await request.json()
 
     if (!id || !collection) {
       return NextResponse.json({ error: 'Missing id or collection' }, { status: 400 })
     }
 
-    const payload = await getPayload({ config: configPromise })
+    const { payload } = authorization
 
     const doc = await payload.findByID({
       collection: collection as 'blog-posts' | 'features' | 'use-cases',

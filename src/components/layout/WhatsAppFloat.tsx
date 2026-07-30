@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, HelpCircle, CreditCard, Wrench, CalendarCheck, Sparkles } from 'lucide-react'
 import type { ComponentType } from 'react'
 
-const suggestionIcons: ComponentType<{ size?: number }>[] = [
+const suggestionIcons: ComponentType<{ size?: number; className?: string }>[] = [
   HelpCircle, CreditCard, Wrench, CalendarCheck, Sparkles,
 ]
 
