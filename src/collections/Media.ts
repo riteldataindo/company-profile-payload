@@ -1,5 +1,6 @@
-import type { CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig } from 'payload'
 import { canManageContent, publicRead } from '@/access/admin'
+import { validateMediaUpload } from '@/lib/media-validation'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -11,6 +12,24 @@ export const Media: CollectionConfig = {
     delete: canManageContent,
   },
   admin: { group: 'System' },
+  hooks: {
+    beforeValidate: [
+      ({ operation, req }) => {
+        if ((operation === 'create' || operation === 'update') && req.file) {
+          try {
+            validateMediaUpload(req.file)
+          } catch (error) {
+            throw new APIError(
+              error instanceof Error ? error.message : 'Invalid media upload',
+              400,
+              null,
+              true,
+            )
+          }
+        }
+      },
+    ],
+  },
   upload: {
     staticDir: 'public/media',
     imageSizes: [
@@ -19,7 +38,16 @@ export const Media: CollectionConfig = {
       { name: 'hero', width: 1920, height: 1080, position: 'centre' },
       { name: 'og', width: 1200, height: 630, position: 'centre' },
     ],
-    mimeTypes: ['image/*', 'video/mp4', 'application/pdf'],
+    allowRestrictedFileTypes: false,
+    mimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/avif',
+      'video/mp4',
+      'application/pdf',
+    ],
   },
   fields: [
     { name: 'alt', type: 'text', required: true, localized: true },

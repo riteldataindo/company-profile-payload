@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { Check, ArrowRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import { getPricingTiers } from '@/lib/data'
+import { localizedPublicHref } from '@/lib/richtext'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -39,12 +40,16 @@ export default async function PackagesPage({
         description: tier.description,
         badge: tier.isFeatured ? 'Featured' : null,
         features: tier.features?.map((f: any) => f.featureText) || [],
+        ctaText: tier.ctaText,
+        ctaLink: localizedPublicHref(tier.ctaLink, locale, `/${locale}/contact`),
       }))
     : [
     {
       name: 'Basic',
       description: 'Essential people counting for single locations',
       badge: null,
+      ctaText: null,
+      ctaLink: null,
       features: [
         'People counting (entries/exits)',
         'Real-time occupancy monitoring',
@@ -58,6 +63,8 @@ export default async function PackagesPage({
       name: 'Add-On',
       description: 'Advanced analytics for growing retail chains',
       badge: 'Best Offer',
+      ctaText: null,
+      ctaLink: null,
       features: [
         'Everything in Basic, plus:',
         'Demographics (age & gender)',
@@ -72,6 +79,8 @@ export default async function PackagesPage({
       name: 'Premium',
       description: 'Complete solution for enterprise retail',
       badge: null,
+      ctaText: null,
+      ctaLink: null,
       features: [
         'Everything in Basic + Add-On, plus:',
         'Unlimited zones',
@@ -172,10 +181,10 @@ export default async function PackagesPage({
                   </div>
 
                   <Link
-                    href={`/${locale}/contact`}
+                    href={pkg.ctaLink || `/${locale}/contact`}
                     className="flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white transition-all duration-250 hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]"
                   >
-                    {dict.common.contactUs} <ArrowRight size={18} />
+                    {pkg.ctaText || dict.common.contactUs} <ArrowRight size={18} />
                   </Link>
                 </div>
               </ScrollReveal>

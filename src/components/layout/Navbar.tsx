@@ -10,6 +10,12 @@ import { LocaleSwitcher } from './LocaleSwitcher'
 interface NavbarProps {
   locale: string
   dict: Record<string, any>
+  logo?: {
+    alt: string
+    height: number
+    url: string
+    width: number
+  }
 }
 
 const navItems = [
@@ -21,7 +27,7 @@ const navItems = [
   { key: 'contact', href: '/contact' },
 ]
 
-export function Navbar({ locale, dict }: NavbarProps) {
+export function Navbar({ locale, dict, logo }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -46,8 +52,11 @@ export function Navbar({ locale, dict }: NavbarProps) {
           <SmartCounterLogo
             alt=""
             className="h-auto w-[132px] sm:w-[160px]"
+            height={logo?.height}
             priority
             sizes="(min-width: 640px) 160px, 132px"
+            src={logo?.url}
+            width={logo?.width}
           />
         </Link>
 

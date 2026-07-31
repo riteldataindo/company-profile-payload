@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Check } from 'lucide-react'
 import { ScrollReveal } from './ScrollReveal'
+import { localizedPublicHref } from '@/lib/richtext'
 
 const packageMeta = [
   { featured: false },
@@ -25,6 +26,8 @@ export function PackagesTeaser({ locale, dict, pricingTiers: payloadPricingTiers
         badge: tier.isFeatured ? 'Featured' : null,
         features: tier.features?.map((f: any) => f.featureText) || [],
         featured: tier.isFeatured,
+        ctaText: tier.ctaText,
+        ctaLink: localizedPublicHref(tier.ctaLink, locale, `/${locale}/contact`),
       }))
     : (dict.packages?.items || [])
 
@@ -67,14 +70,14 @@ export function PackagesTeaser({ locale, dict, pricingTiers: payloadPricingTiers
                   ))}
                 </ul>
                 <Link
-                  href={`/${locale}/contact`}
+                  href={pkg.ctaLink || `/${locale}/contact`}
                   className={`mt-auto w-full rounded-lg py-3 text-center text-sm font-semibold transition-all ${
                     isFeatured
                       ? 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                       : 'border border-primary-600 text-primary-500 hover:bg-primary-600/10'
                   }`}
                 >
-                  {dict.common.contactUs}
+                  {pkg.ctaText || dict.common.contactUs}
                 </Link>
               </div>
             </ScrollReveal>

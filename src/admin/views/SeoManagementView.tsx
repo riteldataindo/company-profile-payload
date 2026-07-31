@@ -800,6 +800,8 @@ export default function SeoManagementView() {
                         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                           {editForm.ogImagePreview ? (
                             <div style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--sc-border)', flexShrink: 0 }}>
+                              {/* Browser blob previews cannot be optimized by next/image. */}
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={editForm.ogImagePreview}
                                 alt="OG Image"

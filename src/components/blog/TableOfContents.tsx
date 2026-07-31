@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { BlogPost } from '@/lib/blog-data'
+import type { RichTextHeading } from '@/lib/richtext'
 
 interface TableOfContentsProps {
-  post: BlogPost
+  headings: RichTextHeading[]
 }
 
-export function TableOfContents({ post }: TableOfContentsProps) {
+export function TableOfContents({ headings }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('')
 
   useEffect(() => {
@@ -23,8 +23,8 @@ export function TableOfContents({ post }: TableOfContentsProps) {
     )
 
     // Observe all sections
-    if (post.sections) {
-      post.sections.forEach((section) => {
+    if (headings) {
+      headings.forEach((section) => {
         const element = document.getElementById(section.id)
         if (element) {
           observer.observe(element)
@@ -33,9 +33,9 @@ export function TableOfContents({ post }: TableOfContentsProps) {
     }
 
     return () => observer.disconnect()
-  }, [post.sections])
+  }, [headings])
 
-  if (!post.sections || post.sections.length === 0) {
+  if (headings.length === 0) {
     return null
   }
 
@@ -51,11 +51,12 @@ export function TableOfContents({ post }: TableOfContentsProps) {
       <div className="rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-6">
         <h3 className="text-sm font-semibold text-text-primary mb-4">Table of Contents</h3>
         <nav className="space-y-2">
-          {post.sections.map((section) => (
+          {headings.map((section) => (
             <button
               key={section.id}
               onClick={() => scrollToSection(section.id)}
-              className={`block w-full text-left text-sm px-3 py-2 rounded-lg transition-all ${
+              style={{ paddingLeft: `${0.75 + Math.max(0, section.level - 2) * 0.75}rem` }}
+              className={`block w-full text-left text-sm pr-3 py-2 rounded-lg transition-all ${
                 activeId === section.id
                   ? 'bg-primary-500/20 text-primary-400 font-semibold'
                   : 'text-text-secondary hover:text-text-primary hover:bg-primary-500/10'

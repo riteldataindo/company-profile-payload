@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authorizeAdminRequest } from '@/lib/admin-auth'
+import {
+  MAX_MEDIA_UPLOAD_BYTES,
+  validateMediaUpload,
+} from '@/lib/media-validation'
 
 export async function POST(request: NextRequest) {
   try {
     const authorization = await authorizeAdminRequest(request, 'write')
     if (!authorization.ok) return authorization.response
+
+    const contentLength = Number(request.headers.get('content-length') || 0)
+    if (contentLength > MAX_MEDIA_UPLOAD_BYTES + 64 * 1024) {
+      return NextResponse.json({ error: 'Media files must be 10 MB or smaller' }, { status: 413 })
+    }
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -18,13 +27,19 @@ export async function POST(request: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    const detectedMime = validateMediaUpload({
+      data: buffer,
+      mimetype: file.type,
+      name: file.name,
+      size: file.size,
+    })
 
     const doc = await payload.create({
       collection: 'media',
       data: { alt },
       file: {
         data: buffer,
-        mimetype: file.type,
+        mimetype: detectedMime,
         name: file.name,
         size: file.size,
       },
@@ -42,9 +57,11 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Media upload error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    const isValidationError = /file|media|mime|signature|svg|format|extension/i.test(message)
     return NextResponse.json(
-      { error: 'Upload failed', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
+      { error: 'Upload failed', message },
+      { status: isValidationError ? 400 : 500 },
     )
   }
 }

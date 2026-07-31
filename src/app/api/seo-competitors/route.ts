@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs'
+import { createHash } from 'crypto'
 import path from 'path'
 import { authorizeAdminRequest, privateAdminHeaders } from '@/lib/admin-auth'
 import { fetchPublicHtml, validatePublicUrl } from '@/lib/safe-fetch'
 
 const CACHE_DIR = path.join(process.cwd(), 'data', 'competitor-cache')
 const CACHE_TTL = 24 * 60 * 60 * 1000
+const MAX_CACHE_FILES = 200
+const USER_RATE_WINDOW_MS = 10 * 60 * 1000
+const USER_RATE_MAX = 10
+const userRequests = new Map<string, number[]>()
 
 interface PageMetrics {
   url: string
@@ -24,7 +37,7 @@ interface PageMetrics {
 }
 
 function getCachePath(url: string): string {
-  const safe = Buffer.from(url).toString('base64url').substring(0, 80)
+  const safe = createHash('sha256').update(url).digest('hex')
   return path.join(CACHE_DIR, `${safe}.json`)
 }
 
@@ -40,7 +53,47 @@ function readCache(url: string): PageMetrics | null {
 
 function writeCache(url: string, data: PageMetrics) {
   if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true })
+  const now = Date.now()
+  const cacheFiles = readdirSync(CACHE_DIR)
+    .filter(filename => filename.endsWith('.json'))
+    .flatMap((filename) => {
+      const filePath = path.join(CACHE_DIR, filename)
+      try {
+        return [{ filePath, modifiedAt: statSync(filePath).mtimeMs }]
+      } catch {
+        return []
+      }
+    })
+    .sort((a, b) => a.modifiedAt - b.modifiedAt)
+
+  for (const entry of cacheFiles) {
+    if (now - entry.modifiedAt > CACHE_TTL) {
+      try { unlinkSync(entry.filePath) } catch {}
+    }
+  }
+  const retained = cacheFiles.filter(entry => (
+    existsSync(entry.filePath) && now - entry.modifiedAt <= CACHE_TTL
+  ))
+  while (retained.length >= MAX_CACHE_FILES) {
+    const oldest = retained.shift()
+    if (oldest) {
+      try { unlinkSync(oldest.filePath) } catch {}
+    }
+  }
   writeFileSync(getCachePath(url), JSON.stringify(data, null, 2))
+}
+
+function consumeUserRequest(userId: string): boolean {
+  const now = Date.now()
+  const recent = (userRequests.get(userId) || [])
+    .filter(timestamp => timestamp > now - USER_RATE_WINDOW_MS)
+  if (recent.length >= USER_RATE_MAX) {
+    userRequests.set(userId, recent)
+    return false
+  }
+  recent.push(now)
+  userRequests.set(userId, recent)
+  return true
 }
 
 function extractMeta(html: string, tag: string): string {
@@ -125,6 +178,12 @@ export async function POST(request: NextRequest) {
   try {
     const authorization = await authorizeAdminRequest(request, 'read')
     if (!authorization.ok) return authorization.response
+    if (!consumeUserRequest(String(authorization.user.id))) {
+      return NextResponse.json(
+        { error: 'Too many analysis requests. Please try again later.' },
+        { status: 429, headers: privateAdminHeaders() },
+      )
+    }
 
     const body = await request.json()
     const { yourUrl, competitorUrls } = body as { yourUrl?: string; competitorUrls: string[] }

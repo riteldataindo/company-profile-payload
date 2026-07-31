@@ -316,6 +316,19 @@ export interface Feature {
     };
     [k: string]: unknown;
   } | null;
+  benefits?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  useCaseExamples?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  relatedFeatures?: (number | Feature)[] | null;
   image?: (number | null) | Media;
   sortOrder?: number | null;
   isVisible?: boolean | null;
@@ -360,8 +373,21 @@ export interface UseCase {
     };
     [k: string]: unknown;
   } | null;
+  challenges?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  solutions?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
   image?: (number | null) | Media;
   relatedFeatures?: (number | Feature)[] | null;
+  relatedUseCases?: (number | UseCase)[] | null;
   sortOrder?: number | null;
   isVisible?: boolean | null;
   meta?: {
@@ -685,6 +711,19 @@ export interface FeaturesSelect<T extends boolean = true> {
   icon?: T;
   shortDescription?: T;
   longDescription?: T;
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  useCaseExamples?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  relatedFeatures?: T;
   image?: T;
   sortOrder?: T;
   isVisible?: T;
@@ -708,8 +747,21 @@ export interface UseCasesSelect<T extends boolean = true> {
   icon?: T;
   shortDescription?: T;
   longDescription?: T;
+  challenges?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  solutions?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   image?: T;
   relatedFeatures?: T;
+  relatedUseCases?: T;
   sortOrder?: T;
   isVisible?: T;
   meta?:

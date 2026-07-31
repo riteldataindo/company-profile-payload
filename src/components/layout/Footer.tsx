@@ -6,9 +6,15 @@ interface FooterProps {
   locale: string
   dict: Record<string, any>
   siteSettings?: any
+  logo?: {
+    alt: string
+    height: number
+    url: string
+    width: number
+  }
 }
 
-export function Footer({ locale, dict, siteSettings }: FooterProps) {
+export function Footer({ locale, dict, siteSettings, logo }: FooterProps) {
   const email = siteSettings?.contactEmail || 'info@riteldata.id'
   const phone = siteSettings?.contactPhone || '+62 882-1001-9165'
   const whatsapp = siteSettings?.whatsappNumber || '6288210019165'
@@ -20,7 +26,13 @@ export function Footer({ locale, dict, siteSettings }: FooterProps) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <SmartCounterLogo className="h-auto w-[170px]" />
+            <SmartCounterLogo
+              alt={logo?.alt}
+              className="h-auto w-[170px]"
+              height={logo?.height}
+              src={logo?.url}
+              width={logo?.width}
+            />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-secondary">
               {dict.footer.description}
             </p>

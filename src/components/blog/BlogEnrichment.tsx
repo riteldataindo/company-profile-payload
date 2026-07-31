@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 export function ComparisonTable({ slug }: { slug: string }) {
   const tables: Record<string, { title: string; headers: string[]; rows: string[][] }> = {
     'apa-itu-people-counting-system': {
@@ -129,13 +131,11 @@ export function InlineImage({ slug, position }: { slug: string; position: 'mid' 
   return (
     <figure className="my-8">
       <div className="rounded-2xl overflow-hidden border border-white/[0.06]">
-        <img
+        <Image
           src={img.src}
           alt={img.alt}
           width={1200}
           height={630}
-          loading="lazy"
-          decoding="async"
           className="w-full h-auto"
         />
       </div>

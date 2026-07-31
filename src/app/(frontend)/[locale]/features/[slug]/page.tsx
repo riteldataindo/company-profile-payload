@@ -1,12 +1,13 @@
 import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { serviceSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { extractText } from '@/lib/richtext'
+import { LexicalRichText } from '@/components/content/LexicalRichText'
 import Link from 'next/link'
 import {
   Users, Flame, ScanFace, Timer, LayoutGrid, ArrowRightLeft,
@@ -15,7 +16,12 @@ import {
 } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import { FeatureMockup } from '@/components/sections/FeatureMockup'
-import { getFeature, getFeatures, getMediaUrl } from '@/lib/data'
+import { getFeatures, getMediaUrl, resolveFeatureRoute } from '@/lib/data'
+import {
+  canonicalSlugForLocale,
+  localizedSectionPaths,
+  mapDocumentsBySourceSlug,
+} from '@/lib/localized-routes'
 import type { ComponentType } from 'react'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
@@ -306,12 +312,7 @@ export async function generateStaticParams() {
 
   for (const locale of locales) {
     const features = await getFeatures(locale)
-    const slugs = new Set([
-      ...Object.keys(fallbackFeaturesData),
-      ...features.map((feature: any) => feature.slug).filter(Boolean),
-    ])
-
-    for (const slug of slugs) {
+    for (const slug of features.map((feature: any) => feature.slug).filter(Boolean)) {
       params.push({ locale, slug })
     }
   }
@@ -323,15 +324,33 @@ export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
 ): Promise<Metadata> {
   const { slug, locale } = await params
-  const payloadFeature = await getFeature(slug, locale)
-  const feature = (payloadFeature || fallbackFeaturesData[slug]) as any
+  if (!isValidLocale(locale)) {
+    return buildMetadata({
+      title: 'Feature',
+      description: 'SmartCounter AI-powered visitor analytics feature',
+      locale,
+      path: `/features/${slug}`,
+      noIndex: true,
+    })
+  }
+
+  const resolution = await resolveFeatureRoute(slug, locale)
+  const feature = resolution?.document as any
   const meta = feature?.meta || {}
+  const canonicalSlug = resolution
+    ? canonicalSlugForLocale(resolution.slugs, locale) || slug
+    : slug
+
   return buildMetadata({
     title: meta.title || `${feature?.name || 'Feature'} — People Counting & CCTV AI`,
     description: meta.description || feature?.subtitle || feature?.shortDescription || 'SmartCounter AI-powered visitor analytics feature',
     locale,
-    path: `/features/${slug}`,
+    path: `/features/${canonicalSlug}`,
     ogImage: getMediaUrl(meta.image) || getMediaUrl(feature?.image),
+    noIndex: !resolution,
+    alternatePaths: resolution
+      ? localizedSectionPaths('features', resolution.slugs)
+      : undefined,
   })
 }
 
@@ -343,8 +362,19 @@ export default async function FeatureDetailPage({
   const { slug, locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const payloadFeature = await getFeature(slug, locale)
-  const fallbackFeature = fallbackFeaturesData[slug]
+  const resolution = await resolveFeatureRoute(slug, locale)
+  if (!resolution) notFound()
+
+  const canonicalSlug = canonicalSlugForLocale(resolution.slugs, locale)
+  if (!canonicalSlug) notFound()
+  if (slug !== canonicalSlug) {
+    permanentRedirect(`/${locale}/features/${canonicalSlug}`)
+  }
+
+  const payloadFeature = resolution.document
+  const fallbackKey = resolution.slugs.en || canonicalSlug
+  const fallbackFeature = fallbackFeaturesData[fallbackKey]
+  const richDescription = (payloadFeature as any)?.longDescription
 
   // Merge Payload data with fallback data for missing fields
   const feature = {
@@ -362,18 +392,59 @@ export default async function FeatureDetailPage({
   const dict = await getDictionary(locale as Locale)
   const Icon = iconMap[feature.icon] || Users
 
-  // Get benefits and useCases from fallback (these aren't in Payload schema yet)
-  const benefits = fallbackFeature?.benefits || []
-  const useCases = fallbackFeature?.useCases || []
-  const relatedFeatures = fallbackFeature?.relatedFeatures || []
+  const cmsBenefits = Array.isArray(payloadFeature?.benefits)
+    ? payloadFeature.benefits.map((item: any) => item.text).filter(Boolean)
+    : []
+  const cmsUseCases = Array.isArray(payloadFeature?.useCaseExamples)
+    ? payloadFeature.useCaseExamples.map((item: any) => item.text).filter(Boolean)
+    : []
+  const benefits = cmsBenefits.length > 0 ? cmsBenefits : fallbackFeature?.benefits || []
+  const useCases = cmsUseCases.length > 0 ? cmsUseCases : fallbackFeature?.useCases || []
+  const [sourceFeatures, localizedFeatures] = await Promise.all([
+    getFeatures('en'),
+    getFeatures(locale),
+  ])
+  const localizedFeaturesBySourceSlug = mapDocumentsBySourceSlug(
+    sourceFeatures,
+    localizedFeatures,
+  )
+  const cmsRelatedFeatures = Array.isArray(payloadFeature?.relatedFeatures)
+    ? payloadFeature.relatedFeatures.filter(
+      (related: any) => related && typeof related === 'object' && related.slug,
+    )
+    : []
+  const relatedFeatureCards = cmsRelatedFeatures.length > 0
+    ? cmsRelatedFeatures.map((related: any) => ({
+        icon: related.icon || 'users',
+        key: String(related.id),
+        name: related.name,
+        slug: related.slug,
+      }))
+    : (fallbackFeature?.relatedFeatures || []).flatMap((relatedSlug: string) => {
+        const related = fallbackFeaturesData[relatedSlug]
+        const localizedRelated = localizedFeaturesBySourceSlug.get(relatedSlug)
+        return related && localizedRelated?.slug
+          ? [{
+              icon: related.icon,
+              key: relatedSlug,
+              name: localizedRelated.name || related.name,
+              slug: localizedRelated.slug,
+            }]
+          : []
+      })
 
   return (
     <>
-      <JsonLd data={serviceSchema({ name: feature.name, description: feature.subtitle, slug, locale })} />
+      <JsonLd data={serviceSchema({
+        name: feature.name,
+        description: feature.subtitle,
+        slug: canonicalSlug,
+        locale,
+      })} />
       <JsonLd data={breadcrumbSchema([
         { name: 'Home', url: `/${locale}` },
         { name: 'Features', url: `/${locale}/features` },
-        { name: feature.name, url: `/${locale}/features/${slug}` },
+        { name: feature.name, url: `/${locale}/features/${canonicalSlug}` },
       ])} />
       <section className="relative flex min-h-[60vh] items-center overflow-hidden px-4 pt-24 pb-12">
         <div
@@ -400,10 +471,12 @@ export default async function FeatureDetailPage({
         <div className="mx-auto max-w-5xl">
           <div className="mb-16 grid items-center gap-12 md:grid-cols-2">
             <ScrollReveal>
-              <p className="text-lg leading-relaxed text-text-secondary">{feature.description}</p>
+              {richDescription
+                ? <LexicalRichText data={richDescription} />
+                : <p className="text-lg leading-relaxed text-text-secondary">{feature.description}</p>}
             </ScrollReveal>
             <ScrollReveal delay={200}>
-              <FeatureMockup slug={slug} />
+              <FeatureMockup slug={fallbackKey} />
             </ScrollReveal>
           </div>
 
@@ -443,20 +516,23 @@ export default async function FeatureDetailPage({
             </div>
           )}
 
-          {relatedFeatures.length > 0 && (
+          {relatedFeatureCards.length > 0 && (
             <div className="mb-16">
               <ScrollReveal>
                 <h2 className="mb-8 text-2xl font-bold">Works Great With</h2>
               </ScrollReveal>
               <div className="grid gap-4 sm:grid-cols-3">
-                {relatedFeatures.map((relatedSlug: string) => {
-                  const related = fallbackFeaturesData[relatedSlug]
-                  if (!related) return null
+                {relatedFeatureCards.map((related: {
+                  icon: string
+                  key: string
+                  name: string
+                  slug: string
+                }) => {
                   const RelatedIcon = iconMap[related.icon] || Users
                   return (
-                    <ScrollReveal key={relatedSlug}>
+                    <ScrollReveal key={related.key}>
                       <Link
-                        href={`/${locale}/features/${relatedSlug}`}
+                        href={`/${locale}/features/${related.slug}`}
                         className="group flex flex-col rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
                       >
                         <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">

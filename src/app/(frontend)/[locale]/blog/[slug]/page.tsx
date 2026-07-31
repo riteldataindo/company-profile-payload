@@ -1,8 +1,9 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
-import { notFound } from 'next/navigation'
+import { isValidLocale, locales } from '@/lib/i18n/config'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { blogPostingSchema, breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -12,14 +13,17 @@ import { ComparisonTable, VideoEmbed, InlineImage } from '@/components/blog/Blog
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
+import { LexicalRichText } from '@/components/content/LexicalRichText'
 import {
-  findBlogPostByAnySlug,
-  getBlogPost as getPayloadBlogPost,
   getBlogPosts as getPayloadBlogPosts,
   getMediaUrl,
+  resolveBlogPostRoute,
 } from '@/lib/data'
-import { getBlogPost as getLocalBlogPost, blogPosts } from '@/lib/blog-data'
-import { extractParagraphs } from '@/lib/richtext'
+import { extractRichTextHeadings } from '@/lib/richtext'
+import {
+  canonicalSlugForLocale,
+  localizedSectionPaths,
+} from '@/lib/localized-routes'
 
 export async function generateMetadata({
   params,
@@ -27,9 +31,19 @@ export async function generateMetadata({
   params: Promise<{ slug: string; locale: string }>
 }): Promise<Metadata> {
   const { slug, locale } = await params
-  const payloadPost = await getPayloadBlogPost(slug, locale) || await findBlogPostByAnySlug(slug, locale)
-  const localPost = getLocalBlogPost(slug)
-  const post = payloadPost || localPost
+  if (!isValidLocale(locale)) {
+    return buildMetadata({
+      title: 'Blog Post',
+      description: 'SmartCounter Blog',
+      locale,
+      path: `/blog/${slug}`,
+      ogType: 'article',
+      noIndex: true,
+    })
+  }
+
+  const resolution = await resolveBlogPostRoute(slug, locale)
+  const post = resolution?.document
 
   if (!post) {
     return buildMetadata({
@@ -46,7 +60,9 @@ export async function generateMetadata({
   const seoDesc = meta.description || (post as any).excerpt || ''
   const seoImage = getMediaUrl(meta.image) || getMediaUrl((post as any).featuredImage)
   const authorName = (post as any).author?.name || (post as any).author || ''
-  const canonicalSlug = (post as any).slug || slug
+  const canonicalSlug = resolution
+    ? canonicalSlugForLocale(resolution.slugs, locale) || slug
+    : slug
 
   return buildMetadata({
     title: seoTitle,
@@ -57,33 +73,22 @@ export async function generateMetadata({
     ogImage: seoImage,
     publishedTime: (post as any).publishedAt || (post as any).date || '',
     authors: authorName ? [authorName] : [],
-    noIndex: !payloadPost,
+    alternatePaths: resolution
+      ? localizedSectionPaths('blog', resolution.slugs)
+      : undefined,
   })
 }
 
 export async function generateStaticParams() {
-  const locales = ['en', 'id', 'ko', 'ja', 'zh']
-  try {
-    const params: { locale: string; slug: string }[] = []
-    for (const locale of locales) {
-      const result = await getPayloadBlogPosts({ limit: 100, locale })
-      for (const post of result.docs) {
-        const slug = (post as any).slug
-        if (slug) params.push({ locale, slug })
-      }
+  const params: { locale: string; slug: string }[] = []
+  for (const locale of locales) {
+    const result = await getPayloadBlogPosts({ limit: 100, locale })
+    for (const post of result.docs) {
+      const slug = (post as any).slug
+      if (slug) params.push({ locale, slug })
     }
-    if (params.length === 0) {
-      return locales.flatMap(locale =>
-        blogPosts.map(post => ({ locale, slug: post.slug }))
-      )
-    }
-    return params
-  } catch (error) {
-    console.error('Error generating static params:', error)
-    return locales.flatMap(locale =>
-      blogPosts.map(post => ({ locale, slug: post.slug }))
-    )
   }
+  return params
 }
 
 export default async function BlogPostPage({
@@ -95,23 +100,22 @@ export default async function BlogPostPage({
 
   if (!isValidLocale(locale)) notFound()
 
-  let payloadPost = await getPayloadBlogPost(slug, locale)
-
-  if (!payloadPost) {
-    payloadPost = await findBlogPostByAnySlug(slug, locale)
+  const resolution = await resolveBlogPostRoute(slug, locale)
+  if (!resolution) notFound()
+  const canonicalSlug = canonicalSlugForLocale(resolution.slugs, locale)
+  if (!canonicalSlug) notFound()
+  if (slug !== canonicalSlug) {
+    permanentRedirect(`/${locale}/blog/${canonicalSlug}`)
   }
 
-  const localPost = !payloadPost ? getLocalBlogPost(slug) : null
-  const post = (payloadPost || localPost) as any
-  if (!post) notFound()
+  const post = resolution.document as any
+  const enrichmentSlug = resolution.slugs.en || canonicalSlug
 
   const dict = await getDictionary(locale as Locale)
   const postDate = post.date || post.publishedAt || new Date().toISOString()
   const postAuthor = typeof post.author === 'object' ? post.author?.name : post.author
   const postCategory = typeof post.category === 'string' ? post.category : post.category?.name
-  const contentParagraphs = Array.isArray(post.content)
-    ? post.content
-    : extractParagraphs(post.content)
+  const contentHeadings = extractRichTextHeadings(post.content)
 
   return (
     <>
@@ -121,7 +125,7 @@ export default async function BlogPostPage({
           data={blogPostingSchema({
             title: post.title,
             excerpt: post.excerpt || '',
-            slug: post.slug || slug,
+            slug: canonicalSlug,
             locale,
             author: postAuthor || '',
             datePublished: postDate,
@@ -133,7 +137,7 @@ export default async function BlogPostPage({
           data={breadcrumbSchema([
             { name: 'Home', url: `/${locale}` },
             { name: 'Blog', url: `/${locale}/blog` },
-            { name: post.title, url: `/${locale}/blog/${slug}` },
+            { name: post.title, url: `/${locale}/blog/${canonicalSlug}` },
           ])}
         />
 
@@ -166,13 +170,14 @@ export default async function BlogPostPage({
             </div>
 
             {post.featuredImage?.url || post.meta?.image?.url ? (
-              <div className="aspect-[16/8] rounded-2xl overflow-hidden border border-white/[0.06] mb-10">
-                <img
+              <div className="relative aspect-[16/8] rounded-2xl overflow-hidden border border-white/[0.06] mb-10">
+                <Image
                   src={post.featuredImage?.url || post.meta?.image?.url}
                   alt={post.featuredImage?.alt || post.title}
-                  width={1200} height={630}
-                  className="w-full h-full object-cover"
-                  fetchPriority="high"
+                  className="object-cover"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 768px"
                 />
               </div>
             ) : (
@@ -181,38 +186,16 @@ export default async function BlogPostPage({
               </div>
             )}
 
-            {/* Article Content with Section IDs + Enrichment */}
-            <div className="space-y-5">
-              {contentParagraphs.map((paragraph: string, i: number) => {
-                const matchingSection = (post.sections || [])?.find((s: any) =>
-                  paragraph?.includes(s.title)
-                )
-                const midPoint = Math.floor(contentParagraphs.length / 2)
+            {/* CMS-authored Lexical content */}
+            <LexicalRichText data={post.content} />
 
-                return (
-                  <div key={i}>
-                    {matchingSection ? (
-                      <div id={matchingSection.id}>
-                        <h2 className="text-text-secondary leading-relaxed font-semibold text-lg pt-4">
-                          {paragraph}
-                        </h2>
-                      </div>
-                    ) : (
-                      <p className="text-text-secondary leading-relaxed">
-                        {paragraph}
-                      </p>
-                    )}
-                    {i === midPoint && <InlineImage slug={slug} position="mid" />}
-                  </div>
-                )
-              })}
-            </div>
+            <InlineImage slug={enrichmentSlug} position="mid" />
 
             {/* Comparison Table */}
-            <ComparisonTable slug={slug} />
+            <ComparisonTable slug={enrichmentSlug} />
 
             {/* Inline Image — end of article */}
-            <InlineImage slug={slug} position="end" />
+            <InlineImage slug={enrichmentSlug} position="end" />
 
             {/* Video Embed */}
             <VideoEmbed />
@@ -220,7 +203,7 @@ export default async function BlogPostPage({
             {/* Social Share */}
             <div className="border-t border-white/[0.06] mt-10 pt-8">
               <h3 className="text-sm font-semibold text-text-primary mb-4">{dict.blogDetail.shareArticle}</h3>
-              <SocialShareButtons title={post.title} slug={slug} locale={locale} />
+              <SocialShareButtons title={post.title} slug={canonicalSlug} locale={locale} />
             </div>
 
             {/* Author Bio */}
@@ -241,7 +224,7 @@ export default async function BlogPostPage({
 
             {/* Related Posts */}
             <div className="mt-16">
-              <RelatedPosts currentSlug={slug} locale={locale} />
+              <RelatedPosts currentSlug={canonicalSlug} locale={locale} />
             </div>
 
             {/* Back to Blog */}
@@ -256,7 +239,7 @@ export default async function BlogPostPage({
           </article>
 
           {/* Table of Contents Sidebar */}
-          <TableOfContents post={post} />
+          <TableOfContents headings={contentHeadings} />
         </div>
       </div>
     </>

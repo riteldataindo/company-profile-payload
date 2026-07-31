@@ -27,6 +27,7 @@ export default function DemoPage() {
     const company = form.get('company') as string
     const storeCount = form.get('storeCount') as string
     const message = form.get('message') as string
+    const website = form.get('website') as string
 
     // Client-side validation
     const errs: Record<string, string> = {}
@@ -48,6 +49,7 @@ export default function DemoPage() {
         company,
         storeCount: storeCount || undefined,
         message: message || undefined,
+        website,
       })
 
       if (result.success) {
@@ -113,6 +115,14 @@ export default function DemoPage() {
                 <>
                   <h2 className="text-xl font-bold mb-6">Request Your Free Demo</h2>
                   <form onSubmit={handleSubmit} noValidate>
+                    <input
+                      aria-hidden="true"
+                      autoComplete="off"
+                      className="absolute -left-[10000px]"
+                      name="website"
+                      tabIndex={-1}
+                      type="text"
+                    />
                     {errors.form && <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500 text-sm text-primary-500">{errors.form}</div>}
                     {[
                       { name: 'name', label: 'Full Name', placeholder: 'Your full name', required: true },

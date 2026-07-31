@@ -5,6 +5,7 @@ import {
   isIndexableLocale,
   type IndexableLocale,
 } from '@/lib/i18n/config'
+import { getMediaUrl, getSiteSettings } from '@/lib/data'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
 const SITE_NAME = 'SmartCounter'
@@ -23,7 +24,7 @@ interface MetadataOptions {
   alternatePaths?: Partial<Record<IndexableLocale, string>>
 }
 
-export function buildMetadata({
+export async function buildMetadata({
   title,
   description,
   locale,
@@ -35,18 +36,24 @@ export function buildMetadata({
   authors,
   noIndex = false,
   alternatePaths,
-}: MetadataOptions): Metadata {
+}: MetadataOptions): Promise<Metadata> {
+  const settings = await getSiteSettings(locale)
+  const resolvedOgImage = ogImage || getMediaUrl(settings?.defaultOgImage)
+  const siteName = settings?.siteName || SITE_NAME
   const canonicalPath = path === '' ? `/${locale}` : `/${locale}${path}`
   const canonicalUrl = `${SITE_URL}${canonicalPath}`
 
   const languages: Record<string, string> = {}
   for (const loc of indexableLocales) {
-    const localizedPath = alternatePaths?.[loc] ?? path
+    const localizedPath = alternatePaths ? alternatePaths[loc] : path
+    if (localizedPath === undefined) continue
     const locPath = localizedPath === '' ? `/${loc}` : `/${loc}${localizedPath}`
     languages[loc] = `${SITE_URL}${locPath}`
   }
-  const defaultPath = alternatePaths?.en ?? path
-  languages['x-default'] = `${SITE_URL}/${defaultLocale}${defaultPath}`
+  const defaultPath = alternatePaths ? alternatePaths.en : path
+  if (defaultPath !== undefined) {
+    languages['x-default'] = `${SITE_URL}/${defaultLocale}${defaultPath}`
+  }
   const shouldNoIndex = noIndex || !isIndexableLocale(locale)
 
   return {
@@ -60,10 +67,12 @@ export function buildMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: SITE_NAME,
+      siteName,
       locale,
       type: ogType,
-      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630, alt: title }] }),
+      ...(resolvedOgImage && {
+        images: [{ url: resolvedOgImage, width: 1200, height: 630, alt: title }],
+      }),
       ...(publishedTime && { publishedTime }),
       ...(modifiedTime && { modifiedTime }),
       ...(authors && { authors }),
@@ -72,7 +81,7 @@ export function buildMetadata({
       card: 'summary_large_image',
       title,
       description,
-      ...(ogImage && { images: [ogImage] }),
+      ...(resolvedOgImage && { images: [resolvedOgImage] }),
     },
     ...(shouldNoIndex && {
       robots: {

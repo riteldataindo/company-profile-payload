@@ -1,97 +1,69 @@
 'use server'
 
 import { z } from 'zod'
-import { headers } from 'next/headers'
 import { getPayload } from '@/lib/payload'
 import { sendFormNotificationEmail } from '@/lib/email'
 
-// Simple in-memory rate limiting: Map<IP, timestamp[]>
-const rateLimitMap = new Map<string, number[]>()
 const RATE_LIMIT_MAX = 3
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
 
 const contactFormSchema = z.object({
   formType: z.literal('contact'),
-  name: z.string().min(2, 'Name is required (min 2 characters)'),
-  email: z.string().email('Valid email required'),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  message: z.string().min(10, 'Message is required (min 10 characters)'),
+  name: z.string().min(2, 'Name is required (min 2 characters)').max(120),
+  email: z.string().email('Valid email required').max(254),
+  phone: z.string().max(40).optional(),
+  company: z.string().max(160).optional(),
+  message: z.string().min(10, 'Message is required (min 10 characters)').max(5000),
 })
 
 const demoFormSchema = z.object({
   formType: z.literal('demo'),
-  name: z.string().min(2, 'Name is required'),
-  email: z.string().email('Valid email required'),
-  phone: z.string().min(8, 'Valid WhatsApp number required').regex(/\d/, 'Valid number required'),
-  company: z.string().min(2, 'Company name is required'),
-  storeCount: z.string().optional(),
-  message: z.string().optional(),
+  name: z.string().min(2, 'Name is required').max(120),
+  email: z.string().email('Valid email required').max(254),
+  phone: z.string().min(8, 'Valid WhatsApp number required').max(40).regex(/\d/, 'Valid number required'),
+  company: z.string().min(2, 'Company name is required').max(160),
+  storeCount: z.string().max(40).optional(),
+  message: z.string().max(5000).optional(),
 })
 
 const formSchema = z.discriminatedUnion('formType', [contactFormSchema, demoFormSchema])
 
-type FormData = z.infer<typeof formSchema>
-
-async function getClientIP(): Promise<string> {
-  const headersList = await headers()
-  return (
-    headersList.get('x-forwarded-for')?.split(',')[0].trim() ||
-    headersList.get('x-real-ip') ||
-    'unknown'
-  )
-}
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const windowStart = now - RATE_LIMIT_WINDOW_MS
-
-  const timestamps = rateLimitMap.get(ip) || []
-  const recentTimestamps = timestamps.filter(t => t > windowStart)
-
-  if (recentTimestamps.length >= RATE_LIMIT_MAX) {
-    return false
-  }
-
-  recentTimestamps.push(now)
-  rateLimitMap.set(ip, recentTimestamps)
-
-  // Cleanup old entries periodically (every 100 requests)
-  if (Math.random() < 0.01) {
-    for (const [key, times] of rateLimitMap.entries()) {
-      const filtered = times.filter(t => t > windowStart)
-      if (filtered.length === 0) {
-        rateLimitMap.delete(key)
-      } else {
-        rateLimitMap.set(key, filtered)
-      }
-    }
-  }
-
-  return true
-}
-
 export async function submitForm(data: Record<string, unknown>) {
   try {
-    // Rate limiting
-    const ip = await getClientIP()
-    if (!checkRateLimit(ip)) {
+    // Honeypot responses are intentionally indistinguishable from successful submissions.
+    if (typeof data.website === 'string' && data.website.trim().length > 0) {
+      return { success: true }
+    }
+
+    // Validate before consuming quota so malformed requests cannot exhaust it.
+    const submittedData = { ...data }
+    delete submittedData.website
+    const parsed = formSchema.parse(submittedData)
+
+    const payload = await getPayload()
+    const recentSubmissions = await payload.count({
+      collection: 'form-submissions',
+      where: {
+        and: [
+          { email: { equals: parsed.email.toLocaleLowerCase() } },
+          {
+            createdAt: {
+              greater_than: new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString(),
+            },
+          },
+        ],
+      },
+    })
+    if (recentSubmissions.totalDocs >= RATE_LIMIT_MAX) {
       return {
         success: false,
         error: 'Too many submissions. Please try again later.',
       }
     }
 
-    // Validate input
-    const parsed = formSchema.parse(data)
-
-    // Get Payload instance
-    const payload = await getPayload()
-
-    // Prepare document data
     const docData = {
       formType: parsed.formType,
-      email: parsed.email,
+      email: parsed.email.toLocaleLowerCase(),
       status: 'new' as const,
       data: parsed,
     }

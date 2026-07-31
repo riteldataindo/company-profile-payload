@@ -23,8 +23,25 @@ export const UseCases: CollectionConfig = {
     { name: 'icon', type: 'text', admin: { description: 'Lucide icon name' } },
     { name: 'shortDescription', type: 'textarea', required: true, localized: true },
     { name: 'longDescription', type: 'richText', localized: true },
+    {
+      name: 'challenges',
+      type: 'array',
+      localized: true,
+      fields: [
+        { name: 'text', type: 'text', required: true },
+      ],
+    },
+    {
+      name: 'solutions',
+      type: 'array',
+      localized: true,
+      fields: [
+        { name: 'text', type: 'text', required: true },
+      ],
+    },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'relatedFeatures', type: 'relationship', relationTo: 'features', hasMany: true },
+    { name: 'relatedUseCases', type: 'relationship', relationTo: 'use-cases', hasMany: true },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
     { name: 'isVisible', type: 'checkbox', defaultValue: true },
   ],

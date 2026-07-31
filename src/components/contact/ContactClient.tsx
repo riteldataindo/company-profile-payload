@@ -35,6 +35,7 @@ export function ContactClient({ contactInfo }: ContactClientProps) {
     const message = form.get('message') as string
     const phone = form.get('phone') as string
     const company = form.get('company') as string
+    const website = form.get('website') as string
 
     const errs: Record<string, string> = {}
     if (!name || name.length < 2) errs.name = 'Name is required (min 2 characters)'
@@ -52,6 +53,7 @@ export function ContactClient({ contactInfo }: ContactClientProps) {
         message,
         phone: phone || undefined,
         company: company || undefined,
+        website,
       })
       if (result.success) {
         setSubmitted(true)
@@ -122,6 +124,14 @@ export function ContactClient({ contactInfo }: ContactClientProps) {
                 <>
                   <h2 className="text-xl font-bold mb-6">Send Us a Message</h2>
                   <form onSubmit={handleSubmit} noValidate>
+                    <input
+                      aria-hidden="true"
+                      autoComplete="off"
+                      className="absolute -left-[10000px]"
+                      name="website"
+                      tabIndex={-1}
+                      type="text"
+                    />
                     {errors.form && <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500 text-sm text-primary-500">{errors.form}</div>}
                     <div className="grid sm:grid-cols-2 gap-4 mb-4">
                       <div>

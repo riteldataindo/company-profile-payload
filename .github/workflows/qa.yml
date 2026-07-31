@@ -1,0 +1,70 @@
+name: QA
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: smartcounter_ci
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URI: postgres://postgres:postgres@127.0.0.1:5432/smartcounter_ci
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3014
+      PAYLOAD_SECRET: ci-only-secret-at-least-thirty-two-characters
+      SMOKE_BASE_URL: http://127.0.0.1:3014
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Initialize disposable CI database schema
+        run: |
+          pnpm dev --hostname 127.0.0.1 --port 3013 > /tmp/smartcounter-ci-bootstrap.log 2>&1 &
+          bootstrap_pid=$!
+          trap 'kill "$bootstrap_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent 'http://127.0.0.1:3013/api/features?limit=1' > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent 'http://127.0.0.1:3013/api/features?limit=1' > /dev/null
+          kill "$bootstrap_pid"
+          wait "$bootstrap_pid" 2>/dev/null || true
+      - run: pnpm test
+      - run: pnpm lint
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm audit --prod
+      - run: pnpm build
+      - name: Production route smoke test
+        run: |
+          pnpm start --hostname 127.0.0.1 --port 3014 > /tmp/smartcounter-ci.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3014/en > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          node scripts/smoke-routes.mjs

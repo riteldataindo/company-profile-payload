@@ -23,6 +23,11 @@ import { SiteSettings } from '@/globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const payloadSecret = process.env.PAYLOAD_SECRET
+
+if (!payloadSecret) {
+  throw new Error('PAYLOAD_SECRET is required; refusing to start with an insecure fallback')
+}
 
 export default buildConfig({
   admin: {
@@ -63,7 +68,17 @@ export default buildConfig({
   ],
   globals: [SiteSettings],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || 'default-secret',
+  secret: payloadSecret,
+  upload: {
+    abortOnLimit: true,
+    limits: {
+      fileSize: 10 * 1024 * 1024,
+      files: 1,
+    },
+    preserveExtension: true,
+    responseOnLimit: 'Media files must be 10 MB or smaller',
+    safeFileNames: true,
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

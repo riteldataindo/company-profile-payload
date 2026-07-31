@@ -15,30 +15,6 @@ const staticPaths = [
   '/demo',
 ] as const
 
-const fallbackFeatureSlugs = [
-  'visitor-traffic',
-  'in-out-traffic',
-  'dwell-time',
-  'passers-by',
-  'entering-rate',
-  'group-rate',
-  'demographic',
-  'occupancy',
-  'service-efficiency',
-  'heatmap',
-  'queuing',
-  'in-store-routes',
-]
-
-const fallbackUseCaseSlugs = [
-  'retail',
-  'mall',
-  'fashion',
-  'pharmacy',
-  'supermarket',
-  'luxury',
-]
-
 type SitemapDocument = {
   id: number | string
   slug: string
@@ -147,12 +123,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     blogByLocale[content.locale] = content.blog as SitemapDocument[]
   }
 
-  if (featuresByLocale.en.length === 0 && featuresByLocale.id.length === 0) {
-    featuresByLocale.en = fallbackFeatureSlugs.map((slug) => ({ id: slug, slug }))
-  }
-  if (useCasesByLocale.en.length === 0 && useCasesByLocale.id.length === 0) {
-    useCasesByLocale.en = fallbackUseCaseSlugs.map((slug) => ({ id: slug, slug }))
-  }
   addLocalizedDocuments(entries, featuresByLocale, 'features')
   addLocalizedDocuments(entries, useCasesByLocale, 'use-cases')
   addLocalizedDocuments(entries, blogByLocale, 'blog')

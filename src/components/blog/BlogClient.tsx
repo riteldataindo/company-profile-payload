@@ -1,9 +1,16 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
-import { blogPosts, getCategories } from '@/lib/blog-data'
+import { blogPageHref } from '@/lib/blog-routing'
+
+type BlogCategoryOption = {
+  id?: string | number
+  name: string
+  slug: string
+}
 
 export function BlogClient({
   locale,
@@ -13,68 +20,43 @@ export function BlogClient({
   categories: payloadCategories = [],
   totalPages: payloadTotalPages = 0,
   totalDocs = 0,
+  basePath,
+  heading = 'SmartCounter Blog',
+  subheading = 'Latest insights on people counting, CCTV analytics, and retail intelligence.',
+  showCategories = true,
 }: {
   locale: string
   page: number
   category: string | null
   posts?: any[]
-  categories?: any[]
+  categories?: BlogCategoryOption[]
   totalPages?: number
   totalDocs?: number
+  basePath?: string
+  heading?: string
+  subheading?: string
+  showCategories?: boolean
 }) {
-  const currentPage = Math.max(1, page)
+  const currentPage = page
   const selectedCategory = category
-
-  // Use Payload data if available, fall back to hardcoded data
-  const usesPayload = posts.length > 0
-  const displayPosts = usesPayload ? posts : blogPosts
-  const displayCategories = usesPayload
-    ? ['All', ...payloadCategories.map((c: any) => c.name)]
-    : ['All', ...getCategories()]
-  const displayTotalPages = usesPayload ? payloadTotalPages : Math.ceil(displayPosts.length / 6)
-
-  const filteredPosts =
-    selectedCategory === 'All' || selectedCategory === null
-      ? displayPosts
-      : displayPosts.filter((p: any) => {
-          const postCategory = p.category?.name || p.category
-          return postCategory === selectedCategory
-        })
-
-  const featuredPost = displayPosts.find((p: any) => p.featured || p.isFeatured)
-  const regularPosts = usesPayload
-    ? filteredPosts
-    : filteredPosts.filter((p: any) => !p.featured || selectedCategory)
-
-  const totalPages = usesPayload ? displayTotalPages : Math.ceil(regularPosts.length / 6)
-  const paginatedPosts = usesPayload ? regularPosts : regularPosts.slice(0, 6)
-
-  const getCategoryUrl = (cat: string | null) => {
-    const params = new URLSearchParams()
-    if (cat && cat !== 'All') params.set('category', cat)
-    params.set('page', '1')
-    const queryString = params.toString()
-    return queryString ? `?${queryString}` : '?page=1'
-  }
-
-  const getPageUrl = (p: number) => {
-    const params = new URLSearchParams()
-    if (selectedCategory) params.set('category', selectedCategory)
-    params.set('page', p.toString())
-    return `?${params.toString()}`
-  }
+  const resolvedBasePath = basePath || `/${locale}/blog`
+  const featuredPost = !selectedCategory
+    ? posts.find((post: any) => post.featured || post.isFeatured)
+    : null
+  const totalPages = payloadTotalPages
+  const paginatedPosts = posts
 
   return (
     <>
       <div className="mb-16 text-center px-4">
         <ScrollReveal>
           <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl">
-            SmartCounter Blog
+            {heading}
           </h1>
         </ScrollReveal>
         <ScrollReveal delay={100}>
           <p className="mx-auto max-w-2xl text-lg text-text-secondary">
-            Latest insights on people counting, CCTV analytics, and retail intelligence.
+            {subheading}
           </p>
         </ScrollReveal>
       </div>
@@ -88,9 +70,21 @@ export function BlogClient({
             >
               <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-500/20 to-primary-500/5">
                 {featuredPost.featuredImage?.url ? (
-                  <img src={featuredPost.featuredImage.url} alt={featuredPost.featuredImage.alt || featuredPost.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <Image
+                    alt={featuredPost.featuredImage.alt || featuredPost.title}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    src={featuredPost.featuredImage.url}
+                  />
                 ) : featuredPost.meta?.image?.url ? (
-                  <img src={featuredPost.meta.image.url} alt={featuredPost.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <Image
+                    alt={featuredPost.title}
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 1200px"
+                    src={featuredPost.meta.image.url}
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-center px-8">
                     <div>
@@ -103,15 +97,15 @@ export function BlogClient({
               <div className="flex flex-col border border-t-0 border-white/[0.06] bg-bg-card/60 p-6 backdrop-blur-xl">
                 <div className="mb-3 flex items-center gap-4 text-sm text-text-secondary">
                   <span className="inline-block rounded-full bg-primary-500/10 px-3 py-1 font-semibold text-primary-400">
-                    {featuredPost.category}
+                    {featuredPost.category?.name || featuredPost.category || 'Article'}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Calendar size={14} /> {new Date(featuredPost.date).toLocaleDateString()}
+                  <Calendar size={14} /> {new Date(featuredPost.publishedAt || featuredPost.date).toLocaleDateString()}
                   </span>
                   <span>{featuredPost.readTime} min read</span>
                 </div>
                 <p className="text-sm text-text-muted flex items-center gap-1">
-                  <User size={14} /> By {featuredPost.author}
+                  <User size={14} /> By {typeof featuredPost.author === 'object' ? featuredPost.author?.name : featuredPost.author}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary-500 opacity-0 transition-all duration-200 group-hover:opacity-100">
                   Read Article <ArrowRight size={14} />
@@ -122,22 +116,44 @@ export function BlogClient({
         </div>
       )}
 
+      {showCategories && (
       <div className="mb-12 flex flex-wrap gap-2 px-4">
-        {displayCategories.map((cat: string) => (
+        <Link
+          href={`/${locale}/blog`}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-250 ${
+            selectedCategory === null
+              ? 'bg-primary-600 text-white'
+              : 'border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20'
+          }`}
+        >
+          All
+        </Link>
+        {payloadCategories.map((categoryOption) => (
           <Link
-            key={cat}
-            href={`/${locale}/blog${getCategoryUrl(cat === 'All' ? null : cat)}`}
+            key={categoryOption.id || categoryOption.slug}
+            href={`/${locale}/blog/category/${categoryOption.slug}`}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-250 ${
-              (selectedCategory === null && cat === 'All') || selectedCategory === cat
+              selectedCategory === categoryOption.slug
                 ? 'bg-primary-600 text-white'
                 : 'border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20'
             }`}
           >
-            {cat}
+            {categoryOption.name}
           </Link>
         ))}
       </div>
+      )}
 
+      {paginatedPosts.length === 0 ? (
+        <div className="mx-4 mb-16 rounded-2xl border border-white/[0.06] bg-bg-card/60 px-6 py-14 text-center backdrop-blur-xl">
+          <h2 className="mb-2 text-xl font-semibold">No articles found</h2>
+          <p className="text-sm text-text-secondary">
+            {selectedCategory
+              ? 'There are no published articles in this category yet.'
+              : 'There are no published articles yet.'}
+          </p>
+        </div>
+      ) : (
       <div className="px-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
         {paginatedPosts.map((post: any, i: number) => {
           const postCategory = post.category?.name || post.category
@@ -151,9 +167,21 @@ export function BlogClient({
               >
                 <div className="relative aspect-video overflow-hidden bg-bg-elevated transition-colors group-hover:bg-bg-card">
                   {post.featuredImage?.url ? (
-                    <img src={post.featuredImage.url} alt={post.featuredImage.alt || post.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <Image
+                      alt={post.featuredImage.alt || post.title}
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      src={post.featuredImage.url}
+                    />
                   ) : post.meta?.image?.url ? (
-                    <img src={post.meta.image.url} alt={post.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <Image
+                      alt={post.title}
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      src={post.meta.image.url}
+                    />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/15 text-primary-400 text-lg">B</div>
@@ -166,7 +194,7 @@ export function BlogClient({
                   </span>
                   <h3 className="mb-2 line-clamp-2 text-base font-semibold">{post.title}</h3>
                   <p className="mb-3 flex-1 line-clamp-2 text-sm leading-relaxed text-text-secondary">
-                    {post.excerpt || post.excerpt}
+                    {post.excerpt}
                   </p>
                   <div className="mb-3 text-xs text-text-muted">
                     <div className="flex items-center gap-1 mb-1">
@@ -187,6 +215,7 @@ export function BlogClient({
           )
         })}
       </div>
+      )}
 
       {totalPages > 1 && (
         <div className="px-4 flex items-center justify-between">
@@ -196,7 +225,7 @@ export function BlogClient({
           <div className="flex gap-2">
             {currentPage > 1 && (
               <Link
-                href={`/${locale}/blog${getPageUrl(currentPage - 1)}`}
+                href={blogPageHref(resolvedBasePath, currentPage - 1)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20 transition-all"
               >
                 <ChevronLeft size={16} />
@@ -205,7 +234,7 @@ export function BlogClient({
             )}
             {currentPage < totalPages && (
               <Link
-                href={`/${locale}/blog${getPageUrl(currentPage + 1)}`}
+                href={blogPageHref(resolvedBasePath, currentPage + 1)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20 transition-all"
               >
                 <span className="text-sm font-medium">Next</span>

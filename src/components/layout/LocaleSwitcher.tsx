@@ -27,10 +27,22 @@ export function LocaleSwitcher({ locale }: { locale: string }) {
   }, [])
 
   function switchLocale(target: string) {
+    const alternate = document.querySelector<HTMLLinkElement>(
+      `link[rel="alternate"][hreflang="${target}"]`,
+    )
+    if (alternate) {
+      const alternateUrl = new URL(alternate.href, window.location.origin)
+      if (alternateUrl.origin === window.location.origin) {
+        document.cookie = `preferred-locale=${target};path=/;max-age=31536000;samesite=lax`
+        window.location.href = `${alternateUrl.pathname}${alternateUrl.search}${alternateUrl.hash}`
+        return
+      }
+    }
+
     const segments = pathname.split('/')
     segments[1] = target
     const newPath = segments.join('/')
-    document.cookie = `preferred-locale=${target};path=/;max-age=31536000`
+    document.cookie = `preferred-locale=${target};path=/;max-age=31536000;samesite=lax`
     window.location.href = newPath
   }
 

@@ -1,7 +1,7 @@
 import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/getDictionary'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema } from '@/lib/seo/jsonld'
@@ -19,7 +19,13 @@ import {
 import { ScrollReveal } from '@/components/sections/ScrollReveal'
 import type { ComponentType } from 'react'
 import { extractText } from '@/lib/richtext'
-import { getMediaUrl, getUseCase, getUseCases } from '@/lib/data'
+import { LexicalRichText } from '@/components/content/LexicalRichText'
+import { getMediaUrl, getUseCases, resolveUseCaseRoute } from '@/lib/data'
+import {
+  canonicalSlugForLocale,
+  localizedSectionPaths,
+  mapDocumentsBySourceSlug,
+} from '@/lib/localized-routes'
 
 const iconMap: Record<string, ComponentType<{ size?: number }>> = {
   'shopping-bag': ShoppingBag,
@@ -183,12 +189,7 @@ export async function generateStaticParams() {
 
   for (const locale of locales) {
     const cmsUseCases = await getUseCases(locale)
-    const slugs = new Set([
-      ...Object.keys(useCasesData),
-      ...cmsUseCases.map((useCase) => useCase.slug).filter(Boolean),
-    ])
-
-    for (const slug of slugs) {
+    for (const slug of cmsUseCases.map((useCase) => useCase.slug).filter(Boolean)) {
       params.push({ locale, slug })
     }
   }
@@ -200,18 +201,37 @@ export async function generateMetadata(
   { params }: { params: Promise<{ slug: string; locale: string }> },
 ): Promise<Metadata> {
   const { slug, locale } = await params
-  const payloadUseCase = await getUseCase(slug, locale)
-  const fallbackUseCase = useCasesData[slug]
+  if (!isValidLocale(locale)) {
+    return buildMetadata({
+      title: 'Use Case',
+      description: 'Learn how SmartCounter helps retailers',
+      locale,
+      path: `/use-cases/${slug}`,
+      noIndex: true,
+    })
+  }
+
+  const resolution = await resolveUseCaseRoute(slug, locale)
+  const payloadUseCase = resolution?.document
+  const fallbackKey = resolution?.slugs.en || slug
+  const fallbackUseCase = useCasesData[fallbackKey]
   const meta = payloadUseCase?.meta
   const name = payloadUseCase?.industryName || fallbackUseCase?.name || 'Use Case'
   const description = payloadUseCase?.shortDescription || fallbackUseCase?.subtitle || 'Learn how SmartCounter helps retailers'
+  const canonicalSlug = resolution
+    ? canonicalSlugForLocale(resolution.slugs, locale) || slug
+    : slug
 
   return buildMetadata({
     title: meta?.title || `${name} — SmartCounter CCTV Analytics`,
     description: meta?.description || description,
     locale,
-    path: `/use-cases/${slug}`,
+    path: `/use-cases/${canonicalSlug}`,
     ogImage: getMediaUrl(meta?.image) || getMediaUrl(payloadUseCase?.image),
+    noIndex: !resolution,
+    alternatePaths: resolution
+      ? localizedSectionPaths('use-cases', resolution.slugs)
+      : undefined,
   })
 }
 
@@ -223,9 +243,25 @@ export default async function UseCaseDetailPage({
   const { slug, locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const payloadUseCase = await getUseCase(slug, locale)
-  const fallbackUseCase = useCasesData[slug]
-  if (!payloadUseCase && !fallbackUseCase) notFound()
+  const resolution = await resolveUseCaseRoute(slug, locale)
+  if (!resolution) notFound()
+
+  const canonicalSlug = canonicalSlugForLocale(resolution.slugs, locale)
+  if (!canonicalSlug) notFound()
+  if (slug !== canonicalSlug) {
+    permanentRedirect(`/${locale}/use-cases/${canonicalSlug}`)
+  }
+
+  const payloadUseCase = resolution.document
+  const fallbackKey = resolution.slugs.en || canonicalSlug
+  const fallbackUseCase = useCasesData[fallbackKey]
+  const richDescription = payloadUseCase?.longDescription
+  const cmsChallenges = Array.isArray(payloadUseCase?.challenges)
+    ? payloadUseCase.challenges.map((item: any) => item.text).filter(Boolean)
+    : []
+  const cmsSolutions = Array.isArray(payloadUseCase?.solutions)
+    ? payloadUseCase.solutions.map((item: any) => item.text).filter(Boolean)
+    : []
 
   const useCase = {
     ...fallbackUseCase,
@@ -234,11 +270,46 @@ export default async function UseCaseDetailPage({
     title: payloadUseCase?.industryName || fallbackUseCase?.title || 'Retail Analytics',
     subtitle: payloadUseCase?.shortDescription || fallbackUseCase?.subtitle || '',
     description: extractText(payloadUseCase?.longDescription) || fallbackUseCase?.description || '',
-    challenges: fallbackUseCase?.challenges || [],
-    solutions: fallbackUseCase?.solutions || [],
-    features: fallbackUseCase?.features || [],
-    relatedUseCases: fallbackUseCase?.relatedUseCases || [],
+    challenges: cmsChallenges.length > 0 ? cmsChallenges : fallbackUseCase?.challenges || [],
+    solutions: cmsSolutions.length > 0 ? cmsSolutions : fallbackUseCase?.solutions || [],
   }
+  const relatedFeatures = Array.isArray(payloadUseCase?.relatedFeatures)
+    ? payloadUseCase.relatedFeatures.filter(
+      (feature: any) => feature && typeof feature === 'object' && feature.slug,
+    )
+    : []
+  const [sourceUseCases, localizedUseCases] = await Promise.all([
+    getUseCases('en'),
+    getUseCases(locale),
+  ])
+  const localizedUseCasesBySourceSlug = mapDocumentsBySourceSlug(
+    sourceUseCases,
+    localizedUseCases,
+  )
+  const cmsRelatedUseCases = Array.isArray(payloadUseCase?.relatedUseCases)
+    ? payloadUseCase.relatedUseCases.filter(
+      (related: any) => related && typeof related === 'object' && related.slug,
+    )
+    : []
+  const relatedUseCaseCards = cmsRelatedUseCases.length > 0
+    ? cmsRelatedUseCases.map((related: any) => ({
+        icon: related.icon || 'shopping-bag',
+        key: String(related.id),
+        name: related.industryName,
+        slug: related.slug,
+      }))
+    : (fallbackUseCase?.relatedUseCases || []).flatMap((relatedSlug) => {
+        const related = useCasesData[relatedSlug]
+        const localizedRelated = localizedUseCasesBySourceSlug.get(relatedSlug)
+        return related && localizedRelated?.slug
+          ? [{
+              icon: related.icon,
+              key: relatedSlug,
+              name: localizedRelated.industryName || related.name,
+              slug: localizedRelated.slug,
+            }]
+          : []
+      })
 
   const dict = await getDictionary(locale as Locale)
   const Icon = iconMap[useCase.icon] || ShoppingBag
@@ -248,7 +319,7 @@ export default async function UseCaseDetailPage({
       <JsonLd data={breadcrumbSchema([
         { name: 'Home', url: `/${locale}` },
         { name: 'Use Cases', url: `/${locale}/use-cases` },
-        { name: useCase.name, url: `/${locale}/use-cases/${slug}` },
+        { name: useCase.name, url: `/${locale}/use-cases/${canonicalSlug}` },
       ])} />
       {/* Hero Section */}
       <section className="relative flex min-h-[60vh] items-center overflow-hidden px-4 pt-24 pb-12">
@@ -277,7 +348,9 @@ export default async function UseCaseDetailPage({
         <div className="mx-auto max-w-4xl">
           {/* Overview */}
           <ScrollReveal>
-            <p className="mb-12 text-lg leading-relaxed text-text-secondary">{useCase.description}</p>
+            {richDescription
+              ? <LexicalRichText data={richDescription} className="mb-12" />
+              : <p className="mb-12 text-lg leading-relaxed text-text-secondary">{useCase.description}</p>}
           </ScrollReveal>
 
           {/* Challenges */}
@@ -286,7 +359,7 @@ export default async function UseCaseDetailPage({
               <h2 className="mb-8 text-2xl font-bold">The Challenge</h2>
             </ScrollReveal>
             <div className="space-y-3">
-              {useCase.challenges.map((challenge, i) => (
+              {useCase.challenges.map((challenge: string, i: number) => (
                 <ScrollReveal key={i} delay={i * 50}>
                   <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-4">
                     <div className="mt-1 h-2 w-2 rounded-full bg-red-500 flex-shrink-0" />
@@ -303,7 +376,7 @@ export default async function UseCaseDetailPage({
               <h2 className="mb-8 text-2xl font-bold">The SmartCounter Solution</h2>
             </ScrollReveal>
             <div className="space-y-3">
-              {useCase.solutions.map((solution, i) => (
+              {useCase.solutions.map((solution: string, i: number) => (
                 <ScrollReveal key={i} delay={i * 50}>
                   <div className="flex items-start gap-3 rounded-lg border border-primary-500/20 bg-primary-500/5 p-4">
                     <div className="mt-1 h-2 w-2 rounded-full bg-primary-500 flex-shrink-0" />
@@ -314,21 +387,52 @@ export default async function UseCaseDetailPage({
             </div>
           </div>}
 
+          {relatedFeatures.length > 0 && (
+            <div className="mb-16">
+              <ScrollReveal>
+                <h2 className="mb-8 text-2xl font-bold">Recommended Analytics</h2>
+              </ScrollReveal>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {relatedFeatures.map((relatedFeature: any) => (
+                  <ScrollReveal key={relatedFeature.id}>
+                    <Link
+                      href={`/${locale}/features/${relatedFeature.slug}`}
+                      className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-bg-card/60 p-4 backdrop-blur-xl transition-all duration-250 hover:-translate-y-1 hover:border-primary-500/20"
+                    >
+                      <div>
+                        <h4 className="text-sm font-semibold">{relatedFeature.name}</h4>
+                        {relatedFeature.shortDescription && (
+                          <p className="mt-1 line-clamp-2 text-xs text-text-secondary">
+                            {relatedFeature.shortDescription}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowRight size={16} className="shrink-0 text-primary-500" />
+                    </Link>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Related Use Cases */}
-          {useCase.relatedUseCases.length > 0 && (
+          {relatedUseCaseCards.length > 0 && (
             <div className="mb-16">
               <ScrollReveal>
                 <h2 className="mb-8 text-2xl font-bold">Similar Use Cases</h2>
               </ScrollReveal>
               <div className="grid gap-4 sm:grid-cols-2">
-                {useCase.relatedUseCases.map((relatedSlug) => {
-                  const related = useCasesData[relatedSlug]
-                  if (!related) return null
+                {relatedUseCaseCards.map((related: {
+                  icon: string
+                  key: string
+                  name: string
+                  slug: string
+                }) => {
                   const RelatedIcon = iconMap[related.icon] || ShoppingBag
                   return (
-                    <ScrollReveal key={relatedSlug}>
+                    <ScrollReveal key={related.key}>
                       <Link
-                        href={`/${locale}/use-cases/${relatedSlug}`}
+                        href={`/${locale}/use-cases/${related.slug}`}
                         className="group flex flex-col overflow-hidden rounded-xl transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
                       >
                         <div className="flex aspect-video items-center justify-center bg-bg-elevated transition-colors group-hover:bg-bg-card">
