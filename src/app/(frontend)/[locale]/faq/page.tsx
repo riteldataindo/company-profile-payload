@@ -1,137 +1,13 @@
-import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
-import { getDictionary } from '@/lib/i18n/getDictionary'
-import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo/metadata'
-import { JsonLd } from '@/components/seo/JsonLd'
-import { breadcrumbSchema } from '@/lib/seo/jsonld'
-import { getFaqItems } from '@/lib/data'
+import { notFound } from 'next/navigation'
 import { FaqClient } from '@/components/faq/FaqClient'
-import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { getFaqItems } from '@/lib/data'
 import { extractText } from '@/lib/richtext'
-
-const fallbackFaqData = [
-  {
-    category: 'General',
-    items: [
-      {
-        q: 'What is SmartCounter?',
-        a: 'SmartCounter is an AI-powered people counting system that uses CCTV cameras to provide real-time visitor analytics, heatmaps, demographics, and conversion rate tracking for retail stores, shopping malls, and other retail environments.',
-      },
-      {
-        q: 'How is counting performance evaluated?',
-        a: 'Counting performance depends on camera position, lighting, entrance layout, and scene conditions. The deployment team reviews these conditions and should validate results against a representative manual sample.',
-      },
-      {
-        q: 'Do you collect personal data (PII)?',
-        a: 'SmartCounter is designed to produce aggregate visitor analytics. Data handling and retention requirements should be confirmed for each deployment and documented in the applicable agreement.',
-      },
-      {
-        q: 'How many locations can I track with SmartCounter?',
-        a: 'SmartCounter supports both single-location and multi-location reporting. The practical scope depends on the selected package and deployment architecture.',
-      },
-    ],
-  },
-  {
-    category: 'Installation',
-    items: [
-      {
-        q: 'What hardware do I need?',
-        a: 'Compatibility depends on the camera stream, resolution, placement, network, and required analytics. The team assesses the existing setup before confirming a deployment design.',
-      },
-      {
-        q: 'How long does installation take?',
-        a: 'Installation time depends on store size, entrance count, camera readiness, network access, and calibration requirements. A timeline is provided after assessment.',
-      },
-      {
-        q: 'Do I need internet for SmartCounter?',
-        a: 'Network requirements depend on the agreed deployment architecture and dashboard access requirements. They are reviewed during the technical assessment.',
-      },
-      {
-        q: 'What if I have an older CCTV system?',
-        a: 'Older systems may still be usable if they provide a compatible, stable video stream. Camera and recorder compatibility must be checked before deployment.',
-      },
-    ],
-  },
-  {
-    category: 'Analytics',
-    items: [
-      {
-        q: 'How real-time is the data?',
-        a: 'Update frequency depends on the analytic, processing architecture, and network conditions. The expected interval is documented for the selected deployment.',
-      },
-      {
-        q: 'How far back is historical data available?',
-        a: 'Historical retention depends on the package and the data-retention terms agreed for the deployment.',
-      },
-      {
-        q: 'Can I export data?',
-        a: 'Export, scheduled reporting, and integration options depend on the selected package. Confirm the required format during the demo.',
-      },
-      {
-        q: 'How do you calculate conversion rate?',
-        a: 'Conversion rate is calculated by connecting CCTV people count data with your POS system transaction data: (Total Transactions / Total Visitors) × 100. No POS connection required for basic analytics.',
-      },
-    ],
-  },
-  {
-    category: 'Pricing',
-    items: [
-      {
-        q: 'What is the cost of SmartCounter?',
-        a: 'Pricing depends on the package, analytics scope, camera requirements, and number of locations. Contact the team for a deployment-specific quote.',
-      },
-      {
-        q: 'Are there setup fees?',
-        a: 'Setup, hardware, subscription, and support terms are listed in the commercial proposal for the deployment.',
-      },
-      {
-        q: 'Can I pay monthly or annually?',
-        a: 'Available billing terms are provided in the current commercial proposal.',
-      },
-      {
-        q: 'What if I want to cancel?',
-        a: 'Cancellation and renewal terms follow the signed service agreement.',
-      },
-    ],
-  },
-  {
-    category: 'Technical',
-    items: [
-      {
-        q: 'What if my store has poor lighting?',
-        a: 'Poor or changing lighting can affect computer-vision performance. Camera placement, exposure, and scene lighting are reviewed during assessment and calibration.',
-      },
-      {
-        q: 'How many entrances can I monitor?',
-        a: 'Multiple entrances can be configured and aggregated. The supported scope depends on the deployment design and package.',
-      },
-      {
-        q: 'What happens if my internet goes down?',
-        a: 'Offline behavior depends on whether processing is local, cloud-based, or hybrid. Recovery and synchronization behavior is documented for the selected architecture.',
-      },
-      {
-        q: 'How secure is my data?',
-        a: 'Security controls, hosting, access, retention, and deletion requirements should be reviewed during technical scoping and recorded in the applicable agreement.',
-      },
-    ],
-  },
-]
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}): Promise<Metadata> {
-  const { locale } = await params
-  return buildMetadata({
-    title: 'FAQ — SmartCounter CCTV Analytics Questions',
-    description: 'Frequently asked questions about SmartCounter people counting, installation, analytics, pricing, and technical details.',
-    locale,
-    path: '/faq',
-  })
-}
+import { isValidLocale } from '@/lib/i18n/config'
+import { getTrustFaq } from '@/lib/i18n/trust-copy'
+import { breadcrumbSchema } from '@/lib/seo/jsonld'
+import { buildMetadata } from '@/lib/seo/metadata'
 
 interface FaqItem {
   question: string
@@ -143,6 +19,74 @@ interface FaqCategory {
   items: FaqItem[]
 }
 
+const percentagePattern = new RegExp(`[0-9]+\\s*${String.fromCharCode(37)}`)
+
+function toFaqText(value: unknown): string {
+  return (typeof value === 'string' ? value : extractText(value)).trim()
+}
+
+function isUsableFaqItem(item: unknown): item is Record<string, unknown> {
+  if (!item || typeof item !== 'object') return false
+
+  const record = item as Record<string, unknown>
+  const question = toFaqText(record.question)
+  const answer = toFaqText(record.answer)
+  if (!question || !answer) return false
+
+  const text = `${question} ${answer}`
+  return !/placeholder|test fixture|guarantee|guaranteed|absolutely|always|never|1[-–]2\s+business\s+days|immediately/i.test(text)
+    && !percentagePattern.test(text)
+}
+
+function fallbackFaq(locale: string): FaqCategory[] {
+  const groups = new Map<string, FaqItem[]>()
+
+  for (const item of getTrustFaq(locale)) {
+    const items = groups.get(item.category) || []
+    items.push({ question: item.question, answer: item.answer })
+    groups.set(item.category, items)
+  }
+
+  return Array.from(groups, ([category, items]) => ({ category, items }))
+}
+
+function payloadFaq(locale: string, records: unknown[]): FaqCategory[] {
+  const grouped = new Map<string, FaqItem[]>()
+
+  for (const record of records) {
+    if (!isUsableFaqItem(record)) continue
+
+    const categoryValue = toFaqText(record.category)
+    const category = categoryValue || (locale === 'id' ? 'Umum' : 'General')
+    const items = grouped.get(category) || []
+    items.push({
+      question: toFaqText(record.question),
+      answer: toFaqText(record.answer),
+    })
+    grouped.set(category, items)
+  }
+
+  return Array.from(grouped, ([category, items]) => ({ category, items }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const isId = locale === 'id'
+
+  return buildMetadata({
+    title: isId ? 'FAQ — Pertanyaan evaluasi SmartCounter' : 'FAQ — SmartCounter evaluation questions',
+    description: isId
+      ? 'Jawaban hati-hati tentang validasi, kompatibilitas, deployment, integrasi, privasi, dan dukungan SmartCounter.'
+      : 'Cautious answers about SmartCounter validation, compatibility, deployment, integration, privacy, and support.',
+    locale,
+    path: '/faq',
+  })
+}
+
 export default async function FaqPage({
   params,
 }: {
@@ -151,61 +95,49 @@ export default async function FaqPage({
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const dict = await getDictionary(locale as Locale)
-  const payloadFaqItems = await getFaqItems(locale)
-
-  // Group Payload items by category, or use fallback
-  let faqData: FaqCategory[] = []
-
-  if (payloadFaqItems.length > 0) {
-    const grouped = payloadFaqItems.reduce((acc: Record<string, FaqItem[]>, item: any) => {
-      const category = item.category || 'General'
-      if (!acc[category]) acc[category] = []
-      acc[category].push({
-        question: typeof item.question === 'string' ? item.question : extractText(item.question),
-        answer: typeof item.answer === 'string' ? item.answer : extractText(item.answer),
-      })
-      return acc
-    }, {})
-
-    faqData = Object.entries(grouped).map(([category, items]) => ({
-      category,
-      items,
-    }))
-  } else {
-    // Convert fallback format to match FaqCategory interface
-    faqData = (fallbackFaqData as any[]).map((cat: any) => ({
-      category: cat.category,
-      items: cat.items.map((item: any) => ({
-        question: item.q,
-        answer: item.a,
-      })),
-    }))
-  }
+  const payloadItems = await getFaqItems(locale)
+  const configuredFaq = payloadFaq(locale, payloadItems)
+  const faqData = configuredFaq.length > 0 ? configuredFaq : fallbackFaq(locale)
+  const isId = locale === 'id'
 
   return (
-    <section className="px-4 py-20 md:py-32">
+    <section className="px-4 pt-28 pb-16 md:pt-32 md:pb-24">
       <JsonLd data={breadcrumbSchema([
         { name: 'Home', url: `/${locale}` },
         { name: 'FAQ', url: `/${locale}/faq` },
       ])} />
       <div className="mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <ScrollReveal>
-            <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl">
-              {dict.faq.title}
-            </h1>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="mx-auto max-w-2xl text-lg text-text-secondary">
-              Find answers to common questions about SmartCounter people counting and CCTV analytics.
-            </p>
-          </ScrollReveal>
-        </div>
+        <header className="max-w-3xl">
+          <p className="mb-4 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">
+            FAQ
+          </p>
+          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+            {isId ? 'Jawaban untuk evaluasi SmartCounter' : 'Answers for your SmartCounter evaluation'}
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-text-secondary">
+            {isId
+              ? 'Mulai dari validasi dan kompatibilitas, lalu tinjau batas deployment serta data sebelum meminta diskusi site-fit.'
+              : 'Start with validation and compatibility, then review deployment and data boundaries before requesting a site-fit discussion.'}
+          </p>
+          <nav className="mt-6 flex flex-wrap gap-4 text-sm font-semibold" aria-label={isId ? 'Tautan ke informasi kepercayaan' : 'Trust information links'}>
+            <a
+              href={`/${locale}/deployment`}
+              className="text-primary-600 underline decoration-primary-600/40 underline-offset-4 hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+            >
+              {isId ? 'Baca Deployment' : 'Read Deployment'}
+            </a>
+            <a
+              href={`/${locale}/privacy`}
+              className="text-primary-600 underline decoration-primary-600/40 underline-offset-4 hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+            >
+              {isId ? 'Baca Privasi' : 'Read Privacy'}
+            </a>
+          </nav>
+        </header>
 
-        {/* Client Component */}
-        <FaqClient faqData={faqData} locale={locale} />
+        <div className="mt-12">
+          <FaqClient faqData={faqData} locale={locale} />
+        </div>
       </div>
     </section>
   )

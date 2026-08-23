@@ -77,6 +77,7 @@ export interface Config {
     'deployment-locations': DeploymentLocation;
     'client-logos': ClientLogo;
     media: Media;
+    claims: Claim;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -95,6 +96,7 @@ export interface Config {
     'deployment-locations': DeploymentLocationsSelect<false> | DeploymentLocationsSelect<true>;
     'client-logos': ClientLogosSelect<false> | ClientLogosSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    claims: ClaimsSelect<false> | ClaimsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -104,19 +106,14 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale:
-    | ('false' | 'none' | 'null')
-    | false
-    | null
-    | ('en' | 'id' | 'ko' | 'ja' | 'zh')
-    | ('en' | 'id' | 'ko' | 'ja' | 'zh')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'id') | ('en' | 'id')[];
   globals: {
     'site-settings': SiteSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
-  locale: 'en' | 'id' | 'ko' | 'ja' | 'zh';
+  locale: 'en' | 'id';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -182,6 +179,10 @@ export interface BlogPost {
   publishedAt?: string | null;
   readingTime?: number | null;
   status?: ('draft' | 'published') | null;
+  /**
+   * Required with Published status before public rendering/indexing.
+   */
+  isVisible?: boolean | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -201,6 +202,19 @@ export interface Media {
   id: number;
   alt: string;
   caption?: string | null;
+  provenanceStatus: 'unreviewed' | 'real-redacted' | 'real-public' | 'illustrative-sample' | 'conceptual';
+  source?: string | null;
+  owner?: string | null;
+  capturedAt?: string | null;
+  permissionStatus: 'unreviewed' | 'approved' | 'restricted' | 'expired';
+  approvedLocales?: ('en' | 'id')[] | null;
+  approvedRoutes?:
+    | {
+        route: string;
+        id?: string | null;
+      }[]
+    | null;
+  reviewAt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -256,6 +270,10 @@ export interface BlogCategory {
   name: string;
   slug: string;
   description?: string | null;
+  /**
+   * Required before this category can render publicly.
+   */
+  isVisible?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -294,6 +312,10 @@ export interface User {
  */
 export interface Feature {
   id: number;
+  /**
+   * Locale-independent capability identifier.
+   */
+  stableId: string;
   name: string;
   slug: string;
   /**
@@ -330,6 +352,39 @@ export interface Feature {
     | null;
   relatedFeatures?: (number | Feature)[] | null;
   image?: (number | null) | Media;
+  productTruth: {
+    solutionType: 'shared' | 'retail' | 'mall';
+    publicAvailability: 'available' | 'deployment-dependent' | 'pilot' | 'roadmap' | 'not-public';
+    commercialEntitlement: 'core' | 'add-on' | 'proposal' | 'not-public';
+    requirements?: {
+      cctv?: boolean | null;
+      sensor?: boolean | null;
+      gpu?: boolean | null;
+      pos?: boolean | null;
+      floorPlan?: boolean | null;
+      network?: boolean | null;
+      other?: string | null;
+    };
+    inputAndPrerequisites?: string | null;
+    outputDefinition?: string | null;
+    unitAndTimeWindow?: string | null;
+    updateBehavior?: string | null;
+    measurementScope?: string | null;
+    retailMeaning?: string | null;
+    mallMeaning?: string | null;
+    decisionSupported?: string | null;
+    limitationsAndValidation?: string | null;
+  };
+  evidence: {
+    mediaStatus: 'real-redacted' | 'illustrative-sample' | 'conceptual-flow' | 'none';
+    owner?: string | null;
+    reviewedAt?: string | null;
+  };
+  /**
+   * Approved claim records supporting public copy.
+   */
+  claimRecords?: (number | Claim)[] | null;
+  publiclyApproved?: boolean | null;
   sortOrder?: number | null;
   isVisible?: boolean | null;
   meta?: {
@@ -344,6 +399,42 @@ export interface Feature {
   createdAt: string;
 }
 /**
+ * Approval records for public product, proof, and service claims.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "claims".
+ */
+export interface Claim {
+  id: number;
+  key: string;
+  /**
+   * Exact sentence approved for public use.
+   */
+  approvedSentence: string;
+  claimType:
+    'capability' | 'performance' | 'customer' | 'deployment' | 'privacy' | 'commercial' | 'technical' | 'service';
+  status: 'draft' | 'approved' | 'expired' | 'rejected';
+  owner: string;
+  sourceArtifact: string;
+  definition?: string | null;
+  numeratorDenominator?: string | null;
+  cohortOrSiteClass?: string | null;
+  methodAndExclusions?: string | null;
+  approvedAt?: string | null;
+  reviewAt: string;
+  allowedRoutes?:
+    | {
+        route: string;
+        id?: string | null;
+      }[]
+    | null;
+  allowedLocales: ('en' | 'id')[];
+  customerPermission?: boolean | null;
+  legalPermission?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Industry use cases shown on the Use Cases page.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -351,6 +442,7 @@ export interface Feature {
  */
 export interface UseCase {
   id: number;
+  solutionType: 'shared' | 'retail' | 'mall';
   industryName: string;
   slug: string;
   /**
@@ -388,6 +480,16 @@ export interface UseCase {
   image?: (number | null) | Media;
   relatedFeatures?: (number | Feature)[] | null;
   relatedUseCases?: (number | UseCase)[] | null;
+  prerequisites?: string | null;
+  limitations?: string | null;
+  evidenceStatus: 'permissioned' | 'illustrative' | 'none';
+  evidenceOwner?: string | null;
+  reviewedAt?: string | null;
+  /**
+   * Approved claim records supporting public copy.
+   */
+  claimRecords?: (number | Claim)[] | null;
+  publiclyApproved?: boolean | null;
   sortOrder?: number | null;
   isVisible?: boolean | null;
   meta?: {
@@ -420,6 +522,10 @@ export interface PricingTier {
       }[]
     | null;
   isFeatured?: boolean | null;
+  /**
+   * Required before this package can render publicly.
+   */
+  isVisible?: boolean | null;
   ctaText?: string | null;
   ctaLink?: string | null;
   sortOrder?: number | null;
@@ -455,6 +561,7 @@ export interface FaqItem {
    */
   category?: string | null;
   sortOrder?: number | null;
+  publiclyApproved?: boolean | null;
   isVisible?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -471,6 +578,10 @@ export interface FormSubmission {
    * Source form type
    */
   formType: 'contact' | 'demo';
+  /**
+   * Retail, Mall, or shared context selected by the visitor
+   */
+  solution: 'shared' | 'retail' | 'mall';
   email: string;
   /**
    * Update status after reviewing or replying
@@ -515,6 +626,11 @@ export interface DeploymentLocation {
    * Major city = bigger dot + always show label
    */
   isMajor?: boolean | null;
+  deploymentType: 'unverified' | 'retail' | 'mall' | 'mixed';
+  provenanceSource?: string | null;
+  activeSince?: string | null;
+  permissionStatus: 'unreviewed' | 'approved' | 'expired' | 'revoked';
+  reviewAt?: string | null;
   isVisible?: boolean | null;
   sortOrder?: number | null;
   updatedAt: string;
@@ -542,6 +658,12 @@ export interface ClientLogo {
    */
   websiteUrl?: string | null;
   isVisible?: boolean | null;
+  permissionStatus: 'unreviewed' | 'approved' | 'expired' | 'revoked';
+  customerStatus: 'unverified' | 'active' | 'former';
+  moduleScope?: string | null;
+  siteScope?: string | null;
+  permissionDate?: string | null;
+  reviewAt?: string | null;
   /**
    * Lower numbers appear first.
    */
@@ -614,6 +736,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'claims';
+        value: number | Claim;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
@@ -680,6 +806,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   publishedAt?: T;
   readingTime?: T;
   status?: T;
+  isVisible?: T;
   meta?:
     | T
     | {
@@ -698,6 +825,7 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   description?: T;
+  isVisible?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -706,6 +834,7 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
  * via the `definition` "features_select".
  */
 export interface FeaturesSelect<T extends boolean = true> {
+  stableId?: T;
   name?: T;
   slug?: T;
   icon?: T;
@@ -725,6 +854,42 @@ export interface FeaturesSelect<T extends boolean = true> {
       };
   relatedFeatures?: T;
   image?: T;
+  productTruth?:
+    | T
+    | {
+        solutionType?: T;
+        publicAvailability?: T;
+        commercialEntitlement?: T;
+        requirements?:
+          | T
+          | {
+              cctv?: T;
+              sensor?: T;
+              gpu?: T;
+              pos?: T;
+              floorPlan?: T;
+              network?: T;
+              other?: T;
+            };
+        inputAndPrerequisites?: T;
+        outputDefinition?: T;
+        unitAndTimeWindow?: T;
+        updateBehavior?: T;
+        measurementScope?: T;
+        retailMeaning?: T;
+        mallMeaning?: T;
+        decisionSupported?: T;
+        limitationsAndValidation?: T;
+      };
+  evidence?:
+    | T
+    | {
+        mediaStatus?: T;
+        owner?: T;
+        reviewedAt?: T;
+      };
+  claimRecords?: T;
+  publiclyApproved?: T;
   sortOrder?: T;
   isVisible?: T;
   meta?:
@@ -742,6 +907,7 @@ export interface FeaturesSelect<T extends boolean = true> {
  * via the `definition` "use-cases_select".
  */
 export interface UseCasesSelect<T extends boolean = true> {
+  solutionType?: T;
   industryName?: T;
   slug?: T;
   icon?: T;
@@ -762,6 +928,13 @@ export interface UseCasesSelect<T extends boolean = true> {
   image?: T;
   relatedFeatures?: T;
   relatedUseCases?: T;
+  prerequisites?: T;
+  limitations?: T;
+  evidenceStatus?: T;
+  evidenceOwner?: T;
+  reviewedAt?: T;
+  claimRecords?: T;
+  publiclyApproved?: T;
   sortOrder?: T;
   isVisible?: T;
   meta?:
@@ -790,6 +963,7 @@ export interface PricingTiersSelect<T extends boolean = true> {
         id?: T;
       };
   isFeatured?: T;
+  isVisible?: T;
   ctaText?: T;
   ctaLink?: T;
   sortOrder?: T;
@@ -805,6 +979,7 @@ export interface FaqItemsSelect<T extends boolean = true> {
   answer?: T;
   category?: T;
   sortOrder?: T;
+  publiclyApproved?: T;
   isVisible?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -815,6 +990,7 @@ export interface FaqItemsSelect<T extends boolean = true> {
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
   formType?: T;
+  solution?: T;
   email?: T;
   status?: T;
   data?: T;
@@ -830,6 +1006,11 @@ export interface DeploymentLocationsSelect<T extends boolean = true> {
   longitude?: T;
   latitude?: T;
   isMajor?: T;
+  deploymentType?: T;
+  provenanceSource?: T;
+  activeSince?: T;
+  permissionStatus?: T;
+  reviewAt?: T;
   isVisible?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -845,6 +1026,12 @@ export interface ClientLogosSelect<T extends boolean = true> {
   darkModeLogo?: T;
   websiteUrl?: T;
   isVisible?: T;
+  permissionStatus?: T;
+  customerStatus?: T;
+  moduleScope?: T;
+  siteScope?: T;
+  permissionDate?: T;
+  reviewAt?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -856,6 +1043,19 @@ export interface ClientLogosSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  provenanceStatus?: T;
+  source?: T;
+  owner?: T;
+  capturedAt?: T;
+  permissionStatus?: T;
+  approvedLocales?: T;
+  approvedRoutes?:
+    | T
+    | {
+        route?: T;
+        id?: T;
+      };
+  reviewAt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -911,6 +1111,35 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "claims_select".
+ */
+export interface ClaimsSelect<T extends boolean = true> {
+  key?: T;
+  approvedSentence?: T;
+  claimType?: T;
+  status?: T;
+  owner?: T;
+  sourceArtifact?: T;
+  definition?: T;
+  numeratorDenominator?: T;
+  cohortOrSiteClass?: T;
+  methodAndExclusions?: T;
+  approvedAt?: T;
+  reviewAt?: T;
+  allowedRoutes?:
+    | T
+    | {
+        route?: T;
+        id?: T;
+      };
+  allowedLocales?: T;
+  customerPermission?: T;
+  legalPermission?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -991,6 +1220,12 @@ export interface SiteSetting {
    */
   siteDescription?: string | null;
   /**
+   * Enable public company/contact proof only after owner review.
+   */
+  identityVerified?: boolean | null;
+  legalName?: string | null;
+  productOperator?: string | null;
+  /**
    * Main logo used in header and footer
    */
   logo?: (number | null) | Media;
@@ -999,21 +1234,24 @@ export interface SiteSetting {
    */
   favicon?: (number | null) | Media;
   /**
-   * Shown in footer and contact page
+   * Shown only after identity/contact review.
    */
   contactEmail?: string | null;
   /**
-   * Phone number with country code
+   * Phone number with country code.
    */
   contactPhone?: string | null;
   /**
    * Office address shown in footer
    */
   contactAddress?: string | null;
+  supportHours?: string | null;
+  responseExpectation?: string | null;
   /**
-   * WhatsApp number without + (used for floating chat button)
+   * Verified WhatsApp number without +.
    */
   whatsappNumber?: string | null;
+  formPrivacyUrl?: string | null;
   socialLinks?: {
     instagram?: string | null;
     linkedin?: string | null;
@@ -1038,12 +1276,18 @@ export interface SiteSetting {
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   siteDescription?: T;
+  identityVerified?: T;
+  legalName?: T;
+  productOperator?: T;
   logo?: T;
   favicon?: T;
   contactEmail?: T;
   contactPhone?: T;
   contactAddress?: T;
+  supportHours?: T;
+  responseExpectation?: T;
   whatsappNumber?: T;
+  formPrivacyUrl?: T;
   socialLinks?:
     | T
     | {

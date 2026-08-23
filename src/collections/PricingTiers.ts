@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload'
-import { canManageContent, publicRead } from '@/access/admin'
+import { authenticatedRead, canManageContent } from '@/access/admin'
 
 export const PricingTiers: CollectionConfig = {
   slug: 'pricing-tiers',
   access: {
-    read: publicRead,
+    read: authenticatedRead,
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -14,7 +14,7 @@ export const PricingTiers: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Pages',
     description: 'Pricing packages on the Packages page.',
-    defaultColumns: ['name', 'isFeatured', 'sortOrder'],
+    defaultColumns: ['name', 'isVisible', 'isFeatured', 'sortOrder'],
     components: { views: { list: { Component: '/admin/views/PricingView' } } },
   },
   fields: [
@@ -30,6 +30,12 @@ export const PricingTiers: CollectionConfig = {
       ],
     },
     { name: 'isFeatured', type: 'checkbox', defaultValue: false },
+    {
+      name: 'isVisible',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Required before this package can render publicly.' },
+    },
     { name: 'ctaText', type: 'text', localized: true, defaultValue: 'Contact Us' },
     { name: 'ctaLink', type: 'text', defaultValue: '/contact' },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },

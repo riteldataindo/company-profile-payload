@@ -1,13 +1,10 @@
-import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale } from '@/lib/i18n/config'
-import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { FeaturesGrid } from '@/components/sections/FeaturesGrid'
-import { getFeatures } from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -16,8 +13,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return buildMetadata({
-    title: 'People Counting & CCTV AI Features',
-    description: 'Explore 12+ AI-powered visitor analytics features: visitor traffic, heatmaps, demographics, dwell time, occupancy, queuing, in-store routes, and more for retail stores and malls.',
+    title: locale === 'id' ? 'Kapabilitas Analitik Retail dan Mall' : 'Retail and Mall Analytics Capabilities',
+    description: locale === 'id'
+      ? 'Tinjau tiga kelompok keputusan SmartCounter untuk Retail dan Mall: lalu lintas, alur dan zona, serta operasional—dengan definisi, prasyarat, batasan, dan status.'
+      : 'Review three SmartCounter decision groups for Retail and Mall: traffic, flow and zones, and operations—with definitions, prerequisites, limitations, and status.',
     locale,
     path: '/features',
   })
@@ -31,11 +30,6 @@ export default async function FeaturesPage({
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [dict, features] = await Promise.all([
-    getDictionary(locale as Locale),
-    getFeatures(locale),
-  ])
-
   return (
     <>
       <JsonLd data={breadcrumbSchema([
@@ -44,8 +38,6 @@ export default async function FeaturesPage({
       ])} />
       <FeaturesGrid
         locale={locale}
-        dict={dict}
-        features={features}
         headingLevel="h1"
       />
     </>

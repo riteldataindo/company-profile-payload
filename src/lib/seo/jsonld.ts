@@ -1,12 +1,13 @@
 import type { SiteSetting } from '@/payload-types'
 import { getMediaUrl } from '@/lib/data'
+import { getSiteUrl, siteUrlForPath } from './site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
-const ORGANIZATION_ID = `${SITE_URL}/#organization`
-const WEBSITE_ID = `${SITE_URL}/#website`
+const SITE_URL = getSiteUrl()?.toString()
+const ORGANIZATION_ID = `${SITE_URL || ''}/#organization`
+const WEBSITE_ID = `${SITE_URL || ''}/#website`
 
 function absoluteUrl(value: string): string {
-  return new URL(value, SITE_URL).toString()
+  return SITE_URL ? new URL(value, SITE_URL).toString() : value
 }
 
 function isUsablePhone(value?: string | null): value is string {
@@ -28,20 +29,22 @@ function socialProfiles(settings?: SiteSetting | null): string[] {
 }
 
 export function organizationSchema(settings?: SiteSetting | null) {
-  const logo = getMediaUrl(settings?.logo)
-  const email = settings?.contactEmail || undefined
-  const phone = isUsablePhone(settings?.contactPhone) ? settings.contactPhone : undefined
-  const address = settings?.contactAddress?.trim() || undefined
-  const sameAs = socialProfiles(settings)
+  const identityVerified = settings?.identityVerified === true
+  const logo = identityVerified ? getMediaUrl(settings?.logo) : undefined
+  const email = identityVerified ? settings?.contactEmail || undefined : undefined
+  const phone = identityVerified && isUsablePhone(settings?.contactPhone)
+    ? settings.contactPhone
+    : undefined
+  const address = identityVerified ? settings?.contactAddress?.trim() || undefined : undefined
+  const sameAs = identityVerified ? socialProfiles(settings) : []
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': ORGANIZATION_ID,
     name: settings?.siteName || 'SmartCounter',
-    legalName: 'PT Ritel Data Indonesia',
-    url: SITE_URL,
-    description: settings?.siteDescription || 'People counting and visitor analytics for retail stores, malls, and shopping centers.',
+    ...(settings?.siteDescription && { description: settings.siteDescription }),
+    ...(SITE_URL && { url: SITE_URL }),
     ...(logo && { logo: { '@type': 'ImageObject', url: absoluteUrl(logo) } }),
     ...((email || phone) && {
       contactPoint: {
@@ -69,7 +72,7 @@ export function websiteSchema() {
     '@type': 'WebSite',
     '@id': WEBSITE_ID,
     name: 'SmartCounter',
-    url: SITE_URL,
+    ...(SITE_URL && { url: SITE_URL }),
     publisher: { '@id': ORGANIZATION_ID },
     inLanguage: ['en', 'id'],
   }
@@ -79,9 +82,9 @@ export function softwareApplicationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    '@id': `${SITE_URL}/#software`,
+    '@id': `${SITE_URL || ''}/#software`,
     name: 'SmartCounter',
-    url: SITE_URL,
+    ...(SITE_URL && { url: SITE_URL }),
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     description: 'People counting and visitor analytics software for retail stores, malls, and shopping centers.',
@@ -102,21 +105,6 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
   }
 }
 
-export function faqPageSchema(items: { question: string; answer: string }[]) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: items.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  }
-}
-
 export function blogPostingSchema(post: {
   title: string
   excerpt: string
@@ -132,8 +120,8 @@ export function blogPostingSchema(post: {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    url: `${SITE_URL}/${post.locale}/blog/${post.slug}`,
-    mainEntityOfPage: `${SITE_URL}/${post.locale}/blog/${post.slug}`,
+    url: siteUrlForPath(`/${post.locale}/blog/${post.slug}`) || `/${post.locale}/blog/${post.slug}`,
+    mainEntityOfPage: siteUrlForPath(`/${post.locale}/blog/${post.slug}`) || `/${post.locale}/blog/${post.slug}`,
     datePublished: post.datePublished,
     dateModified: post.dateModified || post.datePublished,
     author: post.author
@@ -173,7 +161,7 @@ export function serviceSchema(service: {
     '@type': 'Service',
     name: service.name,
     description: service.description,
-    url: `${SITE_URL}/${service.locale}/features/${service.slug}`,
+    url: siteUrlForPath(`/${service.locale}/features/${service.slug}`) || `/${service.locale}/features/${service.slug}`,
     provider: { '@id': ORGANIZATION_ID },
     areaServed: { '@type': 'Country', name: 'Indonesia' },
   }

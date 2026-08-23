@@ -8,8 +8,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return buildMetadata({
-    title: 'Request a SmartCounter Demo',
-    description: 'Request a personalized walkthrough of SmartCounter CCTV analytics for your retail format and store network.',
+    title: locale === 'id' ? 'Minta Demo SmartCounter' : 'Request a SmartCounter Demo',
+    description: locale === 'id'
+      ? 'Minta walkthrough kecocokan lokasi SmartCounter untuk operasional Retail atau Mall.'
+      : 'Request a SmartCounter site-fit walkthrough for Retail or Mall operations.',
     locale,
     path: '/demo',
   })

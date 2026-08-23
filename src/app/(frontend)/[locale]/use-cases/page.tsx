@@ -1,13 +1,10 @@
-import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale } from '@/lib/i18n/config'
-import { getDictionary } from '@/lib/i18n/getDictionary'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { breadcrumbSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { UseCasesShowcase } from '@/components/sections/UseCasesShowcase'
-import { getUseCases } from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -16,8 +13,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return buildMetadata({
-    title: 'Use Cases — SmartCounter CCTV Analytics for Retail Indonesia',
-    description: 'See how SmartCounter people counting works for retail stores, malls, fashion, pharmacies, supermarkets, and luxury retail.',
+    title: locale === 'id' ? 'Solusi Retail dan Mall' : 'Retail and Mall solutions',
+    description: locale === 'id'
+      ? 'Pilih konteks Retail atau Mall untuk meninjau definisi metrik, prasyarat deployment, batasan, dan alur keputusan yang relevan.'
+      : 'Choose a Retail or Mall context to review metric definitions, deployment prerequisites, limitations, and the relevant decision workflow.',
     locale,
     path: '/use-cases',
   })
@@ -31,11 +30,6 @@ export default async function UseCasesPage({
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [dict, useCases] = await Promise.all([
-    getDictionary(locale as Locale),
-    getUseCases(locale),
-  ])
-
   return (
     <>
       <JsonLd data={breadcrumbSchema([
@@ -44,8 +38,6 @@ export default async function UseCasesPage({
       ])} />
       <UseCasesShowcase
         locale={locale}
-        dict={dict}
-        useCases={useCases}
         headingLevel="h1"
       />
     </>

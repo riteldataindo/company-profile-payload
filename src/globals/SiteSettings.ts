@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload'
-import { canManageContent, publicRead } from '@/access/admin'
+import { canManageContent, publicRead, verifiedIdentityField } from '@/access/admin'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -12,15 +12,22 @@ export const SiteSettings: GlobalConfig = {
   fields: [
     { name: 'siteName', type: 'text', localized: true, defaultValue: 'SmartCounter', admin: { description: 'Brand name shown in browser tab and SEO' } },
     { name: 'siteDescription', type: 'textarea', localized: true, admin: { description: 'Short tagline for SEO meta description and social sharing' } },
+    { name: 'identityVerified', type: 'checkbox', defaultValue: false, admin: { description: 'Enable public company/contact proof only after owner review.' } },
+    { name: 'legalName', type: 'text', access: { read: verifiedIdentityField } },
+    { name: 'productOperator', type: 'text', access: { read: verifiedIdentityField } },
     { name: 'logo', type: 'upload', relationTo: 'media', admin: { description: 'Main logo used in header and footer' } },
     { name: 'favicon', type: 'upload', relationTo: 'media', admin: { description: 'Small icon shown in browser tab (recommended: 32x32 PNG)' } },
-    { name: 'contactEmail', type: 'email', defaultValue: 'info@smartcounter.id', admin: { description: 'Shown in footer and contact page' } },
-    { name: 'contactPhone', type: 'text', defaultValue: '+6281234567890', admin: { description: 'Phone number with country code' } },
-    { name: 'contactAddress', type: 'textarea', localized: true, admin: { description: 'Office address shown in footer' } },
-    { name: 'whatsappNumber', type: 'text', defaultValue: '6281234567890', admin: { description: 'WhatsApp number without + (used for floating chat button)' } },
+    { name: 'contactEmail', type: 'email', access: { read: verifiedIdentityField }, admin: { description: 'Shown only after identity/contact review.' } },
+    { name: 'contactPhone', type: 'text', access: { read: verifiedIdentityField }, admin: { description: 'Phone number with country code.' } },
+    { name: 'contactAddress', type: 'textarea', localized: true, access: { read: verifiedIdentityField }, admin: { description: 'Office address shown in footer' } },
+    { name: 'supportHours', type: 'text', localized: true, access: { read: verifiedIdentityField } },
+    { name: 'responseExpectation', type: 'text', localized: true, access: { read: verifiedIdentityField } },
+    { name: 'whatsappNumber', type: 'text', access: { read: verifiedIdentityField }, admin: { description: 'Verified WhatsApp number without +.' } },
+    { name: 'formPrivacyUrl', type: 'text', defaultValue: '/privacy' },
     {
       name: 'socialLinks',
       type: 'group',
+      access: { read: verifiedIdentityField },
       fields: [
         { name: 'instagram', type: 'text' },
         { name: 'linkedin', type: 'text' },

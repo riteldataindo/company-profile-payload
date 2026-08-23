@@ -1,32 +1,18 @@
-import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
-import { getDictionary } from '@/lib/i18n/getDictionary'
-import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { isValidLocale } from '@/lib/i18n/config'
+import { getHomeCopy } from '@/lib/i18n/home-copy'
 import { buildMetadata } from '@/lib/seo/metadata'
 import { organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
-
 import { Hero } from '@/components/sections/Hero'
-import { PainPoints } from '@/components/sections/PainPoints'
-import { FeaturesGrid } from '@/components/sections/FeaturesGrid'
-import { HeatmapBenefit } from '@/components/sections/HeatmapBenefit'
-import { UseCasesShowcase } from '@/components/sections/UseCasesShowcase'
-import { DeploymentMap } from '@/components/sections/DeploymentMap'
-import { ClientLogos } from '@/components/sections/ClientLogos'
-import { PackagesTeaser } from '@/components/sections/PackagesTeaser'
-import { FaqAccordion } from '@/components/sections/FaqAccordion'
-import { CtaBanner } from '@/components/sections/CtaBanner'
-import {
-  getFeatures,
-  getUseCases,
-  getFaqItems,
-  getPricingTiers,
-  getDeploymentLocations,
-  getClientLogos,
-  getSiteSettings,
-  getMediaUrl,
-} from '@/lib/data'
+import { HomeHowItWorks } from '@/components/sections/home/HomeHowItWorks'
+import { HomeGateway } from '@/components/sections/home/HomeGateway'
+import { HomeDecisionGroups } from '@/components/sections/home/HomeDecisionGroups'
+import { HomeEvidence } from '@/components/sections/home/HomeEvidence'
+import { HomeDemo } from '@/components/sections/home/HomeDemo'
+import { HomeFaqFooterTransition } from '@/components/sections/home/HomeFaqFooterTransition'
+import { getClientLogos, getSiteSettings } from '@/lib/data'
 
 export async function generateMetadata({
   params,
@@ -34,9 +20,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
+  const copy = getHomeCopy(locale)
   return buildMetadata({
-    title: 'People Counting & Visitor Analytics Indonesia | SmartCounter',
-    description: 'Turn compatible CCTV cameras into visitor analytics for retail stores, malls, and shopping centers, including traffic, heatmap, demographic, and occupancy insights.',
+    title: locale === 'id'
+      ? 'People Counting & Visitor Analytics untuk Retail dan Mall'
+      : 'People Counting & Visitor Analytics for Retail and Mall',
+    description: copy.hero.description,
     locale,
     path: '',
   })
@@ -50,66 +39,24 @@ export default async function HomePage({
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const dict = await getDictionary(locale as Locale)
-
-  const [features, useCases, faqItems, pricingTiers, deploymentLocations, clientLogoDocs, siteSettings] = await Promise.all([
-    getFeatures(locale),
-    getUseCases(locale),
-    getFaqItems(locale),
-    getPricingTiers(locale),
-    getDeploymentLocations(),
-    getClientLogos(),
+  const [siteSettings, clientLogos] = await Promise.all([
     getSiteSettings(locale),
+    getClientLogos(),
   ])
-
-  const clientLogos = clientLogoDocs
-    .flatMap((client, index) => {
-      const url = getMediaUrl(client.logo)
-      if (!url) return []
-
-      const media = typeof client.logo === 'object' ? client.logo : null
-      const versionedUrl = media?.updatedAt
-        ? `${url}${url.includes('?') ? '&' : '?'}v=${encodeURIComponent(media.updatedAt)}`
-        : url
-
-      return [{
-        id: client.id ?? `${client.companyName}-${index}`,
-        companyName: client.companyName,
-        websiteUrl: client.websiteUrl || undefined,
-        logo: {
-          url: versionedUrl,
-          alt: media?.alt || client.companyName,
-        },
-      }]
-    })
+  const copy = getHomeCopy(locale)
 
   return (
     <>
       <JsonLd data={organizationSchema(siteSettings)} />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={softwareApplicationSchema()} />
-      <Hero locale={locale} dict={dict} />
-      <PainPoints dict={dict} />
-      <section className="px-4 py-20 md:py-32">
-        <div className="mx-auto max-w-7xl">
-          <DeploymentMap
-            dict={dict}
-            locations={deploymentLocations.map((loc: any) => ({
-              cityName: loc.cityName,
-              longitude: loc.longitude,
-              latitude: loc.latitude,
-              isMajor: loc.isMajor,
-            }))}
-          />
-          <ClientLogos logos={clientLogos} />
-        </div>
-      </section>
-      <FeaturesGrid locale={locale} dict={dict} features={features} />
-      <HeatmapBenefit dict={dict} />
-      <UseCasesShowcase locale={locale} dict={dict} useCases={useCases} />
-      <PackagesTeaser locale={locale} dict={dict} pricingTiers={pricingTiers} />
-      <FaqAccordion dict={dict} faqItems={faqItems} />
-      <CtaBanner locale={locale} dict={dict} />
+      <Hero locale={locale} copy={copy.hero} />
+      <HomeHowItWorks locale={locale} copy={copy.howItWorks} />
+      <HomeGateway locale={locale} copy={copy.gateway} />
+      <HomeDecisionGroups locale={locale} copy={copy.decisions} />
+      <HomeEvidence clientLogos={clientLogos} locale={locale} copy={copy.evidence} />
+      <HomeDemo locale={locale} copy={copy.demo} />
+      <HomeFaqFooterTransition locale={locale} copy={copy.faq} />
     </>
   )
 }

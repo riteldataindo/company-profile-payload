@@ -1,134 +1,33 @@
 {
   "nav": {
     "features": "Features",
-    "useCases": "Use Cases",
-    "packages": "Packages",
+    "retail": "Retail",
+    "mall": "Mall",
+    "useCases": "Solutions",
+    "deployment": "Deployment",
+    "privacy": "Privacy",
     "faq": "FAQ",
-    "blog": "Blog",
-    "contact": "Contact Us",
-    "getDemo": "Get Demo"
-  },
-  "hero": {
-    "badge": "People Counting for Retail",
-    "title": "People Counting",
-    "titleHighlight": "& Visitor Analytics",
-    "subtitle": "SmartCounter turns compatible CCTV cameras into a people counting system with visitor analytics, heatmaps, and aggregate demographic insights for operational decisions.",
-    "ctaPrimary": "Get Free Demo",
-    "ctaSecondary": "View All Features"
+    "contact": "Contact",
+    "getDemo": "Request a site-fit demo"
   },
   "common": {
-    "contactUs": "Contact Us",
-    "learnMore": "Learn more",
-    "explore": "Explore",
-    "readArticle": "Read article",
-    "viewAll": "View All",
-    "copyright": "© 2026 PT Ritel Data Indonesia. All rights reserved.",
-    "storesServed": "Stores Served",
-    "accuracy": "Accuracy",
-    "analyticsFeatures": "Analytics Features",
-    "liveAnalytics": "Visitor Analytics",
-    "privacyFirst": "Privacy-first"
-  },
-  "painPoints": {
-    "title": "Still Counting Visitors Manually?",
-    "subtitle": "Here's what happens when you don't have accurate visitor data.",
-    "items": [
-      { "title": "Revenue Not Maximized", "desc": "Without accurate foot traffic data, you can't identify peak hours, optimize promotions, or measure campaign ROI. Revenue opportunities slip through every day." },
-      { "title": "Inefficient Staffing", "desc": "Scheduling staff without traffic patterns can lead to overstaffing during slow periods and understaffing during peaks." },
-      { "title": "Suboptimal Layout", "desc": "Without heatmap and traffic flow data, you can't tell which zones attract customers and which are dead spots. Product placement is based on guesswork, not data." }
-    ]
-  },
-  "features": {
-    "badge": "Smart CCTV Analytics",
-    "title": "12+ AI-Powered Analytics Features",
-    "subtitle": "From people counting to heatmap analytics — everything a CCTV AI system needs to transform your retail intelligence.",
-    "items": [
-      { "name": "Visitor Traffic", "desc": "Monitor visitor counts and track entries, exits, and net foot traffic across configured entrances using computer vision." },
-      { "name": "In-Out Traffic", "desc": "Analyze visitor entry-exit patterns at any time. Understand peak hours, compare day-over-day trends, and measure the impact of promotions on foot traffic." },
-      { "name": "Dwell Time", "desc": "Measure how long visitors spend in your store or specific zones. Longer dwell time correlates with higher conversion and engagement." },
-      { "name": "Passers-by", "desc": "Count potential visitors passing by your store entrance. Measure your capture rate and optimize storefront displays to attract more walk-ins." },
-      { "name": "Entering Rate", "desc": "Conversion rate from passers-by to actual visitors. Understand how effective your storefront, signage, and promotions are at driving foot traffic." },
-      { "name": "Group Rate", "desc": "Identify group or individual visit patterns. Understand whether customers shop alone or in groups to optimize your service approach and space layout." },
-      { "name": "Demographic", "desc": "Complete age and gender visitor profiles without collecting personal data. Privacy-compliant AI computer vision for targeted marketing decisions." },
-      { "name": "Occupancy", "desc": "Store capacity and real-time density levels. Ensure safety compliance, manage crowd flow, and trigger alerts when thresholds are exceeded." },
-      { "name": "Service Efficiency", "desc": "Evaluate staff service speed and efficiency. Align staffing levels with visitor traffic patterns to reduce wait times and labor costs." },
-      { "name": "Heatmap", "desc": "Visualize busiest areas for layout optimization. AI-powered CCTV heatmaps show hot zones, dead zones, and customer movement patterns in real spatial data." },
-      { "name": "Queuing", "desc": "Queue management and customer wait time tracking. Detect queue lengths, trigger alerts, and improve checkout efficiency with real-time data." },
-      { "name": "In-Store Routes", "desc": "Map visitor journey paths inside your store. Understand entry-to-exit movement, identify high-traffic corridors, and optimize product placement." }
-    ]
-  },
-  "heatmap": {
-    "badge": "CCTV AI Heatmaps",
-    "title": "See Where Your Customers Go",
-    "desc": "SmartCounter's AI camera analytics turn raw CCTV footage into actionable heatmap intelligence. Our computer vision processes millions of data points into clear overlays on your actual store floor plan.",
-    "bullets": [
-      "Real-time overlay on your actual store floor plan",
-      "Compare peak vs off-peak patterns side by side",
-      "Identify dead zones and optimize product placement"
-    ]
-  },
-  "useCases": {
-    "title": "People Counting for Every Retail Format",
-    "subtitle": "From boutique fashion to large shopping malls, SmartCounter's CCTV AI adapts to your space and counting requirements.",
-    "items": [
-      { "name": "Retail & Department Store", "desc": "Review footfall patterns, product layout, and staffing needs across outlets.", "stat": "Traffic & conversion" },
-      { "name": "Mall & Shopping Center", "desc": "Understand tenant traffic patterns with floor-level occupancy and zone comparisons.", "stat": "Tenant insight" },
-      { "name": "Fashion & Boutique", "desc": "Use heatmaps and dwell time to review merchandising and fitting-room activity.", "stat": "Zone engagement" },
-      { "name": "Pharmacy & Healthcare", "desc": "Monitor queues and consultation-area usage to support scheduling decisions.", "stat": "Queue visibility" },
-      { "name": "Supermarket & Minimarket", "desc": "Review aisle traffic, checkout queues, and peak-hour staffing requirements.", "stat": "Flow & checkout" },
-      { "name": "Luxury & Premium Store", "desc": "Use aggregate demographic and service-efficiency insights for store operations.", "stat": "Service insight" }
-    ]
-  },
-  "coverage": {
-    "title": "Trusted by Modern Retail Industries",
-    "subtitle": "for Intelligent Visitor Analytics — deployed across Indonesia"
-  },
-  "packages": {
-    "title": "Choose Your Package",
-    "subtitle": "Three tiers designed for every retail scale. All include hardware and installation.",
-    "items": [
-      { "name": "Basic", "desc": "Core people counting and traffic analytics.", "features": ["Events Analytics", "Conversion Rate", "In-Out Traffic Analytics", "Local Support", "Service Terms Based on Agreement", "Customizable Reporting"] },
-      { "name": "Add-On", "desc": "Advanced CCTV AI analytics for deeper insights.", "badge": "Best Offer", "features": ["Dwelling Time", "Shopper Journey", "Passers-By Detection", "Store Heatmap Analysis", "Gender Analysis (M/F ratio)", "Age Profiling & Segmentation", "Visitor Traffic (Staff Elimination)"] },
-      { "name": "Premium", "desc": "Complete suite — everything in one package.", "features": ["All Basic Features", "All Add-On Features"] }
-    ]
-  },
-  "faqItems": [
-    { "q": "How does SmartCounter technology work?", "a": "SmartCounter uses computer vision to detect and count visitor movement from compatible camera streams, then presents aggregate analytics in a dashboard." },
-    { "q": "Is installation difficult and time-consuming?", "a": "Not at all! Our technician team will handle the entire installation process. Average installation is completed in 1-2 business days and ready to use immediately." },
-    { "q": "Is visitor data secure and privacy compliant?", "a": "Absolutely! SmartCounter only counts and analyzes movement patterns without recording personal identity. 100% compliant with data privacy regulations." },
-    { "q": "How can SmartCounter support an ROI review?", "a": "Teams can compare traffic, conversion, staffing, and layout metrics before and after an operational change. Results depend on each deployment and business process." },
-    { "q": "Is there training available for using the dashboard?", "a": "Yes! We provide comprehensive training for your team. Our dashboard is also designed to be user-friendly, easy to learn even without technical background." },
-    { "q": "Is it suitable for small stores or only for large retail?", "a": "SmartCounter is suitable for all business sizes! Our Basic package is designed specifically for single stores, while Add-On and Premium packages are for larger operations." }
-  ],
-  "faq": {
-    "title": "Frequently Asked Questions"
-  },
-  "blogDetail": {
-    "shareArticle": "Share this article",
-    "backToBlog": "Back to Blog"
-  },
-  "cta": {
-    "title": "Ready to Transform Your Retail Insights?",
-    "subtitle": "See how SmartCounter can support traffic and operational decisions across your retail locations."
+    "copyright": "© SmartCounter"
   },
   "waFloat": {
     "title": "SmartCounter",
-    "status": "Online — usually replies in minutes",
-    "intro": "How can we help? Pick a topic or write your own message.",
-    "suggestions": [
-      "I want to learn more about SmartCounter",
-      "How much does SmartCounter cost?",
-      "How does SmartCounter installation work?",
-      "I want to schedule a free demo",
-      "Is there a trial for SmartCounter?"
-    ],
-    "placeholder": "Write your message...",
-    "send": "Send via WhatsApp"
+    "channel": "Contact channel",
+    "intro": "Contact the SmartCounter team about a Retail or Mall site-fit question.",
+    "open": "Open WhatsApp contact",
+    "close": "Close WhatsApp contact",
+    "messageLabel": "Message for WhatsApp",
+    "placeholder": "Write your message…",
+    "send": "Send via WhatsApp",
+    "sendLabel": "Send WhatsApp message"
   },
   "footer": {
     "product": "Product",
     "resources": "Resources",
     "contactInfo": "Contact",
-    "description": "Visitor analytics software for physical stores, shopping centers, and multi-location retail operations."
+    "description": "Visitor analytics for physical retail and mall operations."
   }
 }

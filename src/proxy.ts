@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { locales, defaultLocale, isIndexableLocale } from '@/lib/i18n/config'
+import {
+  allLocales,
+  defaultLocale,
+  isInactiveLocale,
+  isValidLocale,
+} from '@/lib/i18n/config'
 
 const PUBLIC_FILE = /\.(.*)$/
 
@@ -17,22 +22,27 @@ export function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const pathnameLocale = locales.find(
+  const pathnameLocale = allLocales.find(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   )
 
   if (pathnameLocale) {
+    if (isInactiveLocale(pathnameLocale)) {
+      const redirectUrl = request.nextUrl.clone()
+      const remainder = pathname.slice(pathnameLocale.length + 1)
+      redirectUrl.pathname = `/${defaultLocale}${remainder}` || `/${defaultLocale}`
+      const response = NextResponse.redirect(redirectUrl)
+      response.headers.set('X-Robots-Tag', 'noindex, follow')
+      return response
+    }
+
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-site-locale', pathnameLocale)
-    const response = NextResponse.next({ request: { headers: requestHeaders } })
-    if (!isIndexableLocale(pathnameLocale)) {
-      response.headers.set('X-Robots-Tag', 'noindex, follow')
-    }
-    return response
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
   const cookieLocale = request.cookies.get('preferred-locale')?.value
-  const detected = locales.find((l) => l === cookieLocale) || defaultLocale
+  const detected = cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : defaultLocale
 
   request.nextUrl.pathname = `/${detected}${pathname}`
   return NextResponse.redirect(request.nextUrl)

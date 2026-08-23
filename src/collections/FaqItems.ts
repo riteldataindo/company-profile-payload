@@ -1,10 +1,13 @@
 import type { CollectionConfig } from 'payload'
-import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
+import { canManageContent } from '@/access/admin'
 
 export const FaqItems: CollectionConfig = {
   slug: 'faq-items',
   access: {
-    read: visibleOrAuthenticated,
+    read: ({ req }) => req.user ? true : {
+      isVisible: { equals: true },
+      publiclyApproved: { equals: true },
+    },
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -22,6 +25,7 @@ export const FaqItems: CollectionConfig = {
     { name: 'answer', type: 'richText', required: true, localized: true },
     { name: 'category', type: 'text', localized: true, admin: { description: 'e.g. general, installation, analytics, pricing, technical' } },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
-    { name: 'isVisible', type: 'checkbox', defaultValue: true },
+    { name: 'publiclyApproved', type: 'checkbox', defaultValue: false },
+    { name: 'isVisible', type: 'checkbox', defaultValue: false },
   ],
 }

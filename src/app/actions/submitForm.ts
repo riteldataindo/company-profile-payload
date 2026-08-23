@@ -6,24 +6,30 @@ import { sendFormNotificationEmail } from '@/lib/email'
 
 const RATE_LIMIT_MAX = 3
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
+const solutionSchema = z.enum(['shared', 'retail', 'mall']).default('shared')
+const privacyConsentSchema = z.literal(true, 'Privacy consent is required')
 
 const contactFormSchema = z.object({
   formType: z.literal('contact'),
+  solution: solutionSchema,
   name: z.string().min(2, 'Name is required (min 2 characters)').max(120),
   email: z.string().email('Valid email required').max(254),
   phone: z.string().max(40).optional(),
   company: z.string().max(160).optional(),
   message: z.string().min(10, 'Message is required (min 10 characters)').max(5000),
+  privacyConsent: privacyConsentSchema,
 })
 
 const demoFormSchema = z.object({
   formType: z.literal('demo'),
+  solution: solutionSchema,
   name: z.string().min(2, 'Name is required').max(120),
   email: z.string().email('Valid email required').max(254),
   phone: z.string().min(8, 'Valid WhatsApp number required').max(40).regex(/\d/, 'Valid number required'),
   company: z.string().min(2, 'Company name is required').max(160),
   storeCount: z.string().max(40).optional(),
   message: z.string().max(5000).optional(),
+  privacyConsent: privacyConsentSchema,
 })
 
 const formSchema = z.discriminatedUnion('formType', [contactFormSchema, demoFormSchema])
@@ -63,6 +69,7 @@ export async function submitForm(data: Record<string, unknown>) {
 
     const docData = {
       formType: parsed.formType,
+      solution: parsed.solution,
       email: parsed.email.toLocaleLowerCase(),
       status: 'new' as const,
       data: parsed,

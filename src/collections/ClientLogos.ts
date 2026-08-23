@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
+import { canManageContent } from '@/access/admin'
 import { normalizeClientLogoMedia } from '@/lib/clientLogos/normalizeClientLogo'
 
 function getRelationId(value: unknown): number | undefined {
@@ -14,7 +14,11 @@ function getRelationId(value: unknown): number | undefined {
 export const ClientLogos: CollectionConfig = {
   slug: 'client-logos',
   access: {
-    read: visibleOrAuthenticated,
+    read: ({ req }) => req.user ? true : {
+      isVisible: { equals: true },
+      permissionStatus: { equals: 'approved' },
+      customerStatus: { equals: 'active' },
+    },
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -99,8 +103,26 @@ export const ClientLogos: CollectionConfig = {
       name: 'isVisible',
       label: 'Show on Homepage',
       type: 'checkbox',
-      defaultValue: true,
+      defaultValue: false,
     },
+    {
+      name: 'permissionStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'unreviewed',
+      options: ['unreviewed', 'approved', 'expired', 'revoked'],
+    },
+    {
+      name: 'customerStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'unverified',
+      options: ['unverified', 'active', 'former'],
+    },
+    { name: 'moduleScope', type: 'text' },
+    { name: 'siteScope', type: 'text' },
+    { name: 'permissionDate', type: 'date' },
+    { name: 'reviewAt', type: 'date' },
     {
       name: 'sortOrder',
       label: 'Sort Order',

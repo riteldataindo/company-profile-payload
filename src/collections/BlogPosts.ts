@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload'
-import { canManageContent, publishedOrAuthenticated } from '@/access/admin'
+import { authenticatedRead, canManageContent } from '@/access/admin'
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
   access: {
-    read: publishedOrAuthenticated,
+    read: authenticatedRead,
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -14,7 +14,7 @@ export const BlogPosts: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Content',
     description: 'Articles published on the blog. Supports SEO metadata and multi-language.',
-    defaultColumns: ['title', 'status', 'category', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title', 'status', 'isVisible', 'category', 'publishedAt', 'updatedAt'],
     components: { views: { list: { Component: '/admin/views/PostsView' } } },
   },
   fields: [
@@ -36,6 +36,12 @@ export const BlogPosts: CollectionConfig = {
         { label: 'Draft', value: 'draft' },
         { label: 'Published', value: 'published' },
       ],
+    },
+    {
+      name: 'isVisible',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Required with Published status before public rendering/indexing.' },
     },
   ],
 }

@@ -43,11 +43,17 @@ export default async function FrontendLayout({
 
   return (
     <ThemeProvider>
+      <a
+        href="#main-content"
+        className="sr-only z-[100] rounded-md bg-bg-card px-4 py-2 text-sm text-text-primary focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        {locale === 'id' ? 'Lewati ke konten utama' : 'Skip to main content'}
+      </a>
       <Navbar locale={locale} dict={dict} logo={logo} />
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>{children}</main>
       <Footer locale={locale} dict={dict} siteSettings={siteSettings} logo={logo} />
       <WhatsAppFloat dict={dict} siteSettings={siteSettings} />
-      <ConsentAnalytics measurementId={measurementId} />
+      <ConsentAnalytics locale={locale} measurementId={measurementId} />
     </ThemeProvider>
   )
 }

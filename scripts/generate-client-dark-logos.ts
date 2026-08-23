@@ -71,9 +71,12 @@ try {
 
     const darkModeMedia = await payload.create({
       collection: 'media',
+      draft: false,
       data: {
         alt: `${client.companyName} logo for dark mode`,
         caption: `Client dark logo — ${client.companyName}`,
+        provenanceStatus: 'unreviewed',
+        permissionStatus: 'unreviewed',
       },
       filePath: darkModePath,
     })

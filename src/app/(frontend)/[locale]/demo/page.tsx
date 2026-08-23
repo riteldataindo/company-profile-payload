@@ -1,195 +1,265 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { Zap, Monitor, Settings, MessageCircle, Tag, Check, Send, ExternalLink, Play } from 'lucide-react'
-import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { Check, ChevronDown, Send } from 'lucide-react'
 import { submitForm } from '@/app/actions/submitForm'
-
-const benefits = [
-  { icon: Monitor, title: 'Live product walkthrough', desc: 'See every feature in action with your store type.' },
-  { icon: Settings, title: 'Setup tailored for your store', desc: "We'll configure the dashboard for your layout and goals." },
-  { icon: MessageCircle, title: 'Q&A with our analytics team', desc: 'Ask anything — integration, data, hardware, pricing.' },
-  { icon: Tag, title: 'Custom pricing for your scale', desc: 'Get a quote that matches your location count and needs.' },
-]
+import { trackEvent } from '@/lib/analytics/events'
+import { getConversionCopy, type SolutionContext } from '@/lib/i18n/conversion-copy'
+import { DemoWalkthrough } from '@/components/demo/DemoWalkthrough'
 
 export default function DemoPage() {
+  const pathname = usePathname()
+  const locale = pathname.split('/')[1] === 'id' ? 'id' : 'en'
+  const copy = getConversionCopy(locale).demo
+  const privacyPath = `/${locale}/privacy`
+  const [selectedSolution, setSelectedSolution] = useState<SolutionContext>('shared')
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const startedRef = useRef(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const errorSummaryRef = useRef<HTMLDivElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = new FormData(e.currentTarget)
-    const name = form.get('name') as string
-    const email = form.get('email') as string
-    const phone = form.get('phone') as string
-    const company = form.get('company') as string
-    const storeCount = form.get('storeCount') as string
-    const message = form.get('message') as string
-    const website = form.get('website') as string
+  useEffect(() => {
+    if (submitted) successRef.current?.focus()
+  }, [submitted])
 
-    // Client-side validation
-    const errs: Record<string, string> = {}
-    if (!name || name.length < 2) errs.name = 'Required'
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Valid email required'
-    if (!phone || phone.replace(/\D/g, '').length < 8) errs.phone = 'Valid WhatsApp number required'
-    if (!company || company.length < 2) errs.company = 'Required'
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+  useEffect(() => {
+    const solution = new URLSearchParams(window.location.search).get('solution')
+    if (solution === 'retail' || solution === 'mall' || solution === 'shared') {
+      setSelectedSolution(solution)
+    }
+  }, [])
+
+  function markStarted() {
+    if (startedRef.current) return
+    startedRef.current = true
+    trackEvent('demo_start', { locale, solution: selectedSolution, source: 'demo_page' })
+  }
+
+  function solutionChange(value: string) {
+    if (value !== 'retail' && value !== 'mall' && value !== 'shared') return
+    setSelectedSolution(value)
+    trackEvent('solution_select', { locale, solution: value, placement: 'demo_form' })
+    markStarted()
+    clearError('solution')
+  }
+
+  function clearError(field: string) {
+    setErrors((current) => {
+      if (!current[field] && !current.form) return current
+      const next = { ...current }
+      delete next[field]
+      delete next.form
+      return next
+    })
+  }
+
+  function focusFirstError() {
+    window.requestAnimationFrame(() => {
+      const target = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        || errorSummaryRef.current
+      target?.focus()
+    })
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    markStarted()
+    const form = new FormData(event.currentTarget)
+    const solution = String(form.get('solution') || 'shared') as SolutionContext
+    const name = String(form.get('name') || '')
+    const email = String(form.get('email') || '')
+    const phone = String(form.get('phone') || '')
+    const company = String(form.get('company') || '')
+    const storeCount = String(form.get('storeCount') || '')
+    const message = String(form.get('message') || '')
+    const privacyConsent = form.get('privacyConsent') === 'on'
+    const website = String(form.get('website') || '')
+
+    const nextErrors: Record<string, string> = {}
+    if (name.trim().length < 2) nextErrors.name = copy.validation.name
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = copy.validation.email
+    if (phone.replace(/\D/g, '').length < 8) nextErrors.phone = copy.validation.phone
+    if (company.trim().length < 2) nextErrors.company = copy.validation.company
+    if (!privacyConsent) nextErrors.privacyConsent = copy.validation.consent
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors({ ...nextErrors, form: copy.retryError })
+      focusFirstError()
+      trackEvent('demo_submit_error', { locale, solution, category: 'validation' })
+      return
+    }
+
     setErrors({})
-
-    // Submit to server
     setIsLoading(true)
     try {
       const result = await submitForm({
         formType: 'demo',
+        solution,
         name,
         email,
         phone,
         company,
         storeCount: storeCount || undefined,
         message: message || undefined,
+        privacyConsent,
         website,
       })
-
       if (result.success) {
         setSubmitted(true)
+        trackEvent('demo_submit_success', { locale, solution })
       } else {
-        setErrors({ form: result.error || 'Failed to submit form' })
+        const field = typeof result.field === 'string' ? result.field : 'form'
+        setErrors({ [field]: result.error || copy.genericError, form: copy.retryError })
+        focusFirstError()
+        trackEvent('demo_submit_error', { locale, solution, category: 'server' })
       }
-    } catch (error) {
-      setErrors({ form: 'Failed to submit form. Please try again.' })
-      console.error('Form submission error:', error)
+    } catch {
+      setErrors({ form: copy.genericError })
+      focusFirstError()
+      trackEvent('demo_submit_error', { locale, solution, category: 'network' })
     } finally {
       setIsLoading(false)
     }
   }
 
+  function resetForm() {
+    setSubmitted(false)
+    setErrors({})
+    startedRef.current = false
+    window.requestAnimationFrame(() => document.getElementById('demo-name')?.focus())
+  }
+
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden pt-32 pb-12 px-4 text-center">
-        <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%)' }} />
-        <div className="relative z-10 mx-auto max-w-3xl">
-          <ScrollReveal>
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary-400">
-              <Zap size={14} /> Free, No Commitment
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={50}><h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3">See AI People Counting in Action</h1></ScrollReveal>
-          <ScrollReveal delay={100}><p className="text-text-secondary text-lg mb-6">Get a personalized demo of SmartCounter&apos;s CCTV AI analytics — takes only 30 minutes.</p></ScrollReveal>
-          <ScrollReveal delay={150}>
-            <ul className="flex flex-wrap justify-center gap-6 text-sm text-text-secondary">
-              {['Tailored to your store format', 'Product walkthrough', 'Questions answered live'].map(t => (
-                <li key={t} className="flex items-center gap-1.5"><Check size={16} className="text-primary-500" />{t}</li>
-              ))}
-            </ul>
-          </ScrollReveal>
-        </div>
-      </section>
+      <section className="px-4 pb-28 pt-28 sm:pb-20 md:pt-32">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <div>
+            <p className="mb-4 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">{copy.eyebrow}</p>
+            <h1 className="max-w-xl text-4xl font-bold tracking-tight md:text-5xl">{copy.title}</h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-text-secondary">{copy.intro}</p>
 
-      <section className="px-4 pb-20">
-        <div className="mx-auto max-w-5xl grid md:grid-cols-[5fr_7fr] gap-8">
-          <ScrollReveal>
-            <div>
-              <h2 className="text-xl font-bold mb-5">What you&apos;ll get in the demo</h2>
-              <ul className="flex flex-col gap-4 mb-8">
-                {benefits.map(b => (
-                  <li key={b.title} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center shrink-0 text-primary-500"><b.icon size={16} /></div>
-                    <div><strong className="block text-sm font-semibold">{b.title}</strong><span className="text-xs text-text-secondary">{b.desc}</span></div>
+            <DemoWalkthrough locale={locale} />
+
+            <h2 className="mt-10 border-t border-border-default pt-6 text-xl font-bold">{copy.benefitsTitle}</h2>
+            <ol className="mt-4 border-b border-border-default">
+              {copy.benefits.map((benefit, index) => {
+                return (
+                  <li key={benefit.title} className="grid grid-cols-[2rem_1fr] gap-3 border-t border-border-subtle py-4 first:border-t-0">
+                    <span className="font-mono text-xs font-semibold text-primary-600" aria-hidden="true">0{index + 1}</span>
+                    <div><strong className="block text-sm font-semibold">{benefit.title}</strong><span className="mt-1 block text-xs leading-5 text-text-secondary">{benefit.description}</span></div>
                   </li>
-                ))}
-              </ul>
-              <div className="rounded-xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-5">
-                <div className="text-base font-semibold text-text-primary mb-2">Built around your operation</div>
-                <p className="text-sm text-text-secondary">
-                  We will map the walkthrough to your entrances, store zones, reporting needs, and existing camera setup.
-                </p>
-              </div>
+                )
+              })}
+            </ol>
+            <div className="mt-8 border-l-2 border-primary-600 pl-5">
+              <h2 className="mb-2 text-base font-semibold text-text-primary">{copy.contextTitle}</h2>
+              <p className="text-sm leading-relaxed text-text-secondary">{copy.contextBody}</p>
             </div>
-          </ScrollReveal>
+          </div>
 
-          <ScrollReveal delay={150}>
-            <div className="rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-8">
-              {!submitted ? (
-                <>
-                  <h2 className="text-xl font-bold mb-6">Request Your Free Demo</h2>
-                  <form onSubmit={handleSubmit} noValidate>
-                    <input
-                      aria-hidden="true"
-                      autoComplete="off"
-                      className="absolute -left-[10000px]"
-                      name="website"
-                      tabIndex={-1}
-                      type="text"
-                    />
-                    {errors.form && <div className="mb-4 p-3 rounded-lg bg-primary-500/10 border border-primary-500 text-sm text-primary-500">{errors.form}</div>}
-                    {[
-                      { name: 'name', label: 'Full Name', placeholder: 'Your full name', required: true },
-                      { name: 'email', label: 'Business Email', placeholder: 'you@company.com', type: 'email', required: true },
-                      { name: 'phone', label: 'WhatsApp Number', placeholder: '+62 812 3456 7890', type: 'tel', required: true },
-                      { name: 'company', label: 'Company Name', placeholder: 'PT Example Indonesia', required: true },
-                    ].map(f => (
-                      <div key={f.name} className="mb-4">
-                        <label className="block text-xs font-semibold text-text-secondary mb-1.5">{f.label} {f.required && <span className="text-primary-500">*</span>}</label>
-                        <input name={f.name} type={f.type || 'text'} placeholder={f.placeholder} disabled={isLoading} className={`w-full px-4 py-3 rounded-lg bg-bg-card border text-sm text-text-primary outline-none transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50 ${errors[f.name] ? 'border-primary-500' : 'border-border-default'}`} onChange={() => setErrors(e => ({...e, [f.name]: ''}))} />
-                        {errors[f.name] && <p className="text-xs text-primary-500 mt-1">{errors[f.name]}</p>}
+          <div className="rounded-xl border border-border-default bg-bg-card p-6 md:p-8">
+            {!submitted ? (
+              <>
+                <h2 className="mb-6 text-xl font-bold">{copy.formTitle}</h2>
+                <form ref={formRef} onSubmit={handleSubmit} noValidate aria-busy={isLoading}>
+                  <input aria-hidden="true" autoComplete="off" className="absolute -left-[10000px]" name="website" tabIndex={-1} type="text" />
+                  {errors.form && (
+                    <div ref={errorSummaryRef} tabIndex={-1} role="alert" className="mb-4 rounded-lg border border-primary-500 bg-primary-500/10 p-3 text-sm text-primary-500">{errors.form}</div>
+                  )}
+
+                  <div className="mb-4 grid gap-4 sm:grid-cols-2">
+                    <Field autoComplete="name" disabled={isLoading} error={errors.name} id="demo-name" label={copy.name} onChange={() => { markStarted(); clearError('name') }} required />
+                    <Field autoComplete="email" disabled={isLoading} error={errors.email} id="demo-email" label={copy.email} onChange={() => { markStarted(); clearError('email') }} required type="email" />
+                  </div>
+
+                  <div className="mb-4 grid gap-4 sm:grid-cols-2">
+                    <Field autoComplete="tel" disabled={isLoading} error={errors.phone} id="demo-phone" label={copy.phone} onChange={() => { markStarted(); clearError('phone') }} required type="tel" />
+                    <Field autoComplete="organization" disabled={isLoading} error={errors.company} id="demo-company" label={copy.company} onChange={() => { markStarted(); clearError('company') }} required />
+                  </div>
+
+                  <div className="mb-4 grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="demo-solution" className="mb-1.5 block text-xs font-semibold text-text-secondary">{copy.solution}</label>
+                      <div className="relative">
+                        <select id="demo-solution" name="solution" value={selectedSolution} onChange={(event) => solutionChange(event.target.value)} disabled={isLoading} className="min-h-11 w-full appearance-none rounded-lg border border-border-default bg-bg-card px-4 py-3 pr-10 text-base text-text-primary outline-none transition-[border-color] focus-visible:border-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 sm:text-sm">
+                          {copy.solutionOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} aria-hidden="true" />
                       </div>
-                    ))}
-                    <div className="mb-4">
-                      <label className="block text-xs font-semibold text-text-secondary mb-1.5">Number of Stores</label>
-                      <select name="storeCount" disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none appearance-none disabled:opacity-50">
-                        <option value="">Select range</option>
-                        <option value="1-5">1 – 5 stores</option>
-                        <option value="6-20">6 – 20 stores</option>
-                        <option value="21-50">21 – 50 stores</option>
-                        <option value="50+">50+ stores</option>
-                      </select>
                     </div>
-                    <div className="mb-6">
-                      <label className="block text-xs font-semibold text-text-secondary mb-1.5">Any specific questions?</label>
-                      <textarea name="message" rows={3} placeholder="Tell us about your goals..." disabled={isLoading} className="w-full px-4 py-3 rounded-lg bg-bg-card border border-border-default text-sm text-text-primary outline-none resize-y transition-all focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/15 disabled:opacity-50" />
+                    <div>
+                      <label htmlFor="demo-store-count" className="mb-1.5 block text-xs font-semibold text-text-secondary">{copy.storeCount}</label>
+                      <div className="relative">
+                        <select id="demo-store-count" name="storeCount" defaultValue="" onChange={markStarted} disabled={isLoading} className="min-h-11 w-full appearance-none rounded-lg border border-border-default bg-bg-card px-4 py-3 pr-10 text-base text-text-primary outline-none transition-[border-color] focus-visible:border-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 sm:text-sm">
+                          <option value="">{copy.storeCountPlaceholder}</option>
+                          {copy.storeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} aria-hidden="true" />
+                      </div>
                     </div>
-                    <button type="submit" disabled={isLoading} className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)] disabled:opacity-50 disabled:cursor-not-allowed">
-                      <Send size={18} /> {isLoading ? 'Sending...' : 'Request Free Demo'}
-                    </button>
-                    <div className="flex items-center gap-4 my-5 text-xs text-text-muted"><div className="flex-1 h-px bg-border-subtle" /><span>or try it yourself</span><div className="flex-1 h-px bg-border-subtle" /></div>
-                    <a href="https://demo.smartcounter.id" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 rounded-lg border border-primary-600 px-5 py-3.5 text-sm font-semibold text-primary-500 transition-all hover:bg-primary-600/10">
-                      <ExternalLink size={16} /> Try Live Demo
-                    </a>
-                  </form>
-                </>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="w-14 h-14 rounded-full bg-green-600/15 flex items-center justify-center mx-auto mb-4 text-green-500"><Check size={28} /></div>
-                  <h3 className="text-xl font-bold mb-2">Demo Request Sent</h3>
-                  <p className="text-text-secondary text-sm">Our team will contact you within 24 hours via WhatsApp or email.</p>
-                </div>
-              )}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+                  </div>
 
-      <section className="bg-bg-surface px-4 py-20">
-        <div className="mx-auto max-w-4xl">
-          <ScrollReveal>
-            <div className="grid md:grid-cols-2 gap-8 items-center rounded-2xl border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl p-10">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">Prefer to Explore on Your Own?</h2>
-                <p className="text-sm text-text-secondary mb-6">Jump into our self-service demo dashboard with real sample data. No registration needed.</p>
-                <a href="https://demo.smartcounter.id" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-7 py-3 text-base font-semibold text-white transition-all hover:bg-primary-700">
-                  <Play size={18} /> Try Live Demo
-                </a>
-                <p className="text-xs text-text-muted mt-3">Sample data from demo stores.</p>
+                  <div className="mb-6">
+                    <label htmlFor="demo-message" className="mb-1.5 block text-xs font-semibold text-text-secondary">{copy.message}</label>
+                    <textarea id="demo-message" name="message" rows={3} autoComplete="off" placeholder={copy.message} disabled={isLoading} onChange={markStarted} className="w-full resize-y rounded-lg border border-border-default bg-bg-card px-4 py-3 text-base text-text-primary outline-none transition-[border-color] focus-visible:border-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 sm:text-sm" />
+                  </div>
+
+                  <label className="mb-5 flex items-start gap-3 text-xs leading-relaxed text-text-secondary">
+                    <input id="demo-consent" name="privacyConsent" type="checkbox" required disabled={isLoading} aria-invalid={Boolean(errors.privacyConsent)} aria-describedby={errors.privacyConsent ? 'demo-consent-error' : 'demo-consent-help'} className="mt-0.5 h-4 w-4 shrink-0 accent-primary-600" onChange={() => { markStarted(); clearError('privacyConsent') }} />
+                    <span id="demo-consent-help">{copy.consent} <Link href={privacyPath} className="underline transition-colors hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">{copy.privacyLink}</Link>{errors.privacyConsent && <span id="demo-consent-error" className="mt-1 block text-primary-500">{errors.privacyConsent}</span>}</span>
+                  </label>
+
+                  <button type="submit" disabled={isLoading} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3.5 text-sm font-semibold text-white transition-transform duration-100 ease-out hover:bg-primary-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                    {!isLoading && <Send size={18} aria-hidden="true" />}
+                    <span>{isLoading ? copy.submitting : copy.submit}</span>
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div ref={successRef} role="status" aria-live="polite" tabIndex={-1} className="py-12 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-600/15 text-green-500"><Check size={24} aria-hidden="true" /></div>
+                <h2 className="mb-2 text-xl font-bold">{copy.sentTitle}</h2>
+                <p className="text-sm text-text-secondary">{copy.sentBody}</p>
+                <button type="button" onClick={resetForm} className="mt-6 rounded-lg border border-border-default px-4 py-2.5 text-sm font-semibold text-text-secondary transition-colors hover:bg-bg-surface hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">{copy.retry}</button>
               </div>
-              <div className="aspect-[16/10] rounded-xl bg-bg-card border border-border-subtle flex items-center justify-center text-sm text-text-muted shadow-[0_0_20px_rgba(239,68,68,0.15)]">
-                [Dashboard Preview]
-              </div>
-            </div>
-          </ScrollReveal>
+            )}
+          </div>
         </div>
       </section>
+    </div>
+  )
+}
+
+function Field({
+  autoComplete,
+  disabled,
+  error,
+  id,
+  label,
+  onChange,
+  required,
+  type = 'text',
+}: {
+  autoComplete: string
+  disabled?: boolean
+  error?: string
+  id: string
+  label: string
+  onChange: () => void
+  required?: boolean
+  type?: string
+}) {
+  const name = id.replace('demo-', '')
+  const errorId = `${id}-error`
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-text-secondary">{label} {required && <span className="text-primary-500">*</span>}</label>
+      <input id={id} name={name} autoComplete={autoComplete} type={type} required={required} disabled={disabled} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} onChange={onChange} className={`min-h-11 w-full rounded-lg border bg-bg-card px-4 py-3 text-base text-text-primary outline-none transition-[border-color] focus-visible:border-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 sm:text-sm ${error ? 'border-primary-500' : 'border-border-default'}`} />
+      {error && <p id={errorId} className="mt-1 text-xs text-primary-500">{error}</p>}
     </div>
   )
 }
