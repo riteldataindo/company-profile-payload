@@ -1,10 +1,11 @@
-import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { isValidLocale } from '@/lib/i18n/config'
+import { loadProfileContent } from '@/lib/profile/content'
+import { PackagesView } from '@/components/smartcounter/ProductViews'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
-
-export default function PackagesPage() {
-  notFound()
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  if (!isValidLocale(locale)) notFound()
+  const content = await loadProfileContent(locale)
+  return <PackagesView locale={locale} packages={content.packages} />
 }

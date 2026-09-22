@@ -17,6 +17,7 @@ const contactFormSchema = z.object({
   phone: z.string().max(40).optional(),
   company: z.string().max(160).optional(),
   message: z.string().min(10, 'Message is required (min 10 characters)').max(5000),
+  packageName: z.string().max(160).optional(),
   privacyConsent: privacyConsentSchema,
 })
 
@@ -75,8 +76,8 @@ export async function submitForm(data: Record<string, unknown>) {
       data: parsed,
     }
 
-    // Save to database
-    await payload.create({
+    // Save to database. Local API bypasses the collection's create:false access.
+    const created = await payload.create({
       collection: 'form-submissions',
       data: docData,
     })
@@ -86,7 +87,7 @@ export async function submitForm(data: Record<string, unknown>) {
       console.error('Failed to send form notification email:', err)
     })
 
-    return { success: true }
+    return { success: true, id: String(created.id) }
   } catch (error) {
     if (error instanceof z.ZodError) {
       const fieldError = error.issues[0]

@@ -19,7 +19,7 @@ const firaCode = Fira_Code({
   weight: ['400', '500'],
 })
 
-const themeBootScript = `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.classList.toggle('light',!d)}catch(e){document.documentElement.classList.add('dark')}})()`
+const themeBootScript = `(function(){try{var t=localStorage.getItem('smartcounter-theme');var d=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=d;document.documentElement.classList.toggle('dark',d==='dark');document.documentElement.classList.toggle('light',d!=='dark')}catch(e){document.documentElement.dataset.theme='light'}})()`
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers()
