@@ -1,49 +1,69 @@
 'use client'
 
-import { useState } from 'react'
-import { ChevronDown, Mail, MessageCircle, Search } from 'lucide-react'
-import { ScrollReveal } from '@/components/sections/ScrollReveal'
+import { useState, type MouseEvent } from 'react'
+import Link from 'next/link'
+import { ChevronDown, ArrowRight } from 'lucide-react'
 
 interface FaqItem {
   question: string
   answer: string
 }
-
 interface FaqCategory {
   category: string
   items: FaqItem[]
 }
 
+function faqId(category: string, categoryIndex: number, itemIndex: number) {
+  const slug = category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'group'
+  return `faq-answer-${slug}-${categoryIndex}-${itemIndex}`
+}
+
 function AccordionItem({
   question,
   answer,
+  panelId,
   isOpen,
   onChange,
+  animate,
 }: {
   question: string
   answer: string
+  panelId: string
   isOpen: boolean
-  onChange: () => void
+  onChange: (event: MouseEvent<HTMLButtonElement>) => void
+  animate: boolean
 }) {
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-bg-card/60 backdrop-blur-xl overflow-hidden transition-all duration-250">
+    <div className="overflow-hidden rounded-xl border border-border-subtle bg-bg-card">
       <button
+        type="button"
         onClick={onChange}
-        className="flex w-full items-center justify-between p-5 text-left hover:bg-bg-surface/30 transition-colors"
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-base font-semibold transition-colors hover:bg-bg-surface focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary-600"
       >
-        <span className="font-semibold">{question}</span>
+        <span>{question}</span>
         <ChevronDown
-          size={20}
-          className={`flex-shrink-0 text-primary-500 transition-transform duration-250 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
+          size={19}
+          className={`faq-toggle__icon shrink-0 text-primary-600 transition-transform duration-[180ms] ease-out motion-reduce:duration-0 ${isOpen ? 'rotate-180' : ''}`}
+          aria-hidden="true"
         />
       </button>
-      {isOpen && (
-        <div className="border-t border-white/[0.06] px-5 py-4">
-          <p className="text-sm leading-relaxed text-text-secondary">{answer}</p>
+      <div
+        id={panelId}
+        role="region"
+        aria-label={question}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+        data-animate={animate ? 'true' : 'false'}
+        className={`grid transition-[grid-template-rows] duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:duration-0 ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="border-t border-border-subtle px-5 py-4">
+            <p className="max-w-3xl text-sm leading-relaxed text-text-secondary">{answer}</p>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -55,153 +75,74 @@ export function FaqClient({
   faqData: FaqCategory[]
   locale: string
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All')
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())
+  const [animatePanels, setAnimatePanels] = useState(false)
 
-  const categories = ['All', ...faqData.map((f) => f.category)]
-
-  // Filter FAQ items based on search and category
-  const filteredFaqs = faqData.reduce(
-    (acc, categoryGroup) => {
-      if (selectedCategory !== 'All' && categoryGroup.category !== selectedCategory) {
-        return acc
-      }
-
-      const filteredItems = categoryGroup.items.filter(
-        (item) =>
-          searchQuery === '' ||
-          item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-
-      if (filteredItems.length > 0) {
-        acc.push({
-          ...categoryGroup,
-          items: filteredItems,
-        })
-      }
-
-      return acc
-    },
-    [] as FaqCategory[]
-  )
-
-  const toggleItem = (id: string) => {
-    const newOpen = new Set(openItems)
-    if (newOpen.has(id)) {
-      newOpen.delete(id)
-    } else {
-      newOpen.add(id)
-    }
-    setOpenItems(newOpen)
+  const toggleItem = (id: string, animate: boolean) => {
+    setAnimatePanels(animate)
+    setOpenItems((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
+
+  const isId = locale === 'id'
 
   return (
     <>
-      {/* Search and Filter */}
-      <div className="mb-12 space-y-4">
-        <div className="relative">
-          <Search size={18} className="absolute left-4 top-3.5 text-text-muted" />
-          <input
-            type="text"
-            placeholder="Search FAQs..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setOpenItems(new Set())
-            }}
-            className="w-full rounded-lg border border-white/[0.06] bg-bg-card/60 py-3 pl-10 pr-4 backdrop-blur-xl outline-none placeholder:text-text-muted focus:border-primary-500/20 focus:ring-1 focus:ring-primary-500/10"
-          />
-        </div>
-
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => {
-                setSelectedCategory(cat)
-                setOpenItems(new Set())
-              }}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-250 ${
-                selectedCategory === cat
-                  ? 'bg-primary-600 text-white'
-                  : 'border border-white/[0.06] bg-bg-card/60 text-text-secondary hover:border-primary-500/20'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+      <div className="space-y-10">
+        {faqData.map((categoryGroup, categoryIndex) => (
+          <section key={categoryGroup.category} aria-labelledby={`faq-category-${categoryIndex}`}>
+            <h2 id={`faq-category-${categoryIndex}`} className="mb-4 text-lg font-bold text-primary-600">
+              {categoryGroup.category}
+            </h2>
+            <div className="space-y-3">
+              {categoryGroup.items.map((item, itemIndex) => {
+                const panelId = faqId(categoryGroup.category, categoryIndex, itemIndex)
+                return (
+                  <AccordionItem
+                    key={panelId}
+                    question={item.question}
+                    answer={item.answer}
+                    panelId={panelId}
+                    isOpen={openItems.has(panelId)}
+                    animate={animatePanels}
+                    onChange={(event) => toggleItem(panelId, event.detail > 0)}
+                  />
+                )
+              })}
+            </div>
+          </section>
+        ))}
       </div>
 
-      {/* FAQs */}
-      {filteredFaqs.length > 0 ? (
-        <div className="space-y-8">
-          {filteredFaqs.map((categoryGroup) => (
-            <div key={categoryGroup.category}>
-              <h2 className="mb-4 text-lg font-bold text-primary-400">{categoryGroup.category}</h2>
-              <div className="space-y-3">
-                {categoryGroup.items.map((item, idx) => {
-                  const itemId = `${categoryGroup.category}-${idx}`
-                  return (
-                    <ScrollReveal key={itemId} delay={idx * 50}>
-                      <AccordionItem
-                        question={item.question}
-                        answer={item.answer}
-                        isOpen={openItems.has(itemId)}
-                        onChange={() => toggleItem(itemId)}
-                      />
-                    </ScrollReveal>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
+      <aside className="mt-14 rounded-xl border border-border-default bg-bg-surface p-6 md:p-8" aria-labelledby="faq-next-step">
+        <h2 id="faq-next-step" className="text-xl font-bold tracking-tight">
+          {isId ? 'Masih punya pertanyaan?' : 'Still have a question?'}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">
+          {isId
+            ? 'Bawa konteks lokasi, kamera, dan keputusan operasional Anda ke diskusi site-fit. Tim dapat menilai kebutuhan teknis dan batas data yang relevan.'
+            : 'Bring your site context, cameras, and operating decision to a site-fit discussion. The team can assess the relevant technical requirements and data boundary.'}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-semibold">
+          <Link
+            href={`/${locale}/demo`}
+            className="home-button home-button--primary"
+          >
+            {isId ? 'Minta demo site-fit' : 'Request a site-fit demo'}
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+          <Link
+            href={`/${locale}/contact`}
+            className="text-primary-600 underline decoration-primary-600/40 underline-offset-4 hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          >
+            {isId ? 'Hubungi tim' : 'Contact the team'}
+          </Link>
         </div>
-      ) : (
-        <div className="rounded-lg border border-white/[0.06] bg-bg-card/60 p-12 text-center backdrop-blur-xl">
-          <p className="text-text-secondary">No FAQs found matching your search. Try different keywords.</p>
-        </div>
-      )}
-
-      {/* Still Have Questions */}
-      <div className="mt-16 grid gap-6 sm:grid-cols-2">
-        <ScrollReveal>
-          <div className="rounded-2xl border border-white/[0.06] bg-bg-card/60 p-8 text-center backdrop-blur-xl">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
-              <Mail size={24} />
-            </div>
-            <h3 className="mb-2 font-semibold">Email Us</h3>
-            <p className="mb-4 text-sm text-text-secondary">Send us your question anytime</p>
-            <a
-              href="mailto:support@smartcounter.id"
-              className="inline-flex items-center gap-2 text-primary-500 hover:text-primary-400 font-semibold text-sm"
-            >
-              support@smartcounter.id
-            </a>
-          </div>
-        </ScrollReveal>
-
-        <ScrollReveal delay={50}>
-          <div className="rounded-2xl border border-white/[0.06] bg-bg-card/60 p-8 text-center backdrop-blur-xl">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary-500/10 text-primary-500">
-              <MessageCircle size={24} />
-            </div>
-            <h3 className="mb-2 font-semibold">WhatsApp</h3>
-            <p className="mb-4 text-sm text-text-secondary">Quick response from our team</p>
-            <a
-              href="https://wa.me/62XXX"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary-500 hover:text-primary-400 font-semibold text-sm"
-            >
-              Chat Now
-            </a>
-          </div>
-        </ScrollReveal>
-      </div>
+      </aside>
     </>
   )
 }

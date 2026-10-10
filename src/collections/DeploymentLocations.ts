@@ -1,10 +1,13 @@
 import type { CollectionConfig } from 'payload'
-import { canManageContent, visibleOrAuthenticated } from '@/access/admin'
+import { canManageContent } from '@/access/admin'
 
 export const DeploymentLocations: CollectionConfig = {
   slug: 'deployment-locations',
   access: {
-    read: visibleOrAuthenticated,
+    read: ({ req }) => req.user ? true : {
+      isVisible: { equals: true },
+      permissionStatus: { equals: 'approved' },
+    },
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -22,7 +25,24 @@ export const DeploymentLocations: CollectionConfig = {
     { name: 'longitude', type: 'number', required: true, admin: { description: 'e.g. 106.85 for Jakarta' } },
     { name: 'latitude', type: 'number', required: true, admin: { description: 'e.g. -6.2 for Jakarta (negative = south)' } },
     { name: 'isMajor', type: 'checkbox', defaultValue: false, admin: { description: 'Major city = bigger dot + always show label' } },
-    { name: 'isVisible', type: 'checkbox', defaultValue: true },
+    {
+      name: 'deploymentType',
+      type: 'select',
+      required: true,
+      defaultValue: 'unverified',
+      options: ['unverified', 'retail', 'mall', 'mixed'],
+    },
+    { name: 'provenanceSource', type: 'text' },
+    { name: 'activeSince', type: 'date' },
+    {
+      name: 'permissionStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'unreviewed',
+      options: ['unreviewed', 'approved', 'expired', 'revoked'],
+    },
+    { name: 'reviewAt', type: 'date' },
+    { name: 'isVisible', type: 'checkbox', defaultValue: false },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
   ],
 }

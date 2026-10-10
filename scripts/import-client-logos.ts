@@ -142,9 +142,12 @@ try {
 
     const media = await payload.create({
       collection: 'media',
+      draft: false,
       data: {
         alt: `${client.companyName} logo`,
         caption: `Client logo — ${client.companyName}`,
+        provenanceStatus: 'unreviewed',
+        permissionStatus: 'unreviewed',
       },
       filePath: normalizedPath,
     })
@@ -172,9 +175,12 @@ try {
 
       const darkModeMedia = await payload.create({
         collection: 'media',
+        draft: false,
         data: {
           alt: `${client.companyName} logo for dark mode`,
           caption: `Client dark logo — ${client.companyName}`,
+          provenanceStatus: 'unreviewed',
+          permissionStatus: 'unreviewed',
         },
         filePath: darkModePath,
       })
@@ -187,7 +193,9 @@ try {
         companyName: client.companyName,
         logo: media.id,
         darkModeLogo: darkModeMediaId,
-        isVisible: true,
+        isVisible: false,
+        permissionStatus: 'unreviewed',
+        customerStatus: 'unverified',
         sortOrder: index + 1,
       },
     })

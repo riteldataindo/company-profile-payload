@@ -39,9 +39,12 @@ try {
 
   const media = await payload.create({
     collection: 'media',
+    draft: false,
     data: {
       alt: 'Antasari Place logo',
       caption: 'Client logo — Antasari Place',
+      provenanceStatus: 'unreviewed',
+      permissionStatus: 'unreviewed',
     },
     filePath: normalizedPath,
   })

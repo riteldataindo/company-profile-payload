@@ -23,6 +23,18 @@ export const FormSubmissions: CollectionConfig = {
       ],
       admin: { description: 'Source form type' },
     },
+    {
+      name: 'solution',
+      type: 'select',
+      required: true,
+      defaultValue: 'shared',
+      options: [
+        { label: 'Shared / assessing', value: 'shared' },
+        { label: 'Retail', value: 'retail' },
+        { label: 'Mall', value: 'mall' },
+      ],
+      admin: { description: 'Retail, Mall, or shared context selected by the visitor' },
+    },
     { name: 'email', type: 'email', required: true, index: true },
     {
       name: 'status',

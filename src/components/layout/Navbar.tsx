@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Menu, X } from 'lucide-react'
 import { SmartCounterLogo } from '@/components/brand/SmartCounterLogo'
 import { ThemeToggle } from './ThemeToggle'
@@ -19,93 +20,148 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { key: 'features', href: '/features' },
-  { key: 'useCases', href: '/use-cases' },
-  { key: 'packages', href: '/packages' },
-  { key: 'faq', href: '/faq' },
-  { key: 'blog', href: '/blog' },
-  { key: 'contact', href: '/contact' },
+  { key: 'features', href: '/features', fallback: 'Features', fallbackId: 'Fitur' },
+  { key: 'retail', href: '/solutions/retail', fallback: 'Retail', fallbackId: 'Retail' },
+  { key: 'mall', href: '/solutions/mall', fallback: 'Mall', fallbackId: 'Mall' },
+  { key: 'deployment', href: '/deployment', fallback: 'Deployment', fallbackId: 'Deployment' },
+  { key: 'privacy', href: '/privacy', fallback: 'Privacy', fallbackId: 'Privasi' },
+  { key: 'contact', href: '/contact', fallback: 'Contact', fallbackId: 'Hubungi Kami' },
 ]
 
 export function Navbar({ locale, dict, logo }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false)
+  const isId = locale === 'id'
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [animateMenu, setAnimateMenu] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    if (!menuOpen) return
+
+    firstMenuLinkRef.current?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMenu()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [menuOpen])
+
+  function closeMenu() {
+    setAnimateMenu(false)
+    setMenuOpen(false)
+    window.requestAnimationFrame(() => menuButtonRef.current?.focus())
+  }
+
+  function toggleMenu(event: MouseEvent<HTMLButtonElement>) {
+    setAnimateMenu(event.detail > 0)
+    setMenuOpen((open) => !open)
+  }
+
+  function isCurrent(href: string) {
+    const target = `/${locale}${href}`
+    return pathname === target || pathname.startsWith(`${target}/`)
+  }
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-100 px-4 py-4 transition-all duration-300 ${
-        scrolled
-          ? 'bg-bg-base/85 backdrop-blur-xl shadow-[0_1px_0_var(--color-border-subtle)]'
-          : 'bg-transparent'
-      }`}
-      role="navigation"
-      aria-label="Main navigation"
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-8">
-        <Link href={`/${locale}`} className="shrink-0" aria-label="SmartCounter Home">
-          <SmartCounterLogo
-            alt=""
-            className="h-auto w-[132px] sm:w-[160px]"
-            height={logo?.height}
-            priority
-            sizes="(min-width: 640px) 160px, 132px"
-            src={logo?.url}
-            width={logo?.width}
-          />
-        </Link>
-
-        <ul className="hidden gap-7 md:flex">
-          {navItems.map((item) => (
-            <li key={item.key}>
-              <Link
-                href={`/${locale}${item.href}`}
-                className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-              >
-                {dict.nav[item.key]}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex items-center gap-3">
-          <LocaleSwitcher locale={locale} />
-          <ThemeToggle />
-          <Link
-            href={`/${locale}/demo`}
-            className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary-700 hover:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
-          >
-            {dict.nav.getDemo}
+    <header className="site-header">
+      <nav
+        className="site-header__bar"
+        aria-label={isId ? 'Navigasi utama' : 'Main navigation'}
+      >
+        <div className="site-header__inner">
+          <Link href={`/${locale}`} className="shrink-0" aria-label={isId ? 'Beranda SmartCounter' : 'SmartCounter home'}>
+            <SmartCounterLogo
+              alt=""
+              className="h-auto w-[132px] sm:w-[160px]"
+              height={logo?.height}
+              priority
+              sizes="(min-width: 640px) 160px, 132px"
+              src={logo?.url}
+              width={logo?.width}
+            />
           </Link>
-          <button
-            className="text-text-primary md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </div>
 
-      {menuOpen && (
-        <div className="mt-4 flex flex-col gap-2 rounded-xl border border-border-subtle bg-bg-surface p-4 md:hidden">
-          {navItems.map((item) => (
+          <ul className="hidden items-center gap-6 lg:flex">
+            {navItems.map((item) => {
+              const current = isCurrent(item.href)
+              return (
+                <li key={item.key}>
+                  <Link
+                    href={`/${locale}${item.href}`}
+                    aria-current={current ? 'page' : undefined}
+                    className={`site-nav-link ${current ? 'site-nav-link--current' : ''}`}
+                  >
+                    {dict.nav?.[item.key] || (locale === 'id' ? item.fallbackId : item.fallback)}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden items-center gap-2 lg:flex">
+              <LocaleSwitcher locale={locale} />
+              <ThemeToggle locale={locale} />
+            </div>
             <Link
-              key={item.key}
-              href={`/${locale}${item.href}`}
-              className="rounded-lg px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-card hover:text-text-primary"
-              onClick={() => setMenuOpen(false)}
+              href={`/${locale}/demo`}
+              data-analytics-placement="navbar"
+              className="home-button home-button--primary site-header__demo"
             >
-              {dict.nav[item.key]}
+              {dict.nav?.getDemo || (isId ? 'Minta demo site-fit' : 'Request a site-fit demo')}
             </Link>
-          ))}
+            <button
+              ref={menuButtonRef}
+              className="nav-state-button inline-flex min-h-11 min-w-11 items-center justify-center rounded-[10px] text-text-primary lg:hidden"
+              onClick={toggleMenu}
+              aria-controls="mobile-navigation"
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? (isId ? 'Tutup menu' : 'Close menu') : (isId ? 'Buka menu' : 'Open menu')}
+              type="button"
+            >
+              <span className="state-icon" data-animate={animateMenu ? 'true' : 'false'} aria-hidden="true">
+                <Menu className="state-icon__glyph" data-active={!menuOpen ? 'true' : 'false'} size={24} />
+                <X className="state-icon__glyph" data-active={menuOpen ? 'true' : 'false'} size={24} />
+              </span>
+            </button>
+          </div>
         </div>
-      )}
-    </nav>
+
+        {menuOpen && (
+          <div
+            id="mobile-navigation"
+            className="nav-popover mt-3 max-h-[calc(100dvh-6.5rem)] overflow-y-auto overscroll-contain rounded-[16px] border border-border-subtle bg-bg-surface p-4 shadow-lg lg:hidden"
+            data-animate={animateMenu ? 'true' : 'false'}
+          >
+            <ul className="flex flex-col gap-1">
+              {navItems.map((item, index) => {
+                const current = isCurrent(item.href)
+                return (
+                  <li key={item.key}>
+                    <Link
+                      ref={index === 0 ? firstMenuLinkRef : undefined}
+                      href={`/${locale}${item.href}`}
+                      aria-current={current ? 'page' : undefined}
+                      className={`block min-h-11 rounded-[10px] px-4 py-3 text-sm font-medium ${current ? 'bg-bg-card text-text-primary' : 'text-text-secondary'}`}
+                      onClick={closeMenu}
+                    >
+                      {dict.nav?.[item.key] || (locale === 'id' ? item.fallbackId : item.fallback)}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="mt-3 flex items-center gap-2 border-t border-border-subtle pt-3">
+              <LocaleSwitcher locale={locale} />
+              <ThemeToggle locale={locale} />
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
   )
 }

@@ -18,8 +18,10 @@ import { DeploymentLocations } from '@/collections/DeploymentLocations'
 import { ClientLogos } from '@/collections/ClientLogos'
 import { Media } from '@/collections/Media'
 import { Users } from '@/collections/Users'
+import { Claims } from '@/collections/Claims'
 
 import { SiteSettings } from '@/globals/SiteSettings'
+import { sanitizePublicClaim } from '@/lib/claims'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -64,6 +66,7 @@ export default buildConfig({
     DeploymentLocations,
     ClientLogos,
     Media,
+    Claims,
     Users,
   ],
   globals: [SiteSettings],
@@ -97,14 +100,14 @@ export default buildConfig({
         const excerpt = doc?.excerpt || doc?.shortDescription || ''
         const fullContent = extractRichText(doc?.content || doc?.longDescription)
         const result = generateSeoSuggestion({ name, excerpt, fullContent })
-        return result.title
+        return sanitizePublicClaim(result.title)
       },
       generateDescription: ({ doc }) => {
         const name = doc?.title || doc?.name || doc?.industryName || ''
         const excerpt = doc?.excerpt || doc?.shortDescription || ''
         const fullContent = extractRichText(doc?.content || doc?.longDescription)
         const result = generateSeoSuggestion({ name, excerpt, fullContent })
-        return result.description
+        return sanitizePublicClaim(result.description)
       },
     }),
   ],
@@ -112,11 +115,8 @@ export default buildConfig({
     locales: [
       { label: 'English', code: 'en' },
       { label: 'Indonesia', code: 'id' },
-      { label: '한국어', code: 'ko' },
-      { label: '日本語', code: 'ja' },
-      { label: '中文', code: 'zh' },
     ],
     defaultLocale: 'en',
-    fallback: true,
+    fallback: false,
   },
 })

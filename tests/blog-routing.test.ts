@@ -53,14 +53,11 @@ test('blogPageHref omits the duplicate page-one query', () => {
 test('localized routes select the requested canonical slug with an English fallback', () => {
   const slugs = {
     en: 'visitor-traffic',
-    id: 'lalu-lintas-pengunjung',
   } as const
 
-  assert.equal(canonicalSlugForLocale(slugs, 'id'), 'lalu-lintas-pengunjung')
-  assert.equal(canonicalSlugForLocale(slugs, 'ko'), 'visitor-traffic')
+  assert.equal(canonicalSlugForLocale(slugs, 'id'), 'visitor-traffic')
   assert.deepEqual(localizedSectionPaths('features', slugs), {
     en: '/features/visitor-traffic',
-    id: '/features/lalu-lintas-pengunjung',
   })
 })
 

@@ -1,12 +1,15 @@
 import { APIError, type CollectionConfig } from 'payload'
-import { canManageContent, publicRead } from '@/access/admin'
+import { canManageContent } from '@/access/admin'
 import { validateMediaUpload } from '@/lib/media-validation'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Media', plural: 'Media' },
   access: {
-    read: publicRead,
+    read: ({ req }) => req.user ? true : {
+      permissionStatus: { equals: 'approved' },
+      provenanceStatus: { not_equals: 'unreviewed' },
+    },
     create: canManageContent,
     update: canManageContent,
     delete: canManageContent,
@@ -52,5 +55,43 @@ export const Media: CollectionConfig = {
   fields: [
     { name: 'alt', type: 'text', required: true, localized: true },
     { name: 'caption', type: 'text', localized: true },
+    {
+      name: 'provenanceStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'unreviewed',
+      options: [
+        { label: 'Unreviewed', value: 'unreviewed' },
+        { label: 'Real redacted', value: 'real-redacted' },
+        { label: 'Real public', value: 'real-public' },
+        { label: 'Illustrative sample', value: 'illustrative-sample' },
+        { label: 'Conceptual', value: 'conceptual' },
+      ],
+    },
+    { name: 'source', type: 'text' },
+    { name: 'owner', type: 'text' },
+    { name: 'capturedAt', type: 'date' },
+    {
+      name: 'permissionStatus',
+      type: 'select',
+      required: true,
+      defaultValue: 'unreviewed',
+      options: ['unreviewed', 'approved', 'restricted', 'expired'],
+    },
+    {
+      name: 'approvedLocales',
+      type: 'select',
+      hasMany: true,
+      options: [
+        { label: 'English', value: 'en' },
+        { label: 'Indonesia', value: 'id' },
+      ],
+    },
+    {
+      name: 'approvedRoutes',
+      type: 'array',
+      fields: [{ name: 'route', type: 'text', required: true }],
+    },
+    { name: 'reviewAt', type: 'date' },
   ],
 }

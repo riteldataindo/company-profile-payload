@@ -33,3 +33,6 @@ public/media/
 Thumbs.db
 /data/
 .backups/
+
+# agent workspace artefacts
+.empryo/

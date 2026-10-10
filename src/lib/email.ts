@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 
 interface ContactFormData {
   formType: 'contact'
+  solution: 'shared' | 'retail' | 'mall'
   name: string
   email: string
   phone?: string
@@ -11,6 +12,7 @@ interface ContactFormData {
 
 interface DemoFormData {
   formType: 'demo'
+  solution: 'shared' | 'retail' | 'mall'
   name: string
   email: string
   phone: string
@@ -49,13 +51,18 @@ function getTransporter() {
 
 function getEmailTemplate(formData: FormData): { subject: string; html: string } {
   if (formData.formType === 'contact') {
-    const { name, email, phone, company, message } = formData as ContactFormData
+    const { name, email, phone, company, message, solution } = formData as ContactFormData
     return {
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
           <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <h2 style="color: #333; margin-bottom: 20px;">New Contact Form Submission</h2>
+
+            <div style="margin-bottom: 15px;">
+              <strong style="color: #555;">Context:</strong>
+              <p style="margin: 5px 0 0 0; color: #333;">${escapeHtml(solution)}</p>
+            </div>
 
             <div style="margin-bottom: 15px;">
               <strong style="color: #555;">Name:</strong>
@@ -95,13 +102,18 @@ function getEmailTemplate(formData: FormData): { subject: string; html: string }
       `,
     }
   } else {
-    const { name, email, phone, company, storeCount, message } = formData as DemoFormData
+    const { name, email, phone, company, storeCount, message, solution } = formData as DemoFormData
     return {
       subject: `New Demo Request from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
           <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <h2 style="color: #333; margin-bottom: 20px;">New Demo Request</h2>
+
+            <div style="margin-bottom: 15px;">
+              <strong style="color: #555;">Context:</strong>
+              <p style="margin: 5px 0 0 0; color: #333;">${escapeHtml(solution)}</p>
+            </div>
 
             <div style="margin-bottom: 15px;">
               <strong style="color: #555;">Name:</strong>
@@ -170,9 +182,15 @@ export async function sendFormNotificationEmail(formData: FormData): Promise<voi
     const transporter = getTransporter()
     const { subject, html } = getEmailTemplate(formData)
 
+    const recipient = process.env.FORM_NOTIFICATION_EMAIL
+    if (!recipient) {
+      console.warn('FORM_NOTIFICATION_EMAIL not configured. Submission remains stored in Payload.')
+      return
+    }
+
     await transporter.sendMail({
       from: process.env.SMTP_USER,
-      to: 'info@riteldata.id',
+      to: recipient,
       subject,
       html,
     })

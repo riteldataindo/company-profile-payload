@@ -36,3 +36,8 @@ export const ownUserOrSuperAdmin: Access = ({ req }) => {
 }
 
 export const superAdminFieldOnly: FieldAccess = ({ req }) => roleFromUser(req.user) === 'super_admin'
+
+export const verifiedIdentityField: FieldAccess = ({ req, doc }) => (
+  Boolean(req.user)
+  || Boolean((doc as { identityVerified?: unknown } | undefined)?.identityVerified)
+)

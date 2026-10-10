@@ -1,48 +1,25 @@
-import type { Locale } from '@/lib/i18n/config'
-import { isValidLocale } from '@/lib/i18n/config'
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo/metadata'
-import { breadcrumbSchema } from '@/lib/seo/jsonld'
-import { JsonLd } from '@/components/seo/JsonLd'
-import { getSiteSettings } from '@/lib/data'
-import { ContactClient } from '@/components/contact/ContactClient'
+import { isValidLocale } from '@/lib/i18n/config'
+import { ContactView } from '@/components/smartcounter/CompanyViews'
+import { getCompanyContact } from '@/lib/profile/contact-server'
+import { readContactQuery } from '@/lib/profile/form-query'
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const { locale } = await params
-  return buildMetadata({
-    title: 'Contact Us — SmartCounter',
-    description: 'Get in touch with SmartCounter. We usually respond within 24 hours.',
-    locale,
-    path: '/contact',
-  })
-}
-
-export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params
+  const query = await searchParams
   if (!isValidLocale(locale)) notFound()
-
-  const siteSettings = await getSiteSettings(locale)
-
-  const contactInfo = {
-    email: siteSettings?.contactEmail || 'info@riteldata.id',
-    phone: siteSettings?.contactPhone || '+62 882-1001-9165',
-    whatsapp: siteSettings?.whatsappNumber || '6288210019165',
-    address: siteSettings?.contactAddress || 'Komplek Griya Inti Sentosa\nJl. Griya Agung No.3 Blok M\nSunter Agung, Jakarta Utara 14350',
-    socialLinks: Object.fromEntries(
-      Object.entries(siteSettings?.socialLinks || {}).filter(
-        (entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].length > 0,
-      ),
-    ),
-  }
-
-  return (
-    <>
-      <JsonLd data={breadcrumbSchema([
-        { name: 'Home', url: `/${locale}` },
-        { name: 'Contact', url: `/${locale}/contact` },
-      ])} />
-      <ContactClient contactInfo={contactInfo} />
-    </>
-  )
+  const search = new URLSearchParams()
+  const solution = typeof query.solution === 'string' ? query.solution : ''
+  const packageName = typeof query.package === 'string' ? query.package : ''
+  if (solution) search.set('solution', solution)
+  if (packageName) search.set('package', packageName)
+  const parsed = readContactQuery(search.toString())
+  const contact = await getCompanyContact(locale)
+  return <ContactView locale={locale} contact={contact} solution={parsed.solution} packageName={parsed.packageName} />
 }

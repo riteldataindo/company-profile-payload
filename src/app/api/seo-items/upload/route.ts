@@ -36,7 +36,12 @@ export async function POST(request: NextRequest) {
 
     const doc = await payload.create({
       collection: 'media',
-      data: { alt },
+      draft: false,
+      data: {
+        alt,
+        provenanceStatus: 'unreviewed',
+        permissionStatus: 'unreviewed',
+      },
       file: {
         data: buffer,
         mimetype: detectedMime,

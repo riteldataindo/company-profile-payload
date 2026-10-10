@@ -6,8 +6,8 @@ import {
   type IndexableLocale,
 } from '@/lib/i18n/config'
 import { getMediaUrl, getSiteSettings } from '@/lib/data'
+import { getSiteUrl, siteUrlForPath } from './site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smartcounter.id'
 const SITE_NAME = 'SmartCounter'
 
 interface MetadataOptions {
@@ -41,35 +41,44 @@ export async function buildMetadata({
   const resolvedOgImage = ogImage || getMediaUrl(settings?.defaultOgImage)
   const siteName = settings?.siteName || SITE_NAME
   const canonicalPath = path === '' ? `/${locale}` : `/${locale}${path}`
-  const canonicalUrl = `${SITE_URL}${canonicalPath}`
+  const siteUrl = getSiteUrl()
+  const canonicalUrl = siteUrlForPath(canonicalPath)
 
   const languages: Record<string, string> = {}
-  for (const loc of indexableLocales) {
-    const localizedPath = alternatePaths ? alternatePaths[loc] : path
-    if (localizedPath === undefined) continue
-    const locPath = localizedPath === '' ? `/${loc}` : `/${loc}${localizedPath}`
-    languages[loc] = `${SITE_URL}${locPath}`
+  if (siteUrl) {
+    for (const loc of indexableLocales) {
+      const localizedPath = alternatePaths ? alternatePaths[loc] : path
+      if (localizedPath === undefined) continue
+      const locPath = localizedPath === '' ? `/${loc}` : `/${loc}${localizedPath}`
+      const localizedUrl = siteUrlForPath(locPath)
+      if (localizedUrl) languages[loc] = localizedUrl
+    }
+    const defaultPath = alternatePaths ? alternatePaths.en : path
+    if (defaultPath !== undefined) {
+      const defaultUrl = siteUrlForPath(
+        defaultPath === '' ? `/${defaultLocale}` : `/${defaultLocale}${defaultPath}`,
+      )
+      if (defaultUrl) languages['x-default'] = defaultUrl
+    }
   }
-  const defaultPath = alternatePaths ? alternatePaths.en : path
-  if (defaultPath !== undefined) {
-    languages['x-default'] = `${SITE_URL}/${defaultLocale}${defaultPath}`
-  }
-  const shouldNoIndex = noIndex || !isIndexableLocale(locale)
+  const shouldNoIndex = noIndex || !isIndexableLocale(locale) || !siteUrl
 
   return {
     title,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-      languages,
-    },
+    ...(canonicalUrl && {
+      alternates: {
+        canonical: canonicalUrl,
+        ...(Object.keys(languages).length > 0 && { languages }),
+      },
+    }),
     openGraph: {
       title,
       description,
-      url: canonicalUrl,
       siteName,
       locale,
       type: ogType,
+      ...(canonicalUrl && { url: canonicalUrl }),
       ...(resolvedOgImage && {
         images: [{ url: resolvedOgImage, width: 1200, height: 630, alt: title }],
       }),

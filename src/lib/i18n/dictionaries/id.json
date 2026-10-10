@@ -1,66 +1,33 @@
 {
   "nav": {
     "features": "Fitur",
-    "useCases": "Studi Kasus",
-    "packages": "Paket",
+    "retail": "Retail",
+    "mall": "Mall",
+    "useCases": "Solusi",
+    "deployment": "Deployment",
+    "privacy": "Privasi",
     "faq": "FAQ",
-    "blog": "Blog",
-    "contact": "Hubungi Kami",
-    "getDemo": "Coba Demo"
-  },
-  "hero": {
-    "badge": "People Counting untuk Retail Indonesia",
-    "title": "People Counting",
-    "titleHighlight": "& Analitik Pengunjung",
-    "subtitle": "SmartCounter mengubah kamera CCTV yang kompatibel menjadi sistem penghitung pengunjung dengan analitik real-time, heatmap, dan insight demografis agregat untuk mendukung keputusan operasional.",
-    "ctaPrimary": "Coba Demo Gratis",
-    "ctaSecondary": "Lihat Semua Fitur"
+    "contact": "Kontak",
+    "getDemo": "Minta demo site-fit"
   },
   "common": {
-    "contactUs": "Hubungi Kami",
-    "learnMore": "Selengkapnya",
-    "explore": "Jelajahi",
-    "readArticle": "Baca artikel",
-    "viewAll": "Lihat Semua",
-    "copyright": "© 2026 PT Ritel Data Indonesia. Hak cipta dilindungi.",
-    "storesServed": "Toko Terlayani",
-    "accuracy": "Akurasi",
-    "analyticsFeatures": "Fitur Analitik",
-    "liveAnalytics": "Analitik Pengunjung",
-    "privacyFirst": "Utamakan Privasi"
+    "copyright": "© SmartCounter"
   },
-  "painPoints": {
-    "title": "Masih Menghitung Pengunjung Manual?",
-    "subtitle": "Inilah yang terjadi saat Anda tidak memiliki data pengunjung yang akurat."
-  },
-  "features": {
-    "badge": "Analitik CCTV Cerdas",
-    "title": "12+ Fitur Analitik Berbasis AI",
-    "subtitle": "Dari people counting hingga heatmap — semua yang dibutuhkan sistem CCTV AI untuk mentransformasi inteligensi retail Anda."
-  },
-  "useCases": {
-    "title": "People Counting untuk Setiap Format Retail",
-    "subtitle": "Dari butik fashion hingga mall besar, CCTV AI SmartCounter menyesuaikan dengan ruang dan kebutuhan Anda."
-  },
-  "coverage": {
-    "title": "Dipercaya Industri Retail Modern",
-    "subtitle": "untuk Analitik Pengunjung Cerdas — terpasang di seluruh Indonesia"
-  },
-  "packages": {
-    "title": "Pilih Paket Anda",
-    "subtitle": "Tiga paket untuk setiap skala retail. Semua termasuk perangkat keras dan instalasi."
-  },
-  "faq": {
-    "title": "Pertanyaan yang Sering Ditanyakan"
-  },
-  "cta": {
-    "title": "Siap Mentransformasi Insight Retail Anda?",
-    "subtitle": "Lihat bagaimana SmartCounter dapat mendukung keputusan traffic dan operasional di lokasi retail Anda."
+  "waFloat": {
+    "title": "SmartCounter",
+    "channel": "Kanal kontak",
+    "intro": "Hubungi tim SmartCounter untuk membahas kesiapan lokasi Retail atau Mall.",
+    "open": "Buka kontak WhatsApp",
+    "close": "Tutup kontak WhatsApp",
+    "messageLabel": "Pesan untuk WhatsApp",
+    "placeholder": "Tulis pesan Anda…",
+    "send": "Kirim via WhatsApp",
+    "sendLabel": "Kirim pesan WhatsApp"
   },
   "footer": {
     "product": "Produk",
-    "resources": "Sumber Daya",
+    "resources": "Sumber daya",
     "contactInfo": "Kontak",
-    "description": "Perangkat lunak analitik pengunjung untuk toko fisik, pusat perbelanjaan, dan operasional retail multi-lokasi."
+    "description": "Analitik pengunjung untuk operasional retail fisik dan mall."
   }
 }
