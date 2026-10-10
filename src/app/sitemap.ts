@@ -5,18 +5,7 @@ import { getSiteUrl, siteUrlForPath } from '@/lib/seo/site'
 // Packages and Blog stay out of the public index until their publication gates
 // are explicitly enabled. Detail records can be added here only with a tested
 // published/completeness query.
-const staticPaths = [
-  '',
-  '/solutions/retail',
-  '/solutions/mall',
-  '/features',
-  '/use-cases',
-  '/deployment',
-  '/privacy',
-  '/faq',
-  '/contact',
-  '/demo',
-] as const
+const staticPaths = ['', '/solutions/retail', '/solutions/mall', '/capabilities', '/deployment', '/privacy', '/faq', '/contact', '/demo'] as const
 
 function localizedAlternates(path: string) {
   const languages = Object.fromEntries(

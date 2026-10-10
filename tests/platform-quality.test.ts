@@ -73,7 +73,9 @@ test('conversion analytics use the PRD event contract without PII', () => {
   assert.match(eventsSource, /contact_submit_error/)
   assert.match(eventsSource, /feature_explore/)
   assert.doesNotMatch(eventsSource, /\['(?:name|email|phone|company|message)'\]/)
-  assert.match(demoSource, /URLSearchParams\(window\.location\.search\)/)
+  assert.match(demoSource, /await searchParams/)
+  assert.match(demoSource, /readContactQuery/)
+  assert.match(demoSource, /solution=\{solution\}/)
   assert.match(consentSource, /closest\('a\[href\]'\)/)
 })
 
@@ -108,7 +110,9 @@ test('sitemap contains only the approved static route matrix', () => {
   try {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://release.example.test'
     const entries = sitemap()
-    assert.equal(entries.length, 20)
+    assert.equal(entries.length, 18)
+    assert.equal(entries.some((entry) => /\/(features|use-cases)$/.test(entry.url)), false)
+    assert.equal(entries.some((entry) => entry.url.endsWith('/capabilities')), true)
     assert.equal(entries.some((entry) => entry.url.includes('/packages')), false)
     assert.equal(entries.some((entry) => entry.url.includes('/blog')), false)
     assert.deepEqual(entries[0]?.alternates?.languages, {

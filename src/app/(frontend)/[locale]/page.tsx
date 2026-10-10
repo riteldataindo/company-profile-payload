@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo/metadata'
 import { organizationSchema, websiteSchema, softwareApplicationSchema } from '@/lib/seo/jsonld'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { getSiteSettings } from '@/lib/data'
-import { loadProfileContent } from '@/lib/profile/content'
+import { getCompanyContact } from '@/lib/profile/contact-server'
 import { HomeView } from '@/components/smartcounter/HomeView'
 
 export async function generateMetadata({
@@ -19,8 +19,8 @@ export async function generateMetadata({
       ? 'People Counting & Visitor Analytics untuk Retail dan Mall'
       : 'People Counting & Visitor Analytics for Retail and Mall',
     description: locale === 'id'
-      ? 'SmartCounter menyatukan analytics Retail dan Mall dalam satu platform, dengan metric yang terdefinisi jelas, validasi representatif, dan dukungan implementasi lokal.'
-      : 'SmartCounter brings Retail and Mall analytics into one platform, with clearly defined metrics, representative validation, and local implementation support.',
+      ? 'SmartCounter menghitung orang yang masuk ke toko dan mall Anda, lalu menunjukkan jam tersibuk, entrance paling ramai, dan perbandingan tiap lokasi.'
+      : 'SmartCounter counts the people entering your stores and malls, and shows when traffic peaks, which entrances bring people in, and how each location compares.',
     locale,
     path: '',
   })
@@ -33,16 +33,16 @@ export default async function HomePage({
 }) {
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
-  const [siteSettings, content] = await Promise.all([
+  const [siteSettings, contact] = await Promise.all([
     getSiteSettings(locale),
-    loadProfileContent(locale),
+    getCompanyContact(locale),
   ])
   return (
     <>
       <JsonLd data={organizationSchema(siteSettings)} />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={softwareApplicationSchema()} />
-      <HomeView locale={locale} packages={content.packages} faqGroups={content.faq} />
+      <HomeView locale={locale} contact={contact} />
     </>
   )
 }

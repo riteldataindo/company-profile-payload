@@ -20,20 +20,20 @@ export function alternateLocale(locale: Locale): Locale {
 
 export const sharedCopy = {
   brandDescription: {
-    en: 'People Counting & Visitor Analytics Platform for Retail and Mall.',
-    id: 'Platform People Counting & Visitor Analytics untuk Retail dan Mall.',
+    en: 'People counting and visitor analytics for retail stores and malls.',
+    id: 'People counting dan visitor analytics untuk toko retail dan mall.',
   },
   seeInAction: {
-    en: 'See SmartCounter in Action',
-    id: 'Lihat SmartCounter Beraksi',
+    en: 'Book a demo',
+    id: 'Jadwalkan demo',
   },
   discussSite: {
-    en: 'Discuss Your Site',
-    id: 'Diskusikan Lokasi Anda',
+    en: 'Discuss your site',
+    id: 'Diskusikan lokasi Anda',
   },
   discussNeeds: {
-    en: 'Discuss Your Needs',
-    id: 'Diskusikan Kebutuhan Anda',
+    en: 'Discuss your needs',
+    id: 'Diskusikan kebutuhan Anda',
   },
   learnMore: {
     en: 'Learn more',

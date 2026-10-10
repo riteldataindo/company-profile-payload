@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { submitForm } from '../src/app/actions/submitForm.ts'
-import { formCopy, readContactQuery } from '../src/lib/profile/form-query.ts'
-import { getPayload } from '../src/lib/payload.ts'
+import { submitForm } from '../src/app/actions/submitForm'
+import { formCopy, readContactQuery } from '../src/lib/profile/form-query'
+import { getPayload } from '../src/lib/payload'
 
 // Skip the Next.js HMR socket that Payload opens outside production and test.
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-  process.env.NODE_ENV = 'test'
+  Object.assign(process.env, { NODE_ENV: 'test' })
 }
 
 type PayloadWithPool = {

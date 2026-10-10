@@ -10,9 +10,11 @@ import {
   mapFaq,
   mapGuides,
   mapPackages,
-} from '../src/lib/profile/content.ts'
+} from '../src/lib/profile/content'
+import type { Where } from "payload";
+import type { BlogPost } from "../src/payload-types";
 
-function richText(text: string) {
+function richText(text: string): NonNullable<BlogPost['content']> {
   return {
     root: {
       type: 'root',
@@ -135,7 +137,7 @@ test('empty capability docs fall back to visitor traffic', () => {
 })
 
 test('loadProfileContent reads seeded bilingual payload docs', { timeout: 180000 }, async () => {
-  const { getPayload } = await import('../src/lib/payload.ts')
+  const { getPayload } = await import('../src/lib/payload')
   const payload = await getPayload()
   const packageSlugs = ['core-platform-qx7', 'advanced-analytics-qx7', 'enterprise-qx7']
   const guideSlug = 'what-is-a-people-counting-system'
@@ -151,7 +153,7 @@ test('loadProfileContent reads seeded bilingual payload docs', { timeout: 180000
     features: [] as Array<number | string>,
   }
 
-  async function idsFor(collection: 'pricing-tiers' | 'blog-posts' | 'features' | 'faq-items', where: Record<string, unknown>) {
+  async function idsFor(collection: 'pricing-tiers' | 'blog-posts' | 'features' | 'faq-items', where: Where) {
     const ids = new Set<number | string>()
     for (const locale of ['en', 'id'] as const) {
       const result = await payload.find({

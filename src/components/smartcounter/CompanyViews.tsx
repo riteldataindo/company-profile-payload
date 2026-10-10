@@ -1,7 +1,9 @@
 import {
   CheckCircle2,
 } from 'lucide-react'
+import type { CompanyContact } from '@/lib/profile/contact'
 import { ContactSubmitForm } from '@/components/smartcounter/SubmitForms'
+import { ContactLinks } from './landing/ContactLinks'
 import type { Locale } from './i18n'
 import { route, sharedCopy, text } from './i18n'
 import {
@@ -13,54 +15,72 @@ import {
   TruthNotice,
 } from './Primitives'
 
-export function CompanyView({ locale }: { locale: Locale }) {
+export function CompanyView({ locale, contact }: { locale: Locale; contact: CompanyContact }) {
   const isId = locale === 'id'
   return (
     <>
       <PageHero
         compact
-        eyebrow={isId ? 'Identitas perusahaan' : 'Company identity'}
+        eyebrow={isId ? 'Perusahaan' : 'Company'}
         title={isId ? 'SmartCounter adalah produk PT Ritel Data Indonesia.' : 'SmartCounter is a product of PT Ritel Data Indonesia.'}
-        description={isId ? 'Halaman ini sengaja menjadi verified legal-identity surface yang ringkas, bukan corporate story yang belum memiliki evidence.' : 'This page is intentionally a concise verified legal-identity surface, not an unsupported corporate story.'}
-        actions={<ButtonLink href={route(locale, '/contact')}>{text(locale, sharedCopy.discussSite)}</ButtonLink>}
+        description={isId
+          ? 'Kami membangun, memasang, dan mendukung SmartCounter dari Sunter Agung, Jakarta.'
+          : 'We build, install, and support SmartCounter from Sunter Agung, Jakarta.'}
+        actions={<ButtonLink href={route(locale, '/demo')}>{text(locale, sharedCopy.seeInAction)}</ButtonLink>}
       />
       <section className="section"><div className="container company-grid">
-        <div><SectionHeading eyebrow={isId ? 'Scope bisnis' : 'Business scope'} title={isId ? 'People Counting & Visitor Analytics untuk Retail dan Mall.' : 'People Counting & Visitor Analytics for Retail and Mall.'} /><p>{isId ? 'SmartCounter membantu tim meninjau traffic dan spatial signal agregat dengan boundary, definition, prerequisite, limitation, dan validation context yang terlihat.' : 'SmartCounter helps teams review aggregate traffic and spatial signals with visible boundaries, definitions, prerequisites, limitations, and validation context.'}</p></div>
+        <div>
+          <SectionHeading
+            eyebrow={isId ? 'Yang kami kerjakan' : 'What we do'}
+            title={isId ? 'People counting dan visitor analytics untuk toko retail dan mall.' : 'People counting and visitor analytics for retail stores and malls.'}
+          />
+          <p>{isId
+            ? 'SmartCounter menghitung pengunjung di entrance toko dan gate mall, lalu menyajikannya dalam dashboard untuk tim retail dan property.'
+            : 'SmartCounter counts visitors at store entrances and mall gates and turns the counts into dashboards for retail and property teams.'}</p>
+        </div>
         <DefinitionList items={[
           { term: isId ? 'Nama legal' : 'Legal name', description: 'PT Ritel Data Indonesia' },
-          { term: isId ? 'Alamat terverifikasi' : 'Verified address', description: text(locale, sharedCopy.notAvailable) },
-          { term: 'Email', description: text(locale, sharedCopy.notAvailable) },
-          { term: 'WhatsApp / phone', description: text(locale, sharedCopy.notAvailable) },
-          { term: isId ? 'Social link disetujui' : 'Approved social links', description: text(locale, sharedCopy.notAvailable) },
+          { term: isId ? 'Kantor' : 'Office', description: contact.address },
+          { term: 'Email', description: <a href={`mailto:${contact.email}`}>{contact.email}</a> },
+          { term: 'WhatsApp', description: contact.whatsappDisplay },
         ]} />
       </div></section>
-      <section className="section section--muted"><div className="container"><TruthNotice locale={locale} tone="warning"><p>{isId ? 'Team profile, corporate timeline, certification, partner, customer count, dan deployment footprint tidak ditampilkan karena evidence atau permission belum tersedia.' : 'Team profiles, corporate timeline, certifications, partners, customer counts, and deployment footprint are not displayed because evidence or permission is not available.'}</p></TruthNotice></div></section>
     </>
   )
 }
 
 export function ContactView({
   locale,
+  contact,
   solution = 'shared',
   packageName = '',
 }: {
   locale: Locale
+  contact: CompanyContact
   solution?: 'shared' | 'retail' | 'mall'
   packageName?: string
 }) {
   const isId = locale === 'id'
   return (
     <>
-      <PageHero compact eyebrow={isId ? 'Site discussion' : 'Site discussion'} title={isId ? 'Diskusikan operating question dan konteks lokasi.' : 'Discuss the operating question and site context.'} description={isId ? 'Form ini memprioritaskan qualification, bukan meminta semua detail teknis sebelum percakapan.' : 'This form prioritizes qualification rather than asking for every technical detail before a conversation.'} />
+      <PageHero
+        compact
+        eyebrow={isId ? 'Kontak' : 'Contact'}
+        title={isId ? 'Bicarakan toko atau mall Anda dengan kami.' : 'Talk to us about your stores or mall.'}
+        description={isId
+          ? 'Kirim pesan lewat form, email, atau WhatsApp. Tim kami ada di Jakarta.'
+          : 'Send a message with the form, by email, or on WhatsApp. Our team is in Jakarta.'}
+      />
       <section className="section"><div className="container contact-grid">
         <div>
-          <SectionHeading eyebrow={isId ? 'Yang membantu' : 'Useful context'} title={isId ? 'Bawa pertanyaan, bukan jawaban architecture.' : 'Bring the question, not an architecture answer.'} />
+          <h2 className="contact-title">{isId ? 'Hubungi kami langsung' : 'Reach us directly'}</h2>
+          <ContactLinks locale={locale} contact={contact} showAddress />
+          <h2 className="contact-title">{isId ? 'Yang membantu untuk disertakan' : 'Helpful to include'}</h2>
           <ul className="check-list">
-            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Konteks Retail atau Mall' : 'Retail or Mall context'}</li>
-            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Jumlah lokasi atau tipe property' : 'Location count or property type'}</li>
-            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Operating question dan target waktu' : 'Operating question and timeline'}</li>
+            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Toko retail atau mall' : 'Retail store or mall'}</li>
+            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Jumlah lokasi atau entrance' : 'Number of locations or entrances'}</li>
+            <li><CheckCircle2 aria-hidden="true" />{isId ? 'Apa yang ingin Anda ketahui, dan kapan' : 'What you want to know, and by when'}</li>
           </ul>
-          <TruthNotice locale={locale} tone="warning"><p>{isId ? 'Email, WhatsApp, dan alamat publik yang terverifikasi belum ditampilkan. Permintaan dari form ini tetap dikirim.' : 'Verified public email, WhatsApp, and address are not published yet. Requests from this form are still sent.'}</p></TruthNotice>
         </div>
         <ContactSubmitForm locale={locale} solution={solution} packageName={packageName} />
       </div></section>

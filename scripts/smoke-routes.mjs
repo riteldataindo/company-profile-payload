@@ -15,18 +15,7 @@ const sitemapResponse = await expectStatus('/sitemap.xml', 200)
 const sitemap = await sitemapResponse.text()
 const sitemapPaths = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)]
   .map(match => new URL(match[1]).pathname)
-const coreRoutes = [
-  '',
-  '/solutions/retail',
-  '/solutions/mall',
-  '/features',
-  '/use-cases',
-  '/deployment',
-  '/privacy',
-  '/faq',
-  '/contact',
-  '/demo',
-]
+const coreRoutes = ['', '/platform', '/solutions/retail', '/solutions/mall', '/capabilities', '/packages', '/guides', '/guides/what-is-a-people-counting-system', '/validation', '/deployment', '/company', '/privacy', '/terms', '/faq', '/contact', '/demo']
 const staticPaths = ['en', 'id'].flatMap(locale => coreRoutes.map(path => `/${locale}${path}`))
 const paths = [...new Set([...staticPaths, ...sitemapPaths])]
 
@@ -84,7 +73,14 @@ await expectStatus('/en/features/definitely-not-a-feature', 404)
 await expectStatus('/en/use-cases/definitely-not-a-use-case', 404)
 await expectStatus('/en/blog/definitely-not-a-post', 404)
 await expectStatus('/en/blog', 404)
-await expectStatus('/en/packages', 404)
+for (const locale of ['en', 'id']) {
+  for (const [from, to] of [['features', 'capabilities'], ['use-cases', 'solutions/retail']]) {
+    const response = await expectStatus(`/${locale}/${from}`, 307)
+    if (new URL(response.headers.get('location'), baseUrl).pathname !== `/${locale}/${to}`) {
+      throw new Error(`/${locale}/${from}: incorrect redirect`)
+    }
+  }
+}
 await expectStatus('/about', 308)
 await expectStatus('/fitur', 308)
 console.log(`Smoke QA passed: ${htmlChecks} HTML + ${rscChecks} RSC routes`)

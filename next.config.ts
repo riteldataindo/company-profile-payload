@@ -50,6 +50,9 @@ const nextConfig: NextConfig = {
       {
         pathname: '/og/**',
       },
+      {
+        pathname: '/product/**',
+      },
     ],
   },
   async redirects() {

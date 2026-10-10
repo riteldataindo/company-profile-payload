@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  ArrowRight,
   CircleAlert,
   FileImage,
   FileVideo2,
@@ -26,17 +25,34 @@ export function ButtonLink({
   variant = 'primary',
   className = '',
   onClick,
+  icon,
+  external = false,
 }: {
   href: string
   children: React.ReactNode
   variant?: 'primary' | 'secondary' | 'text'
   className?: string
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void
+  icon?: React.ReactNode
+  external?: boolean
 }) {
-  return (
-    <SmartLink className={`button button--${variant} ${className}`.trim()} href={href} onClick={onClick}>
+  const classes = `button button--${variant} ${className}`.trim()
+  const content = (
+    <>
+      {icon}
       <span>{children}</span>
-      <ArrowRight aria-hidden="true" size={17} />
+    </>
+  )
+  if (external) {
+    return (
+      <a className={classes} href={href} target="_blank" rel="noopener noreferrer" onClick={onClick}>
+        {content}
+      </a>
+    )
+  }
+  return (
+    <SmartLink className={classes} href={href} onClick={onClick}>
+      {content}
     </SmartLink>
   )
 }

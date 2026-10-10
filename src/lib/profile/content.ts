@@ -140,7 +140,7 @@ export function mapPackages(docs: readonly PackageDoc[], locale: ProfileLocale):
     name: text(doc.name),
     label: packageLabel(doc, locale),
     body: text(doc.description),
-    items: (doc.features ?? []).flatMap((item) => {
+    items: (doc.features ?? []).flatMap((item: NonNullable<PackageDoc['features']>[number] | null) => {
       if (!item || item.included === false) return []
       const line = text(item.featureText)
       return line ? [line] : []
@@ -200,63 +200,73 @@ export function mapCapabilities(docs: readonly CapabilityDoc[], locale: ProfileL
 }
 
 export async function loadProfileContent(locale: ProfileLocale): Promise<ProfileContent> {
-  const { getPayload } = await import('../payload')
-  const payload = await getPayload()
-  const shared = {
-    locale,
-    fallbackLocale: false,
-    depth: 0,
-    limit: 100,
-    pagination: false,
-    overrideAccess: true,
-  } as const
+  try {
+    const { getPayload } = await import('../payload')
+    const payload = await getPayload()
+    const shared = {
+      locale,
+      fallbackLocale: false,
+      depth: 0,
+      limit: 100,
+      pagination: false,
+      overrideAccess: true,
+    } as const
 
-  const [packages, features, guides, faq] = await Promise.all([
-    payload.find({
-      ...shared,
-      collection: 'pricing-tiers',
-      sort: 'sortOrder',
-      where: { isVisible: { equals: true } },
-    }),
-    payload.find({
-      ...shared,
-      collection: 'features',
-      sort: 'sortOrder',
-      where: {
-        and: [
-          { isVisible: { equals: true } },
-          { publiclyApproved: { equals: true } },
-        ],
-      },
-    }),
-    payload.find({
-      ...shared,
-      collection: 'blog-posts',
-      sort: '-publishedAt',
-      where: {
-        and: [
-          { status: { equals: 'published' } },
-          { isVisible: { equals: true } },
-        ],
-      },
-    }),
-    payload.find({
-      ...shared,
-      collection: 'faq-items',
-      sort: 'sortOrder',
-      where: {
-        and: [
-          { isVisible: { equals: true } },
-          { publiclyApproved: { equals: true } },
-        ],
-      },
-    }),
-  ])
+    const [packages, features, guides, faq] = await Promise.all([
+      payload.find({
+        ...shared,
+        collection: 'pricing-tiers',
+        sort: 'sortOrder',
+        where: { isVisible: { equals: true } },
+      }),
+      payload.find({
+        ...shared,
+        collection: 'features',
+        sort: 'sortOrder',
+        where: {
+          and: [
+            { isVisible: { equals: true } },
+            { publiclyApproved: { equals: true } },
+          ],
+        },
+      }),
+      payload.find({
+        ...shared,
+        collection: 'blog-posts',
+        sort: '-publishedAt',
+        where: {
+          and: [
+            { status: { equals: 'published' } },
+            { isVisible: { equals: true } },
+          ],
+        },
+      }),
+      payload.find({
+        ...shared,
+        collection: 'faq-items',
+        sort: 'sortOrder',
+        where: {
+          and: [
+            { isVisible: { equals: true } },
+            { publiclyApproved: { equals: true } },
+          ],
+        },
+      }),
+    ])
 
-  return {
-    packages: mapPackages(packages.docs, locale),
-    capabilities: mapCapabilities(features.docs, locale),
-    guides: mapGuides(guides.docs, locale),
-    faq: mapFaq(faq.docs, locale),
+    return {
+      packages: mapPackages(packages.docs, locale),
+      capabilities: mapCapabilities(features.docs, locale),
+      guides: mapGuides(guides.docs, locale),
+      faq: mapFaq(faq.docs, locale),
+    }
+  } catch {
+    console.error('Profile CMS unavailable; serving bundled content')
+    return {
+      packages: fallbackPackages(locale),
+      capabilities: fallbackCapabilities(locale),
+      guides: fallbackGuides(locale),
+      faq: fallbackFaq(locale),
+    }
   }
 }

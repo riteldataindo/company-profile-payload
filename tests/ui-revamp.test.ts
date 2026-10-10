@@ -145,7 +145,7 @@ test('404 drops glow and Sparkles and does not send Solutions to use-cases', () 
   assert.doesNotMatch(notFound, /Sparkles/)
   assert.doesNotMatch(notFound, /radial-gradient/)
   assert.doesNotMatch(notFound, /\/use-cases/)
-  assert.match(notFound, /\/solutions\/retail/)
+  assert.match(notFound, /href=\{route\(locale\)\}/)
 })
 
 test('footer omits the unverified contact column and uses real social icons', () => {

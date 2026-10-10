@@ -5,11 +5,13 @@ import '@/styles/smartcounter/product.css'
 import '@/styles/smartcounter/resources.css'
 import '@/styles/smartcounter/responsive.css'
 import '@/styles/smartcounter/release.css'
+import '@/styles/smartcounter/landing.css'
 import type { Locale } from '@/lib/i18n/config'
 import { isValidLocale } from '@/lib/i18n/config'
 import { notFound } from 'next/navigation'
 import { SiteLayout } from '@/components/smartcounter/Layout'
 import { getSiteSettings } from '@/lib/data'
+import { resolveCompanyContact } from '@/lib/profile/contact'
 import { ConsentAnalytics } from '@/components/analytics/ConsentAnalytics'
 
 export default async function FrontendLayout({
@@ -34,7 +36,7 @@ export default async function FrontendLayout({
       <a className="skip-link" href="#main-content">
         {activeLocale === 'id' ? 'Lewati ke konten utama' : 'Skip to main content'}
       </a>
-      <SiteLayout locale={activeLocale}>{children}</SiteLayout>
+      <SiteLayout locale={activeLocale} contact={resolveCompanyContact(siteSettings)}>{children}</SiteLayout>
       <ConsentAnalytics locale={activeLocale} measurementId={measurementId} />
     </>
   )

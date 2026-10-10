@@ -19,7 +19,7 @@ const firaCode = Fira_Code({
   weight: ['400', '500'],
 })
 
-const themeBootScript = `(function(){try{var t=localStorage.getItem('smartcounter-theme');var d=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=d;document.documentElement.classList.toggle('dark',d==='dark');document.documentElement.classList.toggle('light',d!=='dark')}catch(e){document.documentElement.dataset.theme='light'}})()`
+const themeBootScript = `(function(){var r=document.documentElement;try{var t=localStorage.getItem('smartcounter-theme');var d=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.theme=d;r.classList.toggle('dark',d==='dark');r.classList.toggle('light',d!=='dark')}catch(e){r.dataset.theme='light'}try{if('IntersectionObserver'in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('sc-motion')}catch(e){}})()`
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers()

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { isValidLocale } from '@/lib/i18n/config'
 import { ContactView } from '@/components/smartcounter/CompanyViews'
+import { getCompanyContact } from '@/lib/profile/contact-server'
 import { readContactQuery } from '@/lib/profile/form-query'
 
 export default async function Page({
@@ -19,5 +20,6 @@ export default async function Page({
   if (solution) search.set('solution', solution)
   if (packageName) search.set('package', packageName)
   const parsed = readContactQuery(search.toString())
-  return <ContactView locale={locale} solution={parsed.solution} packageName={parsed.packageName} />
+  const contact = await getCompanyContact(locale)
+  return <ContactView locale={locale} contact={contact} solution={parsed.solution} packageName={parsed.packageName} />
 }
